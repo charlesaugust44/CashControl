@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('header_id')->constrained();
             $table->date('date');
+            $table->boolean('consolidated');
             $table->string('note', 300)->nullable();
             $table->timestamps();
         });

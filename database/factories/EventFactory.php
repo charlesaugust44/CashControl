@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Event;
 use App\Models\Header;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -34,6 +35,8 @@ class EventFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'date' => $date,
+            'consolidated' => Carbon::parse($date)
+                ->lessThanOrEqualTo(Carbon::today()->firstOfMonth()),
         ]);
     }
 }
