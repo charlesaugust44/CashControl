@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Asset;
+use App\Models\Header;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,11 +17,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        $assets = Asset::factory()->count(5)->create();
+
+        foreach ($assets as $asset) {
+            Header::factory()
+                ->count(15)
+                ->withEventEntries($asset)
+                ->create();
+        }
+
     }
 }
