@@ -28,7 +28,6 @@ The following features will be added to showcase additional Laravel capabilities
 | **Tests** | Feature and unit tests using PHPUnit, covering consolidation logic and API endpoints |
 
 These additions will remain within the same over-engineered structure to maintain consistency as a portfolio piece.
-```
 
 ## Features
 
