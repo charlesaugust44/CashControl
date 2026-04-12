@@ -3,6 +3,11 @@
 > This pattern demonstrates familiarity with enterprise Laravel practices commonly expected in job requirements.  
 > In a real-world app of this scope, many layers would be collapsed.
 
+> [!WARNING]
+> 
+> **🚧 Work in Progress 🚧**  
+> This project is actively under development. Features may be incomplete or subject to change.
+
 # Cash Control
 
 Personal finance tracking application built with Laravel and Vue.js.
