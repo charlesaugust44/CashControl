@@ -10,20 +10,15 @@ defineEmits(['toggle']);
 
 <style scoped>
 .mobile-toggle {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1040;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0.5rem;
+    border: none;
     background: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color);
     border-radius: var(--bs-border-radius);
     color: var(--bs-body-color);
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .mobile-toggle i {

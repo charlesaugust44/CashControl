@@ -1,18 +1,9 @@
 <template>
-    <div class="sidebar-brand" :class="{ 'sidebar-brand--mobile': mobile }">
+    <div class="sidebar-brand">
         <i class="bi bi-cash-coin sidebar-brand__icon"></i>
         <span class="sidebar-brand__text">Cash Control</span>
     </div>
 </template>
-
-<script setup>
-defineProps({
-    mobile: {
-        type: Boolean,
-        default: false
-    }
-});
-</script>
 
 <style scoped>
 .sidebar-brand {
@@ -33,9 +24,4 @@ defineProps({
     font-weight: 600;
 }
 
-.sidebar-brand--mobile {
-    @media (min-width: 768px) {
-        display: none;
-    }
-}
 </style>

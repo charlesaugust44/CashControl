@@ -1,41 +1,30 @@
 <template>
     <div>
-        <MobileToggle @toggle="isOpen = true"/>
-
         <aside class="app-sidebar" :class="{ 'is-open': isOpen }">
-            <header class="sidebar-header sidebar-header--mobile">
-                <SidebarBrand mobile/>
-                <button class="sidebar-close" @click="isOpen = false">
+            <div class="sidebar-header">
+                <SidebarBrand/>
+                <button class="sidebar-close" @click="$emit('toggle-sidebar')">
                     <i class="bi bi-x-lg"></i>
                 </button>
-            </header>
+            </div>
 
-            <header class="sidebar-header sidebar-header--desktop">
-                <SidebarBrand/>
-            </header>
-
-            <SidebarNav @item-click="closeSidebar" :routes="routes"/>
+            <SidebarNav @item-click="$emit('toggle-sidebar')" :routes="routes"/>
         </aside>
 
-        <div v-if="isOpen" class="sidebar-backdrop" @click="isOpen = false"></div>
+        <div v-if="isOpen" class="sidebar-backdrop" @click="$emit('toggle-sidebar')"></div>
     </div>
 </template>
 
 <script setup>
-import {ref} from 'vue';
-import MobileToggle from './MobileToggle.vue';
 import SidebarBrand from './SidebarBrand.vue';
 import SidebarNav from './SidebarNav.vue';
 
-const isOpen = ref(false);
-
 const props = defineProps({
-    routes: {type: Array, required: true}
-})
+    routes: {type: Array, required: true},
+    isOpen: {type: Boolean, default: false},
+});
 
-function closeSidebar() {
-    isOpen.value = false;
-}
+defineEmits(['toggle-sidebar']);
 </script>
 
 <style scoped>
@@ -77,20 +66,6 @@ function closeSidebar() {
     border-bottom: 1px solid var(--bs-border-color);
 }
 
-.sidebar-header--mobile {
-    @media (min-width: 768px) {
-        display: none;
-    }
-}
-
-.sidebar-header--desktop {
-    display: none;
-
-    @media (min-width: 768px) {
-        display: flex;
-    }
-}
-
 .sidebar-close {
     width: 2rem;
     height: 2rem;
@@ -113,8 +88,10 @@ function closeSidebar() {
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1040;
+}
 
-    @media (min-width: 768px) {
+@media (min-width: 768px) {
+    .sidebar-backdrop, .sidebar-close {
         display: none;
     }
 }
