@@ -1,10 +1,12 @@
 <template>
-    <div class="d-flex flex-column overflow-hidden">
+    <div class="d-flex overflow-hidden">
         <SideMenu :routes="sidebarRoutes" :is-open="sidebarOpen" @toggle-sidebar="toggleSidebar"/>
-        <AppHeader @toggle-sidebar="toggleSidebar"/>
-        <main class="p-4 bg-light">
-            <RouterView/>
-        </main>
+        <div class="d-flex flex-column overflow-hidden vh-100 vw-100">
+            <AppHeader @toggle-sidebar="toggleSidebar"/>
+            <main class="p-4 bg-light">
+                <RouterView/>
+            </main>
+        </div>
     </div>
 </template>
 

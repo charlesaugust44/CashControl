@@ -1,7 +1,10 @@
+<script setup>
+</script>
 <template>
     <div class="sidebar-brand">
         <i class="bi bi-cash-coin sidebar-brand__icon"></i>
         <span class="sidebar-brand__text">Cash Control</span>
+        <slot/>
     </div>
 </template>
 
@@ -9,14 +12,21 @@
 .sidebar-brand {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 1rem;
-    border-bottom: 1px solid var(--bs-border-color);
+    width: 100%;
+    border-bottom: 1px solid contrast-color(var(--bs-primary));
+    background-color: var(--bs-primary);
+    color: contrast-color(var(--bs-primary));
+
+    @media (min-width: 767px) {
+        justify-content: flex-start;
+    }
 }
 
 .sidebar-brand__icon {
     margin-right: 0.5rem;
     font-size: 1.5rem;
-    color: var(--bs-success);
 }
 
 .sidebar-brand__text {

@@ -1,12 +1,11 @@
 <template>
     <div>
         <aside class="app-sidebar" :class="{ 'is-open': isOpen }">
-            <div class="sidebar-header">
-                <SidebarBrand/>
+            <SidebarBrand>
                 <button class="sidebar-close" @click="$emit('toggle-sidebar')">
                     <i class="bi bi-x-lg"></i>
                 </button>
-            </div>
+            </SidebarBrand>
 
             <SidebarNav @item-click="$emit('toggle-sidebar')" :routes="routes"/>
         </aside>
@@ -33,7 +32,7 @@ defineEmits(['toggle-sidebar']);
     top: 0;
     left: 0;
     width: 100%;
-    max-width: 280px;
+    min-width: 280px;
     height: 100vh;
     background-color: var(--bs-body-bg);
     border-right: 1px solid var(--bs-border-color);
@@ -57,13 +56,6 @@ defineEmits(['toggle-sidebar']);
         visibility: visible !important;
         z-index: auto;
     }
-}
-
-.sidebar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--bs-border-color);
 }
 
 .sidebar-close {
