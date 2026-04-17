@@ -22,7 +22,7 @@
                     <i class="bi bi-wallet2"></i>
                     {{ entry.asset.name }}
                 </span>
-                <span class="entry-amount" :class="getAmountClass(entry.amount)">
+                <span class="entry-amount" :class="$format.signal(entry.amount)">
                     {{ $format.currency(entry.amount) }}
                 </span>
             </div>
@@ -36,12 +36,6 @@
 
 <script setup>
 defineProps({item: {type: Object, required: true}});
-
-function getAmountClass(amount) {
-    if (amount > 0) return 'positive';
-    if (amount < 0) return 'negative';
-    return 'zero';
-}
 </script>
 
 

@@ -54,6 +54,12 @@ export default {
                 }).format((number || 0) / 100)
             },
 
+            signal(value, positive = 'positive', negative = 'negative', zero = 'zero') {
+                if (value > 0) return positive;
+                if (value < 0) return negative;
+                return zero;
+            },
+
             getLocale() {
                 return locale
             },
