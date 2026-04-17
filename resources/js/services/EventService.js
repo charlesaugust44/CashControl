@@ -9,4 +9,11 @@ export default class EventService extends BaseApiService {
     consolidate(id) {
         return axiosInstance.patch(`/events/${id}/consolidate`);
     }
+
+    /**
+     * @param {Date} month
+     */
+    listByMonth(month) {
+        return axiosInstance.get(`/events/${month.getFullYear()}/${month.getMonth()+1}`);
+    }
 }
