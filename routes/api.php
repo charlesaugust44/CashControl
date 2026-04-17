@@ -16,5 +16,10 @@ Route::prefix('headers')->group(function () {
 });
 
 Route::prefix('events')->group(function () {
-    Route::PATCH('/{id}/consolidate', [EventController::class, 'consolidate']);
+    Route::patch('/{id}/consolidate', [EventController::class, 'consolidate']);
+    Route::get('/{year}/{month}', [EventController::class, 'show'])
+        ->where([
+            'year' => '20[0-9]{2}|[0-9]{4}',
+            'month' => '0?[1-9]|1[0-2]'
+        ]);
 });

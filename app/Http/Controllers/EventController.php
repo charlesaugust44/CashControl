@@ -21,4 +21,11 @@ class EventController extends Controller
 
         return response()->json($event);
     }
+
+    public function show(int $year, int $month)
+    {
+        $events = $this->eventService->listByMoth($year, $month);
+
+        return response()->json($events);
+    }
 }
