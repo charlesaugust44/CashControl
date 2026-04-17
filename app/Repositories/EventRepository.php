@@ -26,7 +26,7 @@ class EventRepository extends BaseRepository
 
     public function listByMonth(int $year, int $month): Collection
     {
-        return Event::with(['entries', 'header'])
+        return Event::with(['entries.asset', 'header'])
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->get();
