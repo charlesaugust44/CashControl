@@ -13,7 +13,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
+    padding: 0 1rem;
+    height: var(--header-height);
     width: 100%;
     border-bottom: 1px solid contrast-color(var(--bs-primary));
     background-color: var(--bs-primary);

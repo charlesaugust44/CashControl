@@ -29,10 +29,10 @@ defineEmits(['toggle-sidebar']);
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1.25rem 1.5rem;
+    padding: 0 1.5rem;
     background-color: var(--bs-body-bg, #ffffff);
     border-bottom: 1px solid var(--bs-border-color, #e5e7eb);
-    flex-shrink: 0;
+    height: var(--header-height);
 }
 
 .app-header__title {

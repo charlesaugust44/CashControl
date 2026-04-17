@@ -3,7 +3,7 @@
         <SideMenu :routes="sidebarRoutes" :is-open="sidebarOpen" @toggle-sidebar="toggleSidebar"/>
         <div class="d-flex flex-column overflow-hidden vh-100 vw-100">
             <AppHeader @toggle-sidebar="toggleSidebar"/>
-            <main class="p-4 bg-light">
+            <main class="bg-light">
                 <RouterView/>
             </main>
         </div>
@@ -23,3 +23,9 @@ function toggleSidebar() {
     sidebarOpen.value = !sidebarOpen.value;
 }
 </script>
+
+<style scoped>
+main {
+    height: calc(100vh - var(--header-height));
+}
+</style>
