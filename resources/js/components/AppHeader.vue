@@ -1,25 +1,33 @@
 <template>
     <header class="app-header">
         <MobileToggle @toggle="$emit('toggle-sidebar')"/>
-        <h1 class="app-header__title">{{ title }}</h1>
+        <h1 class="app-header__title">{{ store.title }}</h1>
         <div class="app-header__spacer"></div>
     </header>
 </template>
 
 <script setup>
 import MobileToggle from "./SideMenu/MobileToggle.vue";
+import {useHeaderStore} from "../store/header.js";
+import {watch} from "vue";
 import {useRoute} from "vue-router";
-import {computed} from "vue";
+
+const store = useHeaderStore();
 
 const route = useRoute();
 
-const title = computed(() => {
-    if (route.matched.length > 0) {
-        const meta = route.matched[route.matched.length - 1].meta;
-        return meta?.label || route.name || 'Dashboard';
+function routeTitle() {
+    if (!route?.matched || route.matched.length === 0) {
+        return null;
     }
-    return route.name || 'Dashboard';
-});
+
+    return route.matched[route.matched.length - 1]?.meta?.label;
+}
+
+watch(routeTitle, title => {
+    store.title = title
+}, {immediate: true});
+
 
 defineEmits(['toggle-sidebar']);
 </script>
