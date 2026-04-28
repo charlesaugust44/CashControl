@@ -30,6 +30,14 @@ const routes = [
             label: 'Entries',
             showInSidebar: true
         }
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: () => import('../pages/NotFound.vue'),
+        meta: {
+            label: '404 - Page Not Found'
+        }
     }
 ];
 
