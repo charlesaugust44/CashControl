@@ -7,7 +7,13 @@ export const useAssetStore = defineStore("assets", {
         loading: false,
         error: null,
         currentMonth: new Date(),
-        assetService: new AssetService()
+        assetService: new AssetService(),
+        total: 0,
+        current: {
+            id: null,
+            name: null,
+            balance: null,
+        },
     }),
     actions: {
         async fetchAssets() {
@@ -17,6 +23,8 @@ export const useAssetStore = defineStore("assets", {
             try {
                 const response = await this.assetService.list();
                 this.assets = response.data;
+                this.totalBalance();
+
                 return response.data;
             } catch (err) {
                 this.error = err.message || 'Failed to fetch assets';
@@ -26,5 +34,19 @@ export const useAssetStore = defineStore("assets", {
                 this.loading = false;
             }
         },
-    }
+        totalBalance() {
+            this.total = this.assets.reduce((total, asset) => total + (asset.balance || 0), 0);
+            return this.total;
+        },
+        getName() {
+            return this.current?.name ?? null;
+        },
+        clearForm() {
+            this.current = {
+                id: null,
+                name: null,
+                balance: null,
+            };
+        }
+    },
 });

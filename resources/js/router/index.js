@@ -3,7 +3,7 @@ import {createRouter, createWebHistory} from "vue-router";
 const routes = [
     {
         path: '/',
-        name: 'Dashboard',
+        name: 'dashboard',
         component: () => import('../pages/Dashboard.vue'),
         meta: {
             icon: 'bi-speedometer2',
@@ -13,7 +13,7 @@ const routes = [
     },
     {
         path: '/assets',
-        name: 'Assets',
+        name: 'asset-list',
         component: () => import('../pages/Assets.vue'),
         meta: {
             icon: 'bi-wallet2',
@@ -22,8 +22,16 @@ const routes = [
         }
     },
     {
+        path: '/assets/form/:id?',
+        name: 'asset-form',
+        component: () => import('../pages/AssetForm.vue'),
+        meta: {
+            label: '',
+        },
+    },
+    {
         path: '/entries',
-        name: 'Entries',
+        name: 'entry-list',
         component: () => import('../pages/Entries.vue'),
         meta: {
             icon: 'bi-journal-text',
