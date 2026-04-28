@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Asset;
+use Illuminate\Database\Eloquent\Model;
 
 class AssetRepository extends BaseRepository
 {
@@ -11,5 +12,17 @@ class AssetRepository extends BaseRepository
     {
         parent::__construct(Asset::class);
     }
+
+    public function create(array $data): Model
+    {
+        $asset = new Asset();
+
+        $asset->name = $data['name'];
+        $asset->balance  = $data['balance'];
+        $asset->save();
+
+        return $asset;
+    }
+
 
 }
