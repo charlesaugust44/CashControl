@@ -15,9 +15,9 @@ class BaseRepository
         $this->model = $model;
     }
 
-    public function all(array $columns = ['*']): Collection
+    public function all(array $columns = ['*'], string $orderBy = 'id', string $direction = 'asc'): Collection
     {
-        return $this->model::all($columns);
+        return $this->model::orderBy($orderBy, $direction)->get($columns);
     }
 
     public function find(int $id): ?Model
