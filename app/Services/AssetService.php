@@ -33,4 +33,9 @@ class AssetService
         $asset = $this->assetRepository->findOrFail($id);
         return $this->entryRepository->history($asset);
     }
+
+    public function create(array $data): Asset
+    {
+        return $this->assetRepository->create($data);
+    }
 }
