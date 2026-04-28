@@ -22,9 +22,9 @@ class AssetService
     /**
      * @return Collection<Asset>
      */
-    public function list(): Collection
+    public function list(string $orderBy = 'created_at', string $direction = 'desc'): Collection
     {
-        return $this->assetRepository->all();
+        return $this->assetRepository->all(['*'], $orderBy, $direction);
     }
 
     public function entries(int $id): Collection
