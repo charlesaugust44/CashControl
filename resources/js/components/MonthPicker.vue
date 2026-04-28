@@ -56,7 +56,7 @@ function updateMonth(stepValue = 0) {
     flex-shrink: 0;
     justify-content: space-between;
     padding: 0.5rem 0.25rem;
-    border-bottom: 1px solid #d4dae2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .btn-arrow {
