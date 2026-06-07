@@ -22,7 +22,14 @@ class AssetController extends Controller
         return response()->json($assets);
     }
 
-    public function entries(int $id): JsonResponse
+    public function show(string $id): JsonResponse
+    {
+        $asset = $this->assetService->get($id);
+
+        return response()->json($asset);
+    }
+
+    public function entries(string $id): JsonResponse
     {
         $assets = $this->assetService->entries($id);
 
@@ -39,5 +46,17 @@ class AssetController extends Controller
         $asset = $this->assetService->create($validated);
 
         return response()->json($asset, 201);
+    }
+
+    public function update(string $id)
+    {
+        $validated = request()->validate([
+            'name' => 'required|string|max:255',
+            'balance' => 'required|numeric|min:0',
+        ]);
+
+        $asset = $this->assetService->update($id, $validated);
+
+        return response()->json($asset);
     }
 }

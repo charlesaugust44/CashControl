@@ -8,8 +8,10 @@ use App\Http\Controllers\EventController;
 
 Route::prefix('assets')->group(function () {
     Route::get('/', [AssetController::class, 'index']);
+    Route::get('/{id}', [AssetController::class, 'show']);
     Route::get('/{id}/entries', [AssetController::class, 'entries']);
     Route::post('/', [AssetController::class, 'store']);
+    Route::put('/{id}', [AssetController::class, 'update']);
 });
 
 Route::prefix('headers')->group(function () {

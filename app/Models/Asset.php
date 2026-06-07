@@ -12,6 +12,11 @@ class Asset extends Model
     /** @use HasFactory<AssetFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'balance',
+    ];
+
     public function entries(): HasMany
     {
         return $this->hasMany(Entry::class);

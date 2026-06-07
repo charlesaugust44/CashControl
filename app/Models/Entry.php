@@ -12,6 +12,16 @@ class Entry extends Model
     /** @use HasFactory<EntryFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'event_id',
+        'asset_id',
+        'amount',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+    ];
+
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);

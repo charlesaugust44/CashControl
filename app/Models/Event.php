@@ -13,6 +13,18 @@ class Event extends Model
     /** @use HasFactory<EventFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'header_id',
+        'date',
+        'consolidated',
+        'note',
+    ];
+
+    protected $casts = [
+        'date' => 'date',
+        'consolidated' => 'boolean',
+    ];
+
     public function entries(): HasMany
     {
         return $this->hasMany(Entry::class);

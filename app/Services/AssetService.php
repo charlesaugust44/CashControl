@@ -27,15 +27,28 @@ class AssetService
         return $this->assetRepository->all(['*'], $orderBy, $direction);
     }
 
-    public function entries(int $id): Collection
+    public function get(string $id): Asset
+    {
+        return $this->assetRepository->findOrFail(intval($id));
+    }
+
+    public function entries(string $id): Collection
     {
         /** @var Asset $asset */
-        $asset = $this->assetRepository->findOrFail($id);
+        $asset = $this->assetRepository->findOrFail(intval($id));
         return $this->entryRepository->history($asset);
     }
 
     public function create(array $data): Asset
     {
         return $this->assetRepository->create($data);
+    }
+
+    public function update(string $id, array $data): Asset
+    {
+        $asset = $this->assetRepository->findOrFail(intval($id));
+        $this->assetRepository->update($asset->id, $data);
+
+        return $this->assetRepository->findOrFail($asset->id);
     }
 }
