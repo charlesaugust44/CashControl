@@ -1,8 +1,7 @@
 <template>
     <div class="asset-header">
-        <button class="add-asset-btn" @click="handleAddAsset">
-            <i class="bi bi-plus-circle"></i>
-            <span>Add Asset</span>
+        <button class="add-asset-btn" @click="() => $emit('action-click')">
+            <slot name="action-button"/>
         </button>
 
         <div class="assets-total">
@@ -18,18 +17,11 @@
 </template>
 
 <script setup>
-import {useRouter} from "vue-router";
-import {useAppHeader} from "../composables/useAppHeader.js";
-
-const router = useRouter();
-
 defineProps({
     total: {type: Number, required: true},
 });
 
-const handleAddAsset = () => {
-    router.push('/assets/form/new');
-};
+defineEmits(["action-click"]);
 </script>
 
 <style scoped>
@@ -41,12 +33,6 @@ const handleAddAsset = () => {
     padding: 16px 20px;
     color: #333;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.header-left {
-    display: flex;
-    gap: 24px;
-    align-items: center;
 }
 
 .assets-total {

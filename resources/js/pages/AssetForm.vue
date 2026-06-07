@@ -56,19 +56,41 @@
 <script setup>
 import {useAssetStore} from "../store/asset.js";
 import {useHeaderStore} from "../store/header.js";
-import {useRouter} from "vue-router";
-import {reactive, onMounted} from "vue";
+import {useRouter, useRoute} from "vue-router";
+import {reactive, onMounted, computed} from "vue";
 
 const store = useAssetStore();
 const headerStore = useHeaderStore();
 const router = useRouter();
+const route = useRoute();
 
 const errors = reactive({
     name: null,
     balance: null
 });
 
-store.clearForm();
+const isEditing = computed(() => !!route.params.id);
+
+const loadAsset = async () => {
+    if (isEditing.value) {
+        try {
+            const response = await store.assetService.get(route.params.id);
+            const asset = response.data;
+            store.current = {
+                id: asset.id,
+                name: asset.name,
+                balance: asset.balance
+            };
+            headerStore.title = `Edit ${asset.name}`;
+        } catch (error) {
+            console.error('Failed to load asset:', error);
+            router.push('/assets');
+        }
+    } else {
+        store.clearForm();
+        headerStore.title = 'New Asset';
+    }
+};
 
 const handleCancel = () => {
     router.push('/assets');
@@ -97,10 +119,17 @@ const handleSubmit = async () => {
     if (!validate()) return;
 
     try {
-        await store.assetService.create({
-            name: store.current.name,
-            balance: store.current.balance || 0
-        });
+        if (isEditing.value) {
+            await store.assetService.update(store.current.id, {
+                name: store.current.name,
+                balance: store.current.balance
+            });
+        } else {
+            await store.assetService.create({
+                name: store.current.name,
+                balance: store.current.balance || 0
+            });
+        }
 
         router.push('/assets');
     } catch (error) {
@@ -112,13 +141,13 @@ const handleSubmit = async () => {
                 errors.balance = error.response.data.errors.balance[0];
             }
         } else {
-            alert(error.message || 'Failed to create asset. Please try again.');
+            alert(error.message || 'Failed to save asset. Please try again.');
         }
     }
 };
 
 onMounted(() => {
-    headerStore.title = store.current.name || "New Asset";
+    loadAsset();
 });
 </script>
 

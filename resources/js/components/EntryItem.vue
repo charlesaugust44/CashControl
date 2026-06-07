@@ -35,7 +35,10 @@
 </template>
 
 <script setup>
-defineProps({item: {type: Object, required: true}});
+defineProps({
+    item: {type: Object, required: true},
+    isEvent: {type: Boolean, default: false},
+});
 </script>
 
 

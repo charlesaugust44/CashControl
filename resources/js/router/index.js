@@ -22,6 +22,14 @@ const routes = [
         }
     },
     {
+        path: '/assets/:id',
+        name: 'asset-detail',
+        component: () => import('../pages/AssetDetail.vue'),
+        meta: {
+            label: '',
+        }
+    },
+    {
         path: '/assets/form/:id?',
         name: 'asset-form',
         component: () => import('../pages/AssetForm.vue'),

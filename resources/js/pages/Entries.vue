@@ -3,7 +3,7 @@
         <MonthPicker v-model:month="store.currentMonth"/>
         <DataList :items="store.events">
             <template v-slot:item="{item}">
-                <EntryItem :item="item"/>
+                <EntryItem :item="item" is-event/>
             </template>
         </DataList>
     </div>

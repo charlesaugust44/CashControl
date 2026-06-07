@@ -4,6 +4,7 @@ import AssetService from "../services/AssetService.js";
 export const useAssetStore = defineStore("assets", {
     state: () => ({
         assets: [],
+        events: [],
         loading: false,
         error: null,
         currentMonth: new Date(),
@@ -29,6 +30,28 @@ export const useAssetStore = defineStore("assets", {
             } catch (err) {
                 this.error = err.message || 'Failed to fetch assets';
                 this.assets = [];
+                throw err;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async fetchAssetEntries() {
+            if (!this.current.id) {
+                console.warn('Cannot fetch asset entries: no asset ID available');
+                return [];
+            }
+
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await this.assetService.entries(this.current.id);
+                this.events = response.data;
+
+                return response.data;
+            } catch (err) {
+                this.error = err.message || 'Failed to fetch asset entries';
+                this.events = [];
                 throw err;
             } finally {
                 this.loading = false;

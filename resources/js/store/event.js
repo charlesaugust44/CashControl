@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
 import EventService from "../services/EventService.js";
+import AssetService from "../services/AssetService.js";
 
 export const useEventStore = defineStore("events", {
     state: () => ({
@@ -7,7 +8,8 @@ export const useEventStore = defineStore("events", {
         loading: false,
         error: null,
         currentMonth: new Date(),
-        eventService: new EventService()
+        eventService: new EventService(),
+        assetService: new AssetService()
     }),
     actions: {
         async fetchEventsByMonth() {
@@ -26,5 +28,21 @@ export const useEventStore = defineStore("events", {
                 this.loading = false;
             }
         },
+        async fetchEventsByAsset(id) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await this.assetService.entries(id);
+                this.events = response.data;
+                return response.data;
+            } catch (err) {
+                this.error = err.message || 'Failed to fetch events for asset';
+                this.events = [];
+                throw err;
+            } finally {
+                this.loading = false;
+            }
+        }
     }
 });

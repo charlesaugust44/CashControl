@@ -1,5 +1,5 @@
 <template>
-    <div class="asset-card">
+    <div class="asset-card" @click="handleClick">
         <div class="asset-header">
             <div class="asset-title">
                 <i class="bi bi-wallet2 asset-icon"></i>
@@ -26,9 +26,16 @@
 </template>
 
 <script setup>
-defineProps({
+import {useRouter} from "vue-router";
+
+const router = useRouter();
+const props = defineProps({
     item: { type: Object, required: true }
 });
+
+const handleClick = () => {
+    router.push(`/assets/${props.item.id}`);
+};
 </script>
 
 <style scoped>
