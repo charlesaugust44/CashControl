@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Services\AssetService;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class AssetController extends Controller
 {
@@ -15,48 +17,70 @@ class AssetController extends Controller
         $this->assetService = new AssetService();
     }
 
-    public function index(): JsonResponse
+    public function index(): View
     {
         $assets = $this->assetService->list();
+        $total = $assets->sum('balance');
 
-        return response()->json($assets);
+        return view('assets.index', [
+            'assets' => $assets,
+            'total' => $total,
+            'pageTitle' => 'Assets',
+        ]);
     }
 
-    public function show(string $id): JsonResponse
+    public function create(): View
+    {
+        return view('assets.form', [
+            'pageTitle' => 'New Asset',
+        ]);
+    }
+
+    public function show(string $id, Request $request): View
+    {
+        $asset = $this->assetService->get($id);
+        $currentMonth = $request->get('month', now()->format('Y-m'));
+        $events = $this->assetService->entries($id);
+
+        return view('assets.show', [
+            'asset' => $asset,
+            'events' => $events,
+            'currentMonth' => $currentMonth,
+            'pageTitle' => $asset->name,
+        ]);
+    }
+
+    public function edit(string $id): View
     {
         $asset = $this->assetService->get($id);
 
-        return response()->json($asset);
+        return view('assets.form', [
+            'asset' => $asset,
+            'pageTitle' => "Edit {$asset->name}",
+        ]);
     }
 
-    public function entries(string $id): JsonResponse
+    public function store(Request $request): RedirectResponse
     {
-        $assets = $this->assetService->entries($id);
-
-        return response()->json($assets);
-    }
-
-    public function store()
-    {
-        $validated = request()->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'balance' => 'required|numeric|min:0',
         ]);
 
-        $asset = $this->assetService->create($validated);
+        $this->assetService->create($validated);
 
-        return response()->json($asset, 201);
+        return redirect('/assets');
     }
 
-    public function update(string $id)
+    public function update(Request $request, string $id): RedirectResponse
     {
-        $validated = request()->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'balance' => 'required|numeric|min:0',
         ]);
 
-        $asset = $this->assetService->update($id, $validated);
+        $this->assetService->update($id, $validated);
 
-        return response()->json($asset);
+        return redirect('/assets');
     }
 }

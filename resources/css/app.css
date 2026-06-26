@@ -1,5 +1,12 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.min.css';
+@import './components/header.css';
+@import './components/sidebar.css';
+@import './components/asset-header.css';
+@import './components/asset-card.css';
+@import './components/month-picker.css';
+@import './components/event-card.css';
+@import './components/empty-state.css';
 
 body {
     background-color: #f8f9fa;
@@ -8,4 +15,8 @@ body {
 
 :root {
     --header-height: 4rem;
+}
+
+main {
+    height: calc(100vh - var(--header-height));
 }

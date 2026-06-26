@@ -1,0 +1,45 @@
+.month-nav-flat {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    justify-content: space-between;
+    padding: 0.5rem 0.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-arrow {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.2rem;
+    color: #4a5a6e;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    text-decoration: none;
+}
+
+.btn-arrow:hover {
+    color: #000;
+}
+
+.month-text-flat {
+    font-size: 1rem;
+    letter-spacing: -0.2px;
+    user-select: none;
+    background: var(--bs-secondary);
+    color: white;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(13, 110, 253, 0.3);
+    text-decoration: none;
+}
+
+.month-text-flat:hover {
+    cursor: pointer;
+    color: white;
+}
+
+.current-month {
+    background: var(--bs-primary);
+}
