@@ -5,7 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $pageTitle ?? config('app.name', 'Cash Control') }}</title>
-    @vite(['resources/css/app.css'])
+    <script>
+        (function() {
+            var t = localStorage.getItem('cashcontrol-theme');
+            if (t !== 'light' && t !== 'dark') {
+                t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    @vite(['resources/css/app.css', 'resources/js/theme.js'])
     @stack('styles')
 </head>
 <body>
@@ -13,7 +22,7 @@
     @include('components.sidebar')
     <div class="d-flex flex-column overflow-hidden vh-100 vw-100">
         @include('components.header', ['pageTitle' => $pageTitle ?? null])
-        <main class="bg-light">
+        <main>
             @yield('content')
         </main>
     </div>

@@ -129,3 +129,83 @@ main {
     width: 100%;
     padding: var(--space-4);
 }
+
+[data-theme="dark"] {
+    --bs-primary: var(--color-primary);
+    --bs-primary-rgb: 99, 128, 240;
+    --bs-body-bg: var(--color-background);
+    --bs-body-color: var(--color-text-primary);
+    --bs-border-color: var(--color-border);
+    --bs-tertiary-bg: var(--color-primary-light);
+    --bs-secondary: var(--color-text-secondary);
+    --bs-secondary-color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .form-control {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+}
+
+[data-theme="dark"] .form-control:focus {
+    background-color: var(--color-surface);
+    border-color: var(--color-primary);
+    color: var(--color-text-primary);
+    box-shadow: 0 0 0 3px rgba(99, 128, 240, 0.2);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: var(--color-text-muted);
+}
+
+[data-theme="dark"] .invalid-feedback {
+    color: var(--color-danger);
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    color: var(--color-text-secondary);
+    border-color: var(--color-border);
+    background: transparent;
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-text-muted);
+    color: var(--color-text-primary);
+}
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.theme-toggle i {
+    font-size: 1.25rem;
+}
+
+.theme-toggle .bi-moon-fill {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle .bi-sun-fill {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle .bi-moon-fill {
+    display: inline;
+}
