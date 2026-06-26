@@ -9,7 +9,13 @@
 .list-wrapper {
     width: 100%;
     height: 100%;
-    padding: .5rem;
+    padding: var(--space-4);
     overflow-y: auto;
     flex: 1;
+}
+
+.list-wrapper .list-item {
+    max-width: var(--content-max-width);
+    margin-left: auto;
+    margin-right: auto;
 }

@@ -1,3 +1,64 @@
-.asset-form {
-    padding: 1rem;
+.asset-form-wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: var(--space-8) var(--space-4);
+    min-height: 100%;
+    overflow-y: auto;
+}
+
+.asset-form-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    padding: var(--space-8);
+    width: 100%;
+    max-width: 480px;
+}
+
+.asset-form-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-6) 0;
+    letter-spacing: -0.02em;
+}
+
+.asset-form .form-control {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+}
+
+.asset-form .form-control:focus {
+    background: var(--color-surface);
+}
+
+.asset-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border-light);
+}
+
+@media (max-width: 640px) {
+    .asset-form-wrapper {
+        padding: var(--space-4);
+        align-items: stretch;
+    }
+
+    .asset-form-card {
+        padding: var(--space-5);
+    }
+
+    .asset-form__actions {
+        flex-direction: column-reverse;
+    }
+
+    .asset-form__actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
 }

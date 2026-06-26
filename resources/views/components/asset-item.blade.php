@@ -1,7 +1,9 @@
-<a href="{{ url('/assets/' . $asset->id) }}" class="asset-card">
-    <div class="asset-header">
+<a href="{{ url('/assets/' . $asset->id) }}" class="asset-card accent-{{ $fmt->signal($asset->balance) }}">
+    <div class="asset-header-row">
         <div class="asset-title">
-            <i class="bi bi-wallet2 asset-icon"></i>
+            <div class="asset-icon-wrapper">
+                <i class="bi bi-wallet2"></i>
+            </div>
             <h3 class="asset-name">{{ $asset->name ?: 'Unnamed Asset' }}</h3>
         </div>
         <span class="asset-balance balance-{{ $fmt->signal($asset->balance) }}">
@@ -11,12 +13,12 @@
     <div class="asset-details">
         <div class="asset-detail-item">
             <i class="bi bi-calendar-check"></i>
-            <span class="detail-label">Consolidation:</span>
+            <span class="detail-label">Consolidation</span>
             <span class="detail-value">{{ $fmt->date($asset->consolidation) }}</span>
         </div>
         <div class="asset-detail-item">
             <i class="bi bi-clock-history"></i>
-            <span class="detail-label">Last updated:</span>
+            <span class="detail-label">Updated</span>
             <span class="detail-value">{{ $fmt->dateTime($asset->updated_at) }}</span>
         </div>
     </div>

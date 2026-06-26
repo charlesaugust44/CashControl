@@ -1,14 +1,21 @@
+@php
+    $type = $event->header->type ?? 'event';
+    $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
+    $typeIcon = $typeIcons[$type] ?? 'bi-tag';
+@endphp
+
 <div class="event-card">
     <div class="event-header">
         <h3 class="event-name">
-            <i class="bi bi-tag"></i>
+            <i class="{{ $typeIcon }}"></i>
             {{ $event->header->name ?? 'Unnamed Event' }}
         </h3>
-        <span class="event-type {{ $event->header->type ?? '' }}">
-            {{ $event->header->type ?? 'event' }}
+        <span class="event-type {{ $type }}">
+            {{ $type }}
         </span>
     </div>
     <div class="event-date">
+        <i class="bi bi-calendar3"></i>
         {{ $fmt->date($event->date) }}
     </div>
     <div class="event-entries">

@@ -3,13 +3,13 @@
     top: 0;
     left: 0;
     width: 100%;
-    min-width: 280px;
+    min-width: var(--sidebar-width);
     height: 100vh;
-    background-color: var(--bs-body-bg);
-    border-right: 1px solid var(--bs-border-color);
+    background-color: var(--color-surface);
+    border-right: 1px solid var(--color-border);
     transform: translateX(-100%);
     visibility: hidden;
-    transition: transform 0.3s ease-in-out, visibility 0.3s;
+    transition: transform var(--transition-slow), visibility var(--transition-slow);
     z-index: 1045;
     display: flex;
     flex-direction: column;
@@ -32,15 +32,22 @@
 .sidebar-close {
     width: 2rem;
     height: 2rem;
-    margin-right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--space-2);
     border: none;
-    border-radius: var(--bs-border-radius);
-    opacity: 0.5;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
     cursor: pointer;
+    transition: all var(--transition-fast);
 }
 
 .sidebar-close:hover {
-    opacity: 0.75;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
 }
 
 .sidebar-backdrop {
@@ -49,13 +56,17 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
     z-index: 1040;
     display: none;
+    opacity: 0;
+    transition: opacity var(--transition-slow);
 }
 
 .sidebar-backdrop.is-open {
     display: block;
+    opacity: 1;
 }
 
 @media (min-width: 768px) {
@@ -68,65 +79,100 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1rem;
+    padding: 0 var(--space-5);
     height: var(--header-height);
     width: 100%;
-    border-bottom: 1px solid contrast-color(var(--bs-primary));
-    background-color: var(--bs-primary);
-    color: contrast-color(var(--bs-primary));
+    background: linear-gradient(135deg, var(--color-primary), #5a7cf7);
+    color: #fff;
+    flex-shrink: 0;
 }
 
 @media (min-width: 767px) {
     .sidebar-brand {
         justify-content: flex-start;
+        gap: var(--space-3);
     }
 }
 
 .sidebar-brand__icon {
-    margin-right: 0.5rem;
     font-size: 1.5rem;
 }
 
 .sidebar-brand__text {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .sidebar-nav {
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 1rem;
+    padding: var(--space-3) var(--space-3);
     overflow-y: auto;
+}
+
+.sidebar-nav__section {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    padding: var(--space-4) var(--space-3) var(--space-2);
 }
 
 .nav-item {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.25rem;
-    border-radius: var(--bs-border-radius);
-    color: var(--bs-body-color);
+    padding: 0.625rem var(--space-3);
+    margin-bottom: 2px;
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
     text-decoration: none;
-    transition: all 0.15s ease-in-out;
+    transition: all var(--transition-fast);
+    position: relative;
+    font-size: 0.9375rem;
 }
 
 .nav-item:hover {
-    background-color: var(--bs-tertiary-bg);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    text-decoration: none;
 }
 
 .nav-item.active {
-    background-color: var(--bs-primary);
-    color: white;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
 }
 
 .nav-item.active .nav-item__icon {
-    color: white;
+    color: var(--color-primary);
 }
 
 .nav-item__icon {
-    margin-right: 0.75rem;
-    font-size: 1.25rem;
+    margin-right: var(--space-3);
+    font-size: 1.125rem;
+    width: 1.25rem;
+    text-align: center;
+    color: var(--color-text-muted);
+    transition: color var(--transition-fast);
+}
+
+.nav-item:hover .nav-item__icon {
+    color: var(--color-primary);
 }
 
 .nav-item__label {
