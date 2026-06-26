@@ -10,7 +10,7 @@
 
 # Cash Control
 
-Personal finance tracking application built with Laravel and Vue.js.
+Personal finance tracking application built with Laravel.
 
 ## About
 
@@ -19,7 +19,7 @@ Cash Control helps you manage recurring income, expenses, and transfers across m
 ## Tech Stack
 
 - **Backend**: Laravel 13, PHP 8.3, SQLite
-- **Frontend**: Vue 3, Pinia, Vue Router, Tailwind CSS
+- **Frontend**: Blade templates, Bootstrap 5
 - **Build**: Vite
 
 ## Planned Tech Demonstrations
