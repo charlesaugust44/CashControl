@@ -1,5 +1,5 @@
 @php
-    $type = $event->header->type ?? 'event';
+    $type = $event->header->type?->value ?? 'event';
     $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
     $typeIcon = $typeIcons[$type] ?? 'bi-tag';
     $isVirtual = $event->id === 0 || $event->id === null;

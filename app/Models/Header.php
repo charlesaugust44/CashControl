@@ -27,7 +27,7 @@ class Header extends Model
     ];
 
     protected $casts = [
-        'type' => 'string',
+        'type' => EventType::class,
         'rule' => 'string',
         'default_amount' => 'decimal:2',
         'start_date' => 'date',
@@ -51,6 +51,6 @@ class Header extends Model
 
     public function isTransfer(): bool
     {
-        return $this->type === EventType::Transfer->value;
+        return $this->type === EventType::Transfer;
     }
 }

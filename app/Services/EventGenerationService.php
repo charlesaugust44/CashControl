@@ -1,0 +1,198 @@
+<?php
+
+namespace App\Services;
+
+use App\Enums\EventRule;
+use App\Enums\EventType;
+use App\Models\Asset;
+use App\Models\Event;
+use App\Models\Header;
+use App\Repositories\EntryRepository;
+use App\Repositories\EventRepository;
+use App\Repositories\HeaderRepository;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
+
+class EventGenerationService
+{
+    private HeaderRepository $headerRepository;
+    private EventRepository $eventRepository;
+    private EntryRepository $entryRepository;
+    private MonthClosureService $monthClosureService;
+
+    public function __construct()
+    {
+        $this->headerRepository = new HeaderRepository();
+        $this->eventRepository = new EventRepository();
+        $this->entryRepository = new EntryRepository();
+        $this->monthClosureService = new MonthClosureService();
+    }
+
+    public function getMonthEvents(int $year, int $month): Collection
+    {
+        if ($this->monthClosureService->isMonthClosed($year, $month)) {
+            return $this->eventRepository->listByMonth($year, $month);
+        }
+
+        $virtualEvents = $this->generateVirtualEvents($year, $month);
+        $persistedEvents = $this->eventRepository->listByMonth($year, $month);
+
+        return $this->mergeEvents($virtualEvents, $persistedEvents);
+    }
+
+    public function generateVirtualEvents(int $year, int $month): Collection
+    {
+        $activeHeaders = $this->headerRepository->active();
+        $virtualEvents = collect();
+
+        foreach ($activeHeaders as $header) {
+            $event = $this->createVirtualEvent($header, $year, $month);
+            if ($event) {
+                $virtualEvents->push($event);
+            }
+        }
+
+        return $virtualEvents;
+    }
+
+    private function createVirtualEvent(Header $header, int $year, int $month): ?object
+    {
+        $eventDate = Carbon::create($year, $month, 1);
+
+        if ($header->start_date && $eventDate->lessThan($header->start_date)) {
+            return null;
+        }
+
+        if ($header->end_date && $eventDate->greaterThan($header->end_date)) {
+            return null;
+        }
+
+        $amount = $this->applyRule($header, $year, $month);
+
+        $event = new Event([
+            'header_id' => $header->id,
+            'date' => $eventDate,
+            'consolidated' => false,
+            'note' => null,
+        ]);
+        $event->id = 0;
+        $event->header = $header;
+
+        $entries = $this->createVirtualEntries($header, $amount);
+        $event->entries = $entries;
+
+        return $event;
+    }
+
+    private function createVirtualEntries(Header $header, float $amount): Collection
+    {
+        $entries = collect();
+
+        if ($header->isTransfer()) {
+            if ($header->asset_id) {
+                $debitEntry = new \App\Models\Entry([
+                    'event_id' => 0,
+                    'asset_id' => $header->asset_id,
+                    'amount' => -$amount,
+                ]);
+                $debitEntry->asset = Asset::find($header->asset_id);
+                $entries->push($debitEntry);
+            }
+
+            if ($header->destination_asset_id) {
+                $creditEntry = new \App\Models\Entry([
+                    'event_id' => 0,
+                    'asset_id' => $header->destination_asset_id,
+                    'amount' => $amount,
+                ]);
+                $creditEntry->asset = Asset::find($header->destination_asset_id);
+                $entries->push($creditEntry);
+            }
+        } else {
+            if ($header->asset_id) {
+                $entryAmount = $header->type === EventType::Expense ? -$amount : $amount;
+                $entry = new \App\Models\Entry([
+                    'event_id' => 0,
+                    'asset_id' => $header->asset_id,
+                    'amount' => $entryAmount,
+                ]);
+                $entry->asset = Asset::find($header->asset_id);
+                $entries->push($entry);
+            }
+        }
+
+        return $entries;
+    }
+
+    private function applyRule(Header $header, int $year, int $month): float
+    {
+        return match ($header->rule) {
+            EventRule::Fixed->value => (float) $header->default_amount,
+            EventRule::MaxLastFiveMonths->value => $this->calculateMaxLastFiveMonths($header, $year, $month),
+            EventRule::MeanLastFiveMonths->value => $this->calculateMeanLastFiveMonths($header, $year, $month),
+            default => (float) $header->default_amount,
+        };
+    }
+
+    private function calculateMaxLastFiveMonths(Header $header, int $year, int $month): float
+    {
+        $amounts = $this->getLastFiveMonthsAmounts($header, $year, $month);
+
+        if ($amounts->isEmpty()) {
+            return (float) $header->default_amount;
+        }
+
+        return $amounts->max();
+    }
+
+    private function calculateMeanLastFiveMonths(Header $header, int $year, int $month): float
+    {
+        $amounts = $this->getLastFiveMonthsAmounts($header, $year, $month);
+
+        if ($amounts->isEmpty()) {
+            return (float) $header->default_amount;
+        }
+
+        return $amounts->avg();
+    }
+
+    private function getLastFiveMonthsAmounts(Header $header, int $year, int $month): Collection
+    {
+        $amounts = collect();
+        $checkDate = Carbon::create($year, $month, 1);
+
+        for ($i = 1; $i <= 5; $i++) {
+            $checkDate->subMonth();
+
+            $events = Event::where('header_id', $header->id)
+                ->whereYear('date', $checkDate->year)
+                ->whereMonth('date', $checkDate->month)
+                ->with('entries')
+                ->get();
+
+            foreach ($events as $event) {
+                $totalAmount = $event->entries->sum('amount');
+                if ($header->isTransfer()) {
+                    $totalAmount = $event->entries->where('amount', '>', 0)->sum('amount');
+                } else {
+                    $totalAmount = abs($totalAmount);
+                }
+                $amounts->push($totalAmount);
+            }
+        }
+
+        return $amounts;
+    }
+
+    private function mergeEvents(Collection $virtualEvents, Collection $persistedEvents): Collection
+    {
+        $merged = $virtualEvents->keyBy(fn($event) => $event->header_id . '_' . $event->date->format('Y-m-d'));
+
+        foreach ($persistedEvents as $persistedEvent) {
+            $key = $persistedEvent->header_id . '_' . $persistedEvent->date->format('Y-m-d');
+            $merged[$key] = $persistedEvent;
+        }
+
+        return $merged->values();
+    }
+}

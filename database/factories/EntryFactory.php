@@ -47,9 +47,15 @@ class EntryFactory extends Factory
         ]);
     }
 
+    public function withAmount(float $amount): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'amount' => $amount,
+        ]);
+    }
+
     private function getAmountForEvent(Header $header): float
     {
-        // For transfers, amount is 0 (will be handled differently in real logic)
         if ($header->type === EventType::Transfer) {
             return 0;
         }

@@ -31,10 +31,7 @@ class HeaderFactory extends Factory
             $endDate = $startDate->copy()->addMonths($this->faker->numberBetween(1, 12));
         }
 
-        $defaultAmount = null;
-        if ($type !== EventType::Transfer) {
-            $defaultAmount = $this->faker->randomFloat(2, 10, 500);
-        }
+        $defaultAmount = $type === EventType::Transfer ? null : $this->faker->randomFloat(2, 10, 500);
 
         return [
             'name' => $this->faker->sentence(3),
@@ -55,7 +52,7 @@ class HeaderFactory extends Factory
     {
         return $this->afterCreating(function (Header $header) use ($asset) {
             $eventDates = $this->calculateEventDates($header);
-            $targetAsset = $asset ?? Asset::factory()->create();
+            $targetAsset = $asset ?? ($header->asset ?? Asset::factory()->create());
 
             foreach ($eventDates as $date) {
                 $event = Event::factory()
@@ -63,11 +60,25 @@ class HeaderFactory extends Factory
                     ->withDate($date)
                     ->create();
 
-                Entry::factory()
-                    ->forEvent($event)
-                    ->forAsset($targetAsset)
-                    ->forHeader($header)
-                    ->create();
+                if ($header->isTransfer() && $header->destination_asset_id) {
+                    $amount = $header->default_amount ?? $this->faker->randomFloat(2, 50, 500);
+                    Entry::factory()
+                        ->forEvent($event)
+                        ->forAsset($targetAsset)
+                        ->withAmount(-$amount)
+                        ->create();
+                    Entry::factory()
+                        ->forEvent($event)
+                        ->forAsset($header->destinationAsset)
+                        ->withAmount($amount)
+                        ->create();
+                } else {
+                    Entry::factory()
+                        ->forEvent($event)
+                        ->forAsset($targetAsset)
+                        ->forHeader($header)
+                        ->create();
+                }
             }
         });
     }
