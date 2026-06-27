@@ -37,13 +37,42 @@ These additions will remain within the same over-engineered structure to maintai
 ## Features
 
 - Multi-asset support (checking, savings, cash, etc.)
-- Recurring transaction templates with rules:
+- Recurring transaction templates (headers) with rules:
   - `fixed` – same amount each occurrence
   - `max_last_five_months` – capped at highest of last 5 months
   - `mean_last_five_months` – calculates the mean of last 5 months
-- Monthly event generation and consolidation
+- Monthly event generation with virtual (forecast) and persisted events
+- Event consolidation workflow with balance updates
+- Month closure system with rollback capability
+- Asset balance tracking (actual and forecast)
+- Header-asset relationships for automatic event generation
+- Transfer support between assets
 - Entry history per asset
 - REST API for all resources
+
+## Core Concepts
+
+### Headers (Templates)
+Headers define recurring transactions with rules for amount calculation. Each header is linked to an asset (or two assets for transfers).
+
+### Events
+Events are monthly occurrences generated from headers. They can be:
+- **Virtual**: Generated on-the-fly from active headers (forecast)
+- **Persisted**: Stored in database when user edits or consolidates
+
+### Consolidation
+Events must be consolidated to update asset balances. Consolidation:
+- Marks event as finalized
+- Updates asset balance with entry amounts
+- Can only happen for current/past months
+- Transfers auto-consolidate (both entries)
+
+### Month Closure
+Closing a month:
+- Requires all events to be consolidated
+- Updates `closed_up_to` date on all assets
+- Prevents further edits to that month
+- Can be reopened (unconsolidates all events, recalculates balances)
 
 ## Installation
 

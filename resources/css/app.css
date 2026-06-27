@@ -173,39 +173,3 @@ main {
     border-color: var(--color-text-muted);
     color: var(--color-text-primary);
 }
-
-.theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    padding: 0;
-    border: none;
-    background: transparent;
-    border-radius: var(--radius-md);
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.theme-toggle:hover {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-}
-
-.theme-toggle i {
-    font-size: 1.25rem;
-}
-
-.theme-toggle .bi-moon-fill {
-    display: none;
-}
-
-[data-theme="dark"] .theme-toggle .bi-sun-fill {
-    display: none;
-}
-
-[data-theme="dark"] .theme-toggle .bi-moon-fill {
-    display: inline;
-}

@@ -13,18 +13,28 @@ class Formatter
         $this->currency = $currency ?? config('app.currency', 'USD');
     }
 
-    public function date(?string $dateString): string
+    public function date($date): string
     {
-        if (!$dateString) return '';
-        $timestamp = strtotime($dateString);
+        if (!$date) return '';
+
+        if ($date instanceof \Carbon\Carbon || $date instanceof \DateTimeInterface) {
+            return $date->format('M j, Y');
+        }
+
+        $timestamp = strtotime($date);
         if ($timestamp === false) return '';
         return date('M j, Y', $timestamp);
     }
 
-    public function dateTime(?string $dateString): string
+    public function dateTime($date): string
     {
-        if (!$dateString) return '';
-        $timestamp = strtotime($dateString);
+        if (!$date) return '';
+
+        if ($date instanceof \Carbon\Carbon || $date instanceof \DateTimeInterface) {
+            return $date->format('M j, Y g:i A');
+        }
+
+        $timestamp = strtotime($date);
         if ($timestamp === false) return '';
         return date('M j, Y g:i A', $timestamp);
     }

@@ -15,10 +15,26 @@ class Asset extends Model
     protected $fillable = [
         'name',
         'balance',
+        'closed_up_to',
+    ];
+
+    protected $casts = [
+        'balance' => 'decimal:2',
+        'closed_up_to' => 'date',
     ];
 
     public function entries(): HasMany
     {
         return $this->hasMany(Entry::class);
+    }
+
+    public function headers(): HasMany
+    {
+        return $this->hasMany(Header::class);
+    }
+
+    public function destinationHeaders(): HasMany
+    {
+        return $this->hasMany(Header::class, 'destination_asset_id');
     }
 }

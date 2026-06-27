@@ -44,6 +44,23 @@ function initTheme() {
 
 window.toggleTheme = toggleTheme;
 
+function toggleOptionsDropdown() {
+    const menu = document.getElementById('optionsMenu');
+    if (menu) {
+        menu.classList.toggle('show');
+    }
+}
+
+window.toggleOptionsDropdown = toggleOptionsDropdown;
+
+document.addEventListener('click', function(event) {
+    const dropdown = document.querySelector('.options-dropdown');
+    const menu = document.getElementById('optionsMenu');
+    if (dropdown && menu && !dropdown.contains(event.target)) {
+        menu.classList.remove('show');
+    }
+});
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTheme);
 } else {

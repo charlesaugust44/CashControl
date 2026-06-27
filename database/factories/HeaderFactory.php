@@ -44,6 +44,7 @@ class HeaderFactory extends Factory
             'default_amount' => $defaultAmount,
             'start_date' => $startDate,
             'end_date' => $endDate,
+            'asset_id' => Asset::factory(),
         ];
     }
 

@@ -13,8 +13,14 @@
     <div class="asset-details">
         <div class="asset-detail-item">
             <i class="bi bi-calendar-check"></i>
-            <span class="detail-label">Consolidation</span>
-            <span class="detail-value">{{ $fmt->date($asset->consolidation) }}</span>
+            <span class="detail-label">Closed up to</span>
+            <span class="detail-value">
+                @if($asset->closed_up_to)
+                    {{ $asset->closed_up_to->format('M Y') }}
+                @else
+                    Not closed
+                @endif
+            </span>
         </div>
         <div class="asset-detail-item">
             <i class="bi bi-clock-history"></i>

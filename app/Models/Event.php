@@ -34,4 +34,25 @@ class Event extends Model
     {
         return $this->belongsTo(Header::class);
     }
+
+    public function scopeConsolidated($query)
+    {
+        return $query->where('consolidated', true);
+    }
+
+    public function scopeUnconsolidated($query)
+    {
+        return $query->where('consolidated', false);
+    }
+
+    public function scopeForMonth($query, int $year, int $month)
+    {
+        return $query->whereYear('date', $year)
+            ->whereMonth('date', $month);
+    }
+
+    public function isTransfer(): bool
+    {
+        return $this->header && $this->header->isTransfer();
+    }
 }

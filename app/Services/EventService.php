@@ -10,10 +10,12 @@ use Illuminate\Support\Collection;
 class EventService
 {
     private EventRepository $eventRepository;
+    private EventGenerationService $eventGenerationService;
 
     public function __construct()
     {
         $this->eventRepository = new EventRepository();
+        $this->eventGenerationService = new EventGenerationService();
     }
 
     public function consolidate(int $id): Event
@@ -21,8 +23,8 @@ class EventService
         return $this->eventRepository->consolidate($id);
     }
 
-    public function listByMoth(int $year, int $month): Collection
+    public function listByMonth(int $year, int $month): Collection
     {
-        return $this->eventRepository->listByMonth($year, $month);
+        return $this->eventGenerationService->getMonthEvents($year, $month);
     }
 }

@@ -17,8 +17,8 @@ class HeaderRepository extends BaseRepository
 
     public function active(): Collection
     {
-        //TODO: enforce start and end date are always firstOfMonth
-        return Header::where('start_date', '<>', 'end_date')
+        return Header::with(['asset', 'destinationAsset'])
+            ->where('start_date', '<>', 'end_date')
             ->where('start_date', '<=', Carbon::now()->firstOfMonth())
             ->where(function (Builder $query) {
                 $query->whereNull('end_date')
