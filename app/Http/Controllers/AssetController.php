@@ -67,7 +67,14 @@ class AssetController extends Controller
             'balance' => 'required|numeric|min:0',
         ]);
 
-        $this->assetService->create($validated);
+        $asset = $this->assetService->create($validated);
+
+        $action = $request->input('action', 'submit');
+
+        if ($action === 'save') {
+            return redirect('/assets/' . $asset->id . '/edit')
+                ->with('success', 'Asset saved successfully');
+        }
 
         return redirect('/assets');
     }
@@ -80,6 +87,13 @@ class AssetController extends Controller
         ]);
 
         $this->assetService->update($id, $validated);
+
+        $action = $request->input('action', 'submit');
+
+        if ($action === 'save') {
+            return redirect('/assets/' . $id . '/edit')
+                ->with('success', 'Asset saved successfully');
+        }
 
         return redirect('/assets');
     }

@@ -47,7 +47,12 @@
 
                 <div class="asset-form__actions">
                     <a href="{{ url('/assets') }}" class="btn btn-outline-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">{{ isset($asset) ? 'Update' : 'Create' }}</button>
+                    <button type="submit" name="action" value="save" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save
+                    </button>
+                    <button type="submit" name="action" value="submit" class="btn btn-secondary">
+                        <i class="bi bi-check-circle"></i> Submit
+                    </button>
                 </div>
             </form>
         </div>

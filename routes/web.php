@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventDetailController;
 use App\Http\Controllers\MonthClosureController;
 
 Route::get('/', function () {
@@ -17,8 +18,11 @@ Route::post('/assets', [AssetController::class, 'store']);
 Route::put('/assets/{id}', [AssetController::class, 'update']);
 
 Route::get('/entries', [EventController::class, 'index']);
-Route::patch('/events/{id}/consolidate', [EventController::class, 'consolidate']);
-Route::patch('/events/{id}/unconsolidate', [EventController::class, 'unconsolidate']);
+Route::get('/entries/virtual/{headerId}/{year}/{month}', [EventDetailController::class, 'showVirtual']);
+Route::post('/entries/virtual/{headerId}/{year}/{month}', [EventDetailController::class, 'store']);
+Route::get('/entries/{id}', [EventDetailController::class, 'show']);
+Route::put('/entries/{id}', [EventDetailController::class, 'update']);
+Route::delete('/entries/{id}', [EventDetailController::class, 'destroy']);
 
 Route::post('/months/{year}/{month}/close', [MonthClosureController::class, 'close']);
 Route::post('/months/reopen', [MonthClosureController::class, 'reopen']);

@@ -12,6 +12,16 @@
     box-shadow: var(--shadow-sm);
 }
 
+.event-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.event-card-link:hover {
+    text-decoration: none;
+}
+
 .event-card .event-header {
     display: flex;
     justify-content: space-between;
