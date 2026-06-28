@@ -10,6 +10,7 @@
 @import './components/event-card.css';
 @import './components/empty-state.css';
 @import './components/stat-card.css';
+@import './components/breadcrumbs.css';
 
 :root {
     --bs-primary: var(--color-primary);

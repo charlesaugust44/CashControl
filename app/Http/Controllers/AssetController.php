@@ -33,6 +33,10 @@ class AssetController extends Controller
     {
         return view('assets.form', [
             'pageTitle' => 'New Asset',
+            'breadcrumbs' => [
+                ['label' => 'Assets', 'url' => '/assets'],
+                ['label' => 'New Asset', 'url' => null],
+            ],
         ]);
     }
 
@@ -47,6 +51,10 @@ class AssetController extends Controller
             'events' => $events,
             'currentMonth' => $currentMonth,
             'pageTitle' => $asset->name,
+            'breadcrumbs' => [
+                ['label' => 'Assets', 'url' => '/assets'],
+                ['label' => $asset->name, 'url' => null],
+            ],
         ]);
     }
 
@@ -57,6 +65,11 @@ class AssetController extends Controller
         return view('assets.form', [
             'asset' => $asset,
             'pageTitle' => "Edit {$asset->name}",
+            'breadcrumbs' => [
+                ['label' => 'Assets', 'url' => '/assets'],
+                ['label' => $asset->name, 'url' => '/assets/' . $asset->id],
+                ['label' => 'Edit', 'url' => null],
+            ],
         ]);
     }
 

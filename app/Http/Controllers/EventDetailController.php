@@ -23,12 +23,17 @@ class EventDetailController extends Controller
     {
         $event = $this->eventDetailService->getEvent($id);
         $assets = $this->eventDetailService->getAssets();
+        $eventDate = \Carbon\Carbon::parse($event->date);
 
         return view('entries.show', [
             'event' => $event,
             'assets' => $assets,
             'isVirtual' => false,
             'pageTitle' => $event->header->name ?? 'Event Details',
+            'breadcrumbs' => [
+                ['label' => 'Entries', 'url' => '/entries?month=' . $eventDate->format('Y-m')],
+                ['label' => $event->header->name ?? 'Event Details', 'url' => null],
+            ],
         ]);
     }
 
@@ -50,6 +55,10 @@ class EventDetailController extends Controller
             'year' => $year,
             'month' => $month,
             'pageTitle' => $event->header->name ?? 'Event Details',
+            'breadcrumbs' => [
+                ['label' => 'Entries', 'url' => '/entries?month=' . \Carbon\Carbon::create($year, $month, 1)->format('Y-m')],
+                ['label' => $event->header->name ?? 'Event Details', 'url' => null],
+            ],
         ]);
     }
 
