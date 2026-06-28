@@ -14,12 +14,20 @@ class MonthClosureService
 {
     private EventRepository $eventRepository;
     private AssetRepository $assetRepository;
-    private ConsolidationService $consolidationService;
+    private ?ConsolidationService $consolidationService = null;
 
     public function __construct()
     {
         $this->eventRepository = new EventRepository();
         $this->assetRepository = new AssetRepository();
+    }
+
+    private function getConsolidationService(): ConsolidationService
+    {
+        if ($this->consolidationService === null) {
+            $this->consolidationService = new ConsolidationService();
+        }
+        return $this->consolidationService;
     }
 
     public function closeMonth(int $year, int $month): void
@@ -43,31 +51,25 @@ class MonthClosureService
             throw new Exception('No month is closed');
         }
 
+        // Calculate the previous month (what should remain closed)
+        $previousMonth = $lastClosedMonth->copy()->subMonth();
+
+        // Update closed_up_to to the previous month
+        $assets = Asset::all();
+        foreach ($assets as $asset) {
+            $asset->closed_up_to = $previousMonth;
+            $asset->save();
+        }
+
+        // Then unconsolidate the events
         $events = Event::whereYear('date', $lastClosedMonth->year)
             ->whereMonth('date', $lastClosedMonth->month)
             ->where('consolidated', true)
             ->get();
 
         foreach ($events as $event) {
-            $this->consolidationService->unconsolidateEvent($event->id);
+            $this->getConsolidationService()->unconsolidateEvent($event->id);
         }
-
-        $assets = Asset::all();
-        foreach ($assets as $asset) {
-            $previousMonth = $lastClosedMonth->copy()->subMonth();
-            $asset->closed_up_to = $previousMonth->month === 12 && $previousMonth->year < $lastClosedMonth->year
-                ? null
-                : $previousMonth;
-
-            if ($this->isMonthClosed($asset->closed_up_to?->year, $asset->closed_up_to?->month)) {
-                continue;
-            }
-
-            $asset->closed_up_to = null;
-            $asset->save();
-        }
-
-        $this->resetAllClosedUpTo(null);
     }
 
     public function isMonthClosed(?int $year, ?int $month): bool
