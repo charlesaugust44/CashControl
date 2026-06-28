@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EventRule;
 use App\Enums\EventType;
 use Database\Factories\HeaderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,7 +29,7 @@ class Header extends Model
 
     protected $casts = [
         'type' => EventType::class,
-        'rule' => 'string',
+        'rule' => EventRule::class,
         'default_amount' => 'decimal:2',
         'start_date' => 'date',
         'end_date' => 'date',

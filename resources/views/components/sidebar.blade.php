@@ -16,6 +16,10 @@
                 <i class="bi bi-wallet2 nav-item__icon"></i>
                 <span class="nav-item__label">Assets</span>
             </a>
+            <a href="{{ url('/templates') }}" class="nav-item {{ request()->is('templates*') ? 'active' : '' }}">
+                <i class="bi bi-clipboard-data nav-item__icon"></i>
+                <span class="nav-item__label">Templates</span>
+            </a>
             <a href="{{ url('/entries') }}" class="nav-item {{ request()->is('entries*') ? 'active' : '' }}">
                 <i class="bi bi-journal-text nav-item__icon"></i>
                 <span class="nav-item__label">Entries</span>
