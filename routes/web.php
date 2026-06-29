@@ -2,14 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventDetailController;
 use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\MonthClosureController;
 
-Route::get('/', function () {
-    return view('dashboard', ['pageTitle' => 'Dashboard']);
-});
+Route::get('/', [DashboardController::class, 'index']);
+Route::post('/dashboard/dismiss', [DashboardController::class, 'dismiss']);
+Route::post('/notifications/mark-read', [DashboardController::class, 'markRead']);
 
 Route::get('/assets', [AssetController::class, 'index']);
 Route::get('/assets/create', [AssetController::class, 'create']);

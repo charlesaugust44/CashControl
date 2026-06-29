@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'total_balance' => 'Saldo Total',
+    'monthly_income' => 'Receita Mensal',
+    'monthly_expenses' => 'Despesas Mensais',
+    'forecast_balance' => 'Saldo Projetado',
+    'balance_history' => 'Histórico de Saldo',
+    'income_vs_expenses' => 'Receitas vs Despesas',
+    'unusual_alerts' => 'Aumentos Incomuns',
+    'unread' => 'Não Lidos',
+    'dismissed' => 'Dispensados',
+    'unusual_alert_desc' => ':header aumentou :percent% (de :old para :new)',
+    'pending_consolidations' => 'Consolidações Pendentes',
+    'no_alerts' => 'Nenhum aumento incomum detectado',
+    'no_pending' => 'Todos os eventos estão consolidados',
+    'dismiss' => 'Dispensar',
+    'show_dismissed' => 'Mostrar dispensados',
+    'last_n_months' => 'Últimos :n meses',
+    'income' => 'Receitas',
+    'expenses' => 'Despesas',
+    'month' => 'Mês',
+    'amount' => 'Valor',
+    'events_count' => ':count eventos',
+];

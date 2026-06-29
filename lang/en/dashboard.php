@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'total_balance' => 'Total Balance',
+    'monthly_income' => 'Monthly Income',
+    'monthly_expenses' => 'Monthly Expenses',
+    'forecast_balance' => 'Forecast Balance',
+    'balance_history' => 'Balance History',
+    'income_vs_expenses' => 'Income vs Expenses',
+    'unusual_alerts' => 'Unusual Value Increases',
+    'unread' => 'Unread',
+    'dismissed' => 'Dismissed',
+    'unusual_alert_desc' => ':header increased :percent% (from :old to :new)',
+    'pending_consolidations' => 'Pending Consolidations',
+    'no_alerts' => 'No unusual increases detected',
+    'no_pending' => 'All events are consolidated',
+    'dismiss' => 'Dismiss',
+    'show_dismissed' => 'Show dismissed',
+    'last_n_months' => 'Last :n months',
+    'income' => 'Income',
+    'expenses' => 'Expenses',
+    'month' => 'Month',
+    'amount' => 'Amount',
+    'events_count' => ':count events',
+];

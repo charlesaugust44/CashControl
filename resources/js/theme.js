@@ -36,6 +36,7 @@ function toggleTheme() {
     const next = current === STORAGE_DARK ? STORAGE_LIGHT : STORAGE_DARK;
     applyTheme(next);
     setStoredTheme(next);
+    document.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: next } }));
 }
 
 function initTheme() {
@@ -53,11 +54,36 @@ function toggleOptionsDropdown() {
 
 window.toggleOptionsDropdown = toggleOptionsDropdown;
 
+function toggleNotificationsDropdown() {
+    const menu = document.getElementById('notificationsMenu');
+    if (menu) {
+        menu.classList.toggle('show');
+    }
+}
+
+window.toggleNotificationsDropdown = toggleNotificationsDropdown;
+
+function switchNotificationTab(tab) {
+    document.querySelectorAll('.notifications-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.notifications-panel').forEach(p => p.classList.remove('active'));
+
+    document.querySelector(`.notifications-tab[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`${tab}-panel`).classList.add('active');
+}
+
+window.switchNotificationTab = switchNotificationTab;
+
 document.addEventListener('click', function(event) {
     const dropdown = document.querySelector('.options-dropdown');
     const menu = document.getElementById('optionsMenu');
     if (dropdown && menu && !dropdown.contains(event.target)) {
         menu.classList.remove('show');
+    }
+
+    const notifDropdown = document.querySelector('.notifications-dropdown');
+    const notifMenu = document.getElementById('notificationsMenu');
+    if (notifDropdown && notifMenu && !notifDropdown.contains(event.target)) {
+        notifMenu.classList.remove('show');
     }
 });
 
