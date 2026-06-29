@@ -22,12 +22,13 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $now = now();
+
         $totalBalance = $this->balanceService->getTotalBalance();
-        $monthlyTotals = $this->balanceService->getMonthlyTotals($now->year, $now->month);
-        $nextMonth = $now->copy()->addMonth();
+        $monthlyTotalsSplit = $this->balanceService->getMonthlyTotalsSplit($now->year, $now->month);
+
         $forecastBalance = 0;
         foreach (\App\Models\Asset::all() as $asset) {
-            $forecastBalance += $this->balanceService->getForecastBalance($asset, $nextMonth->year, $nextMonth->month);
+            $forecastBalance += $this->balanceService->getForecastBalance($asset, $now->year, $now->month);
         }
 
         $balanceHistory = $this->balanceService->getBalanceHistoryAggregated(6);
@@ -39,10 +40,13 @@ class DashboardController extends Controller
             $now->copy()->subMonth()->month
         );
 
+        $forecastedIncome = $monthlyTotalsSplit['consolidated']['income'] + $monthlyTotalsSplit['unconsolidated']['income'];
+        $forecastedExpense = $monthlyTotalsSplit['consolidated']['expense'] + $monthlyTotalsSplit['unconsolidated']['expense'];
+
         $incomeTrend = null;
         $incomeTrendDir = null;
         if ($prevMonthTotals['income'] > 0) {
-            $diff = $monthlyTotals['income'] - $prevMonthTotals['income'];
+            $diff = $forecastedIncome - $prevMonthTotals['income'];
             $incomeTrend = number_format(abs(round(($diff / $prevMonthTotals['income']) * 100, 1))) . '%';
             $incomeTrendDir = $diff >= 0 ? 'up' : 'down';
         }
@@ -50,7 +54,7 @@ class DashboardController extends Controller
         $expenseTrend = null;
         $expenseTrendDir = null;
         if ($prevMonthTotals['expense'] > 0) {
-            $diff = $monthlyTotals['expense'] - $prevMonthTotals['expense'];
+            $diff = $forecastedExpense - $prevMonthTotals['expense'];
             $expenseTrend = number_format(abs(round(($diff / $prevMonthTotals['expense']) * 100, 1))) . '%';
             $expenseTrendDir = $diff >= 0 ? 'up' : 'down';
         }
@@ -58,8 +62,10 @@ class DashboardController extends Controller
         return view('dashboard', [
             'pageTitle' => __('ui.dashboard'),
             'totalBalance' => $totalBalance,
-            'monthlyIncome' => $monthlyTotals['income'],
-            'monthlyExpense' => $monthlyTotals['expense'],
+            'consolidatedIncome' => $monthlyTotalsSplit['consolidated']['income'],
+            'consolidatedExpense' => $monthlyTotalsSplit['consolidated']['expense'],
+            'forecastedIncome' => $forecastedIncome,
+            'forecastedExpense' => $forecastedExpense,
             'forecastBalance' => $forecastBalance,
             'balanceHistory' => $balanceHistory,
             'monthlyBreakdown' => $monthlyBreakdown,

@@ -89,6 +89,32 @@ class BalanceService
         return ['income' => $income, 'expense' => $expense];
     }
 
+    public function getMonthlyTotalsSplit(int $year, int $month): array
+    {
+        $events = $this->eventRepository->listByMonth($year, $month);
+
+        $consolidatedIncome = $events->filter(fn($e) => $e->consolidated && $e->header->type?->value === 'income')
+            ->flatMap(fn($e) => $e->entries)
+            ->sum(fn($entry) => max(0, (float) $entry->amount));
+
+        $consolidatedExpense = $events->filter(fn($e) => $e->consolidated && $e->header->type?->value === 'expense')
+            ->flatMap(fn($e) => $e->entries)
+            ->sum(fn($entry) => abs((float) $entry->amount));
+
+        $unconsolidatedIncome = $events->filter(fn($e) => !$e->consolidated && $e->header->type?->value === 'income')
+            ->flatMap(fn($e) => $e->entries)
+            ->sum(fn($entry) => max(0, (float) $entry->amount));
+
+        $unconsolidatedExpense = $events->filter(fn($e) => !$e->consolidated && $e->header->type?->value === 'expense')
+            ->flatMap(fn($e) => $e->entries)
+            ->sum(fn($entry) => abs((float) $entry->amount));
+
+        return [
+            'consolidated' => ['income' => $consolidatedIncome, 'expense' => $consolidatedExpense],
+            'unconsolidated' => ['income' => $unconsolidatedIncome, 'expense' => $unconsolidatedExpense],
+        ];
+    }
+
     public function getMonthlyBreakdown(int $months = 6): array
     {
         $data = ['labels' => [], 'income' => [], 'expense' => []];

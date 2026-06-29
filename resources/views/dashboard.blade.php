@@ -12,50 +12,80 @@
     @endphp
 
     <div class="dashboard-grid">
-        <x-dashboard-card size="full">
+        <x-dashboard-card size="lg">
             <div class="dashboard-stats">
-                <div class="dashboard-stat">
-                    <div class="dashboard-stat__label">
-                        <i class="bi bi-wallet2"></i>
-                        {{ __('dashboard.total_balance') }}
-                    </div>
-                    <div class="dashboard-stat__value">{{ $fmt->currency($totalBalance) }}</div>
+                <div class="dashboard-stats__section-label">
+                    {{ __('dashboard.consolidated') }}
                 </div>
-
-                <div class="dashboard-stat">
-                    <div class="dashboard-stat__label">
-                        <i class="bi bi-arrow-down-left"></i>
-                        {{ __('dashboard.monthly_income') }} ({{ $currentMonthLabel }})
-                    </div>
-                    <div class="dashboard-stat__value dashboard-stat__value--success">{{ $fmt->currency($monthlyIncome) }}</div>
-                    @if($incomeTrend)
-                        <div class="dashboard-stat__trend dashboard-stat__trend--{{ $incomeTrendDir }}">
-                            <i class="bi {{ $incomeTrendDir === 'down' ? 'bi-arrow-down-short' : 'bi-arrow-up-short' }}"></i>
-                            {{ $incomeTrend }}
+                <div class="dashboard-stats__row">
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat__label">
+                            <i class="bi bi-arrow-down-left"></i>
+                            {{ __('dashboard.income') }}
                         </div>
-                    @endif
-                </div>
-
-                <div class="dashboard-stat">
-                    <div class="dashboard-stat__label">
-                        <i class="bi bi-arrow-up-right"></i>
-                        {{ __('dashboard.monthly_expenses') }} ({{ $currentMonthLabel }})
+                        <div class="dashboard-stat__value dashboard-stat__value--success">{{ $fmt->currency($consolidatedIncome) }}</div>
                     </div>
-                    <div class="dashboard-stat__value dashboard-stat__value--danger">{{ $fmt->currency($monthlyExpense) }}</div>
-                    @if($expenseTrend)
-                        <div class="dashboard-stat__trend dashboard-stat__trend--{{ $expenseTrendDir }}">
-                            <i class="bi {{ $expenseTrendDir === 'down' ? 'bi-arrow-down-short' : 'bi-arrow-up-short' }}"></i>
-                            {{ $expenseTrend }}
+
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat__label">
+                            <i class="bi bi-arrow-up-right"></i>
+                            {{ __('dashboard.expenses') }}
                         </div>
-                    @endif
-                </div>
-
-                <div class="dashboard-stat">
-                    <div class="dashboard-stat__label">
-                        <i class="bi bi-graph-up-arrow"></i>
-                        {{ __('dashboard.forecast_balance') }} ({{ $nextMonthLabel }})
+                        <div class="dashboard-stat__value dashboard-stat__value--danger">{{ $fmt->currency($consolidatedExpense) }}</div>
                     </div>
-                    <div class="dashboard-stat__value">{{ $fmt->currency($forecastBalance) }}</div>
+
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat__label">
+                            <i class="bi bi-wallet2"></i>
+                            {{ __('dashboard.total_balance') }}
+                        </div>
+                        <div class="dashboard-stat__value">{{ $fmt->currency($totalBalance) }}</div>
+                    </div>
+                </div>
+            </div>
+        </x-dashboard-card>
+
+        <x-dashboard-card size="lg">
+            <div class="dashboard-stats">
+                <div class="dashboard-stats__section-label">
+                    {{ __('dashboard.forecasted') }} ({{ $currentMonthLabel }})
+                </div>
+                <div class="dashboard-stats__row">
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat__label">
+                            <i class="bi bi-arrow-down-left"></i>
+                            {{ __('dashboard.income') }}
+                        </div>
+                        <div class="dashboard-stat__value dashboard-stat__value--success">{{ $fmt->currency($forecastedIncome) }}</div>
+                        @if($incomeTrend)
+                            <div class="dashboard-stat__trend dashboard-stat__trend--{{ $incomeTrendDir }}">
+                                <i class="bi {{ $incomeTrendDir === 'down' ? 'bi-arrow-down-short' : 'bi-arrow-up-short' }}"></i>
+                                {{ $incomeTrend }}
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat__label">
+                            <i class="bi bi-arrow-up-right"></i>
+                            {{ __('dashboard.expenses') }}
+                        </div>
+                        <div class="dashboard-stat__value dashboard-stat__value--danger">{{ $fmt->currency($forecastedExpense) }}</div>
+                        @if($expenseTrend)
+                            <div class="dashboard-stat__trend dashboard-stat__trend--{{ $expenseTrendDir }}">
+                                <i class="bi {{ $expenseTrendDir === 'down' ? 'bi-arrow-down-short' : 'bi-arrow-up-short' }}"></i>
+                                {{ $expenseTrend }}
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat__label">
+                            <i class="bi bi-graph-up-arrow"></i>
+                            {{ __('dashboard.balance') }}
+                        </div>
+                        <div class="dashboard-stat__value">{{ $fmt->currency($forecastBalance) }}</div>
+                    </div>
                 </div>
             </div>
         </x-dashboard-card>
