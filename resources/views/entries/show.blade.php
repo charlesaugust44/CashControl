@@ -51,65 +51,106 @@
                 <div class="event-entries-section">
                     <h3 class="section-title">Entries</h3>
 
-                    @if($isTransfer)
-                        <div class="transfer-info">
-                            <i class="bi bi-info-circle"></i>
-                            <span>Transfers move money between two assets. The total amount is the same for both.</span>
-                        </div>
-                    @endif
-
                     <div class="entries-list" id="entriesList">
-                        @foreach($event->entries as $index => $entry)
+                        @if($isTransfer)
                             @php
-                                $isSource = $entry->amount < 0;
-                                $absoluteAmount = abs($entry->amount);
+                                $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0);
+                                $destEntry = $event->entries->first(fn($e) => $e->amount > 0);
+                                $transferAmount = abs($sourceEntry->amount ?? 0);
                             @endphp
-                            <div class="entry-row" data-index="{{ $index }}">
-                                <div class="entry-row-header">
-                                    <span class="entry-label">
-                                        @if($isTransfer)
-                                            {{ $isSource ? 'From' : 'To' }}
-                                        @else
-                                            Asset
-                                        @endif
-                                    </span>
-                                    @if(!$isVirtual && !$isConsolidated && count($event->entries) > 1)
-                                        <button type="button" class="btn-remove-entry" onclick="removeEntry({{ $index }})">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    @endif
-                                </div>
-
-                                <div class="entry-fields">
-                                    <div class="form-group">
-                                        <select name="entries[{{ $index }}][asset_id]" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
-                                            <option value="">Select asset</option>
-                                            @foreach($assets as $asset)
-                                                <option value="{{ $asset->id }}" {{ $entry->asset_id == $asset->id ? 'selected' : '' }}>
-                                                    {{ $asset->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <div class="amount-input-wrapper">
-                                            <span class="currency-symbol">$</span>
-                                            <input
-                                                type="number"
-                                                name="entries[{{ $index }}][amount]"
-                                                class="form-control entry-amount-input"
-                                                value="{{ $absoluteAmount }}"
-                                                step="0.01"
-                                                min="0"
-                                                {{ $isConsolidated ? 'disabled' : 'required' }}
-                                                data-original-amount="{{ $entry->amount }}"
-                                            >
-                                        </div>
+                            
+                            <div class="transfer-amount-section">
+                                <div class="form-group">
+                                    <label class="form-label">Transfer Amount</label>
+                                    <div class="amount-input-wrapper">
+                                        <span class="currency-symbol">$</span>
+                                        <input
+                                            type="number"
+                                            name="transfer_amount"
+                                            id="transferAmount"
+                                            class="form-control"
+                                            value="{{ $transferAmount }}"
+                                            step="0.01"
+                                            min="0"
+                                            {{ $isConsolidated ? 'disabled' : 'required' }}
+                                        >
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
+
+                            <div class="transfer-assets-row">
+                                <div class="form-group">
+                                    <label class="form-label">From</label>
+                                    <select name="entries[0][asset_id]" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                        <option value="">Select source asset</option>
+                                        @foreach($assets as $asset)
+                                            <option value="{{ $asset->id }}" {{ $sourceEntry && $sourceEntry->asset_id == $asset->id ? 'selected' : '' }}>
+                                                {{ $asset->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <input type="hidden" name="entries[0][amount]" value="-{{ $transferAmount }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">To</label>
+                                    <select name="entries[1][asset_id]" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                        <option value="">Select destination asset</option>
+                                        @foreach($assets as $asset)
+                                            <option value="{{ $asset->id }}" {{ $destEntry && $destEntry->asset_id == $asset->id ? 'selected' : '' }}>
+                                                {{ $asset->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <input type="hidden" name="entries[1][amount]" value="{{ $transferAmount }}">
+                                </div>
+                            </div>
+                        @else
+                            @foreach($event->entries as $index => $entry)
+                                @php
+                                    $absoluteAmount = abs($entry->amount);
+                                @endphp
+                                <div class="entry-row" data-index="{{ $index }}">
+                                    <div class="entry-row-header">
+                                        <span class="entry-label">Asset</span>
+                                        @if(!$isVirtual && !$isConsolidated && count($event->entries) > 1)
+                                            <button type="button" class="btn-remove-entry" onclick="removeEntry({{ $index }})">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+
+                                    <div class="entry-fields">
+                                        <div class="form-group">
+                                            <select name="entries[{{ $index }}][asset_id]" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                                <option value="">Select asset</option>
+                                                @foreach($assets as $asset)
+                                                    <option value="{{ $asset->id }}" {{ $entry->asset_id == $asset->id ? 'selected' : '' }}>
+                                                        {{ $asset->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="amount-input-wrapper">
+                                                <span class="currency-symbol">$</span>
+                                                <input
+                                                    type="number"
+                                                    name="entries[{{ $index }}][amount]"
+                                                    class="form-control entry-amount-input"
+                                                    value="{{ $absoluteAmount }}"
+                                                    step="0.01"
+                                                    min="0"
+                                                    {{ $isConsolidated ? 'disabled' : 'required' }}
+                                                    data-original-amount="{{ $entry->amount }}"
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
 
                     @if(!$isConsolidated && !$isTransfer)
@@ -261,6 +302,23 @@
                     }
                 });
             });
+
+            // Handle transfer amount sync
+            const transferAmountInput = document.getElementById('transferAmount');
+            if (transferAmountInput) {
+                transferAmountInput.addEventListener('input', function() {
+                    const amount = parseFloat(this.value) || 0;
+                    const sourceAmountInput = document.querySelector('input[name="entries[0][amount]"]');
+                    const destAmountInput = document.querySelector('input[name="entries[1][amount]"]');
+                    
+                    if (sourceAmountInput) {
+                        sourceAmountInput.value = -amount;
+                    }
+                    if (destAmountInput) {
+                        destAmountInput.value = amount;
+                    }
+                });
+            }
         });
     </script>
 @endpush
