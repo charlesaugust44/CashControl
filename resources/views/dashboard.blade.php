@@ -131,16 +131,18 @@
             @endif
         </x-dashboard-card>
 
-        <x-dashboard-card size="lg" title="{{ __('dashboard.balance_history') }}" icon="bi-graph-up">
-            <div class="dashboard-chart">
-                <canvas id="balanceHistoryChart" data-chart="{{ json_encode(array_merge($balanceHistory, ['label' => __('dashboard.total_balance')])) }}"></canvas>
-            </div>
-        </x-dashboard-card>
+        <div class="dashboard-charts-row">
+            <x-dashboard-card size="lg" title="{{ __('dashboard.balance_history') }}" icon="bi-graph-up">
+                <div class="dashboard-chart">
+                    <canvas id="balanceHistoryChart" data-chart="{{ json_encode(array_merge($balanceHistory, ['label' => __('dashboard.total_balance')])) }}"></canvas>
+                </div>
+            </x-dashboard-card>
 
-        <x-dashboard-card size="lg" title="{{ __('dashboard.income_vs_expenses') }}" icon="bi-bar-chart">
-            <div class="dashboard-chart">
-                <canvas id="incomeVsExpensesChart" data-chart="{{ json_encode(array_merge($monthlyBreakdown, ['incomeLabel' => __('dashboard.income'), 'expenseLabel' => __('dashboard.expenses')])) }}"></canvas>
-            </div>
-        </x-dashboard-card>
+            <x-dashboard-card size="lg" title="{{ __('dashboard.income_vs_expenses') }}" icon="bi-bar-chart">
+                <div class="dashboard-chart">
+                    <canvas id="incomeVsExpensesChart" data-chart="{{ json_encode(array_merge($monthlyBreakdown, ['incomeLabel' => __('dashboard.income'), 'expenseLabel' => __('dashboard.expenses')])) }}"></canvas>
+                </div>
+            </x-dashboard-card>
+        </div>
     </div>
 @endsection

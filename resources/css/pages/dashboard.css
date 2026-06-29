@@ -92,6 +92,26 @@
     padding: 0;
 }
 
+.dashboard-charts-row {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+}
+
+@media (max-width: 767px) {
+    .dashboard-charts-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+}
+
+@media (max-width: 419px) {
+    .dashboard-charts-row {
+        grid-column: span 1;
+    }
+}
+
 .dashboard-chart {
     position: relative;
     width: 100%;
