@@ -81,6 +81,7 @@
     color: var(--color-text-secondary);
     cursor: pointer;
     transition: all var(--transition-fast);
+    text-decoration: none;
 }
 
 .header-icon-btn:hover {
@@ -90,6 +91,12 @@
 
 .header-icon-btn i {
     font-size: 1.25rem;
+}
+
+.language-toggle__text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .theme-toggle .bi-moon-fill {

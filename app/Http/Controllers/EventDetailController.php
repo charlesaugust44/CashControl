@@ -29,10 +29,10 @@ class EventDetailController extends Controller
             'event' => $event,
             'assets' => $assets,
             'isVirtual' => false,
-            'pageTitle' => $event->header->name ?? 'Event Details',
+            'pageTitle' => $event->header->name ?? __('entries.title'),
             'breadcrumbs' => [
-                ['label' => 'Entries', 'url' => '/entries?month=' . $eventDate->format('Y-m')],
-                ['label' => $event->header->name ?? 'Event Details', 'url' => null],
+                ['label' => __('entries.title'), 'url' => '/entries?month=' . $eventDate->format('Y-m')],
+                ['label' => $event->header->name ?? __('entries.title'), 'url' => null],
             ],
         ]);
     }
@@ -54,10 +54,10 @@ class EventDetailController extends Controller
             'headerId' => $headerId,
             'year' => $year,
             'month' => $month,
-            'pageTitle' => $event->header->name ?? 'Event Details',
+            'pageTitle' => $event->header->name ?? __('entries.title'),
             'breadcrumbs' => [
-                ['label' => 'Entries', 'url' => '/entries?month=' . \Carbon\Carbon::create($year, $month, 1)->format('Y-m')],
-                ['label' => $event->header->name ?? 'Event Details', 'url' => null],
+                ['label' => __('entries.title'), 'url' => '/entries?month=' . \Carbon\Carbon::create($year, $month, 1)->format('Y-m')],
+                ['label' => $event->header->name ?? __('entries.title'), 'url' => null],
             ],
         ]);
     }
@@ -70,7 +70,7 @@ class EventDetailController extends Controller
             if ($action === 'unconsolidate') {
                 $event = $this->consolidationService->unconsolidateEvent($id);
                 return redirect('/entries/' . $event->id)
-                    ->with('success', 'Event unconsolidated successfully');
+                    ->with('success', __('messages.success.unconsolidated'));
             }
 
             $validated = $this->validateEventData($request);
@@ -79,18 +79,18 @@ class EventDetailController extends Controller
             if ($action === 'consolidate') {
                 $event = $this->consolidationService->consolidateEvent($event->id);
                 return redirect('/entries/' . $event->id)
-                    ->with('success', 'Event consolidated successfully');
+                    ->with('success', __('messages.success.consolidated'));
             }
 
             if ($action === 'save') {
                 return redirect('/entries/' . $event->id)
-                    ->with('success', 'Event saved successfully');
+                    ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
             }
 
             $eventDate = \Carbon\Carbon::parse($event->date);
 
             return redirect('/entries?month=' . $eventDate->format('Y-m'))
-                ->with('success', 'Event updated successfully');
+                ->with('success', __('messages.success.updated', ['item' => __('entries.singular')]));
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -108,11 +108,11 @@ class EventDetailController extends Controller
 
             if ($action === 'save') {
                 return redirect('/entries/' . $event->id)
-                    ->with('success', 'Event saved successfully');
+                    ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
             }
 
             return redirect('/entries?month=' . \Carbon\Carbon::create($year, $month, 1)->format('Y-m'))
-                ->with('success', 'Event saved successfully');
+                ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -129,7 +129,7 @@ class EventDetailController extends Controller
             $this->eventDetailService->deleteEvent($id);
 
             return redirect('/entries?month=' . $eventDate->format('Y-m'))
-                ->with('success', 'Event deleted successfully');
+                ->with('success', __('messages.success.deleted', ['item' => __('entries.singular')]));
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', $e->getMessage());

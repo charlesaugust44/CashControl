@@ -8,7 +8,7 @@
     <div class="assets-container">
         @component('components.asset-header', ['total' => $total, 'actionUrl' => url('/assets/create')])
             <i class="bi bi-plus-circle"></i>
-            <span>Add Asset</span>
+            <span>{{ __('ui.new', ['item' => __('assets.singular')]) }}</span>
         @endcomponent
         <div class="list-wrapper">
             @foreach($assets as $asset)

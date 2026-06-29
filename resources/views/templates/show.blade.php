@@ -16,27 +16,27 @@
                     <i class="{{ $typeIcon }} type-{{ $header->type->value }}"></i>
                     <h2>{{ $header->name }}</h2>
                 </div>
-                <span class="template-type-badge type-{{ $header->type->value }}">{{ $header->type->value }}</span>
+                <span class="template-type-badge type-{{ $header->type->value }}">{{ __('templates.types.' . $header->type->value) }}</span>
             </div>
-
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
 
             @if($header->description)
                 <p class="template-detail-description">{{ $header->description }}</p>
             @endif
 
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
             <div class="template-detail-section">
-                <h3 class="template-detail-section__title">Configuration</h3>
+                <h3 class="template-detail-section__title">{{ __('templates.configuration.title') }}</h3>
                 <div class="template-detail-grid">
                     <div class="template-detail-item">
-                        <span class="template-detail-item__label">Rule</span>
-                        <span class="template-detail-item__value">{{ str_replace('_', ' ', $header->rule->value) }}</span>
+                        <span class="template-detail-item__label">{{ __('templates.fields.rule') }}</span>
+                        <span class="template-detail-item__value">{{ __('templates.rules.' . $header->rule->value) }}</span>
                     </div>
                     @if($header->default_amount)
                         <div class="template-detail-item">
-                            <span class="template-detail-item__label">Default Amount</span>
+                            <span class="template-detail-item__label">{{ __('templates.fields.default_amount') }}</span>
                             <span class="template-detail-item__value">${{ number_format($header->default_amount, 2) }}</span>
                         </div>
                     @endif
@@ -44,29 +44,29 @@
             </div>
 
             <div class="template-detail-section">
-                <h3 class="template-detail-section__title">Schedule</h3>
+                <h3 class="template-detail-section__title">{{ __('templates.schedule.title') }}</h3>
                 <div class="template-detail-grid">
                     <div class="template-detail-item">
-                        <span class="template-detail-item__label">Start Date</span>
+                        <span class="template-detail-item__label">{{ __('templates.fields.start_date') }}</span>
                         <span class="template-detail-item__value">{{ $header->start_date->format('M Y') }}</span>
                     </div>
                     <div class="template-detail-item">
-                        <span class="template-detail-item__label">End Date</span>
-                        <span class="template-detail-item__value">{{ $header->end_date ? $header->end_date->format('M Y') : 'Ongoing' }}</span>
+                        <span class="template-detail-item__label">{{ __('templates.fields.end_date') }}</span>
+                        <span class="template-detail-item__value">{{ $header->end_date ? $header->end_date->format('M Y') : __('templates.schedule.ongoing') }}</span>
                     </div>
                 </div>
             </div>
 
             <div class="template-detail-section">
-                <h3 class="template-detail-section__title">Assets</h3>
+                <h3 class="template-detail-section__title">{{ __('ui.assets') }}</h3>
                 <div class="template-detail-grid">
                     <div class="template-detail-item">
-                        <span class="template-detail-item__label">{{ $header->isTransfer() ? 'Source Asset' : 'Asset' }}</span>
-                        <span class="template-detail-item__value">{{ $header->asset->name ?? 'Not set' }}</span>
+                        <span class="template-detail-item__label">{{ $header->isTransfer() ? __('templates.fields.source_asset') : __('templates.fields.asset') }}</span>
+                        <span class="template-detail-item__value">{{ $header->asset->name ?? __('ui.none') }}</span>
                     </div>
                     @if($header->isTransfer() && $header->destinationAsset)
                         <div class="template-detail-item">
-                            <span class="template-detail-item__label">Destination Asset</span>
+                            <span class="template-detail-item__label">{{ __('templates.fields.destination_asset') }}</span>
                             <span class="template-detail-item__value">{{ $header->destinationAsset->name }}</span>
                         </div>
                     @endif
@@ -75,13 +75,13 @@
 
             <div class="template-detail-actions">
                 <a href="{{ url('/templates') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Templates
+                    <i class="bi bi-arrow-left"></i> {{ __('ui.back_to_list', ['item' => __('templates.title')]) }}
                 </a>
                 <a href="{{ url('/templates/' . $header->id . '/edit') }}" class="btn btn-primary">
-                    <i class="bi bi-pencil"></i> Edit
+                    <i class="bi bi-pencil"></i> {{ __('ui.edit') }}
                 </a>
                 <a href="{{ url('/templates/' . $header->id . '/delete') }}" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> Delete
+                    <i class="bi bi-trash"></i> {{ __('ui.delete') }}
                 </a>
             </div>
         </div>

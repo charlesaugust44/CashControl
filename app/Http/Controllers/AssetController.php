@@ -25,17 +25,17 @@ class AssetController extends Controller
         return view('assets.index', [
             'assets' => $assets,
             'total' => $total,
-            'pageTitle' => 'Assets',
+            'pageTitle' => __('assets.title'),
         ]);
     }
 
     public function create(): View
     {
         return view('assets.form', [
-            'pageTitle' => 'New Asset',
+            'pageTitle' => __('assets.new'),
             'breadcrumbs' => [
-                ['label' => 'Assets', 'url' => '/assets'],
-                ['label' => 'New Asset', 'url' => null],
+                ['label' => __('assets.title'), 'url' => '/assets'],
+                ['label' => __('assets.new'), 'url' => null],
             ],
         ]);
     }
@@ -52,7 +52,7 @@ class AssetController extends Controller
             'currentMonth' => $currentMonth,
             'pageTitle' => $asset->name,
             'breadcrumbs' => [
-                ['label' => 'Assets', 'url' => '/assets'],
+                ['label' => __('assets.title'), 'url' => '/assets'],
                 ['label' => $asset->name, 'url' => null],
             ],
         ]);
@@ -64,11 +64,11 @@ class AssetController extends Controller
 
         return view('assets.form', [
             'asset' => $asset,
-            'pageTitle' => "Edit {$asset->name}",
+            'pageTitle' => __('assets.edit') . " {$asset->name}",
             'breadcrumbs' => [
-                ['label' => 'Assets', 'url' => '/assets'],
+                ['label' => __('assets.title'), 'url' => '/assets'],
                 ['label' => $asset->name, 'url' => '/assets/' . $asset->id],
-                ['label' => 'Edit', 'url' => null],
+                ['label' => __('ui.edit'), 'url' => null],
             ],
         ]);
     }
@@ -86,7 +86,7 @@ class AssetController extends Controller
 
         if ($action === 'save') {
             return redirect('/assets/' . $asset->id . '/edit')
-                ->with('success', 'Asset saved successfully');
+                ->with('success', __('messages.success.saved', ['item' => __('assets.singular')]));
         }
 
         return redirect('/assets');
@@ -105,7 +105,7 @@ class AssetController extends Controller
 
         if ($action === 'save') {
             return redirect('/assets/' . $id . '/edit')
-                ->with('success', 'Asset saved successfully');
+                ->with('success', __('messages.success.saved', ['item' => __('assets.singular')]));
         }
 
         return redirect('/assets');

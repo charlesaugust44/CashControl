@@ -17,7 +17,11 @@ class Formatter
     {
         if (!$date) return '';
 
-        if ($date instanceof \Carbon\Carbon || $date instanceof \DateTimeInterface) {
+        if ($date instanceof \Carbon\Carbon) {
+            return $date->translatedFormat('M j, Y');
+        }
+
+        if ($date instanceof \DateTimeInterface) {
             return $date->format('M j, Y');
         }
 

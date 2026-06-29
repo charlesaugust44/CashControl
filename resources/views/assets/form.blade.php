@@ -7,7 +7,7 @@
 @section('content')
     <div class="asset-form-wrapper">
         <div class="asset-form-card">
-            <h2 class="asset-form-card__title">{{ isset($asset) ? 'Edit Asset' : 'New Asset' }}</h2>
+            <h2 class="asset-form-card__title">{{ isset($asset) ? __('assets.edit') : __('assets.new') }}</h2>
             <form method="POST" action="{{ isset($asset) ? url("/assets/{$asset->id}") : url('/assets') }}" class="asset-form">
                 @csrf
                 @if(isset($asset))
@@ -15,14 +15,14 @@
                 @endif
 
                 <div class="mb-4">
-                    <label for="assetName" class="form-label">Asset Name</label>
+                    <label for="assetName" class="form-label">{{ __('assets.fields.name') }}</label>
                     <input
                         type="text"
                         class="form-control @error('name') is-invalid @enderror"
                         id="assetName"
                         name="name"
                         value="{{ old('name', $asset->name ?? '') }}"
-                        placeholder="e.g., Checking Account"
+                        placeholder="{{ __('assets.placeholders.name') }}"
                     />
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="assetBalance" class="form-label">Initial Balance</label>
+                    <label for="assetBalance" class="form-label">{{ __('assets.fields.balance') }}</label>
                     <input
                         type="number"
                         step="0.01"
@@ -38,7 +38,7 @@
                         id="assetBalance"
                         name="balance"
                         value="{{ old('balance', $asset->balance ?? '') }}"
-                        placeholder="0.00"
+                        placeholder="{{ __('assets.placeholders.balance') }}"
                     />
                     @error('balance')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -46,12 +46,12 @@
                 </div>
 
                 <div class="asset-form__actions">
-                    <a href="{{ url('/assets') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ url('/assets') }}" class="btn btn-outline-secondary">{{ __('ui.cancel') }}</a>
                     <button type="submit" name="action" value="save" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Save
+                        <i class="bi bi-save"></i> {{ __('ui.save') }}
                     </button>
                     <button type="submit" name="action" value="submit" class="btn btn-secondary">
-                        <i class="bi bi-check-circle"></i> Submit
+                        <i class="bi bi-check-circle"></i> {{ __('ui.submit') }}
                     </button>
                 </div>
             </form>

@@ -5,6 +5,9 @@
     <h1 class="app-header__title">{{ $pageTitle ?? 'Cash Control' }}</h1>
     <div class="app-header__spacer"></div>
     <div class="app-header__actions">
+        <a href="{{ request()->fullUrlWithQuery(['lang' => 'toggle']) }}" class="header-icon-btn language-toggle" aria-label="Toggle language">
+            <span class="language-toggle__text">{{ app()->getLocale() === 'pt_BR' ? 'PT' : 'EN' }}</span>
+        </a>
         <button class="header-icon-btn theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
             <i class="bi bi-sun-fill"></i>
             <i class="bi bi-moon-fill"></i>

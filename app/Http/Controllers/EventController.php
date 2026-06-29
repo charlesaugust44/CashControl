@@ -51,7 +51,7 @@ class EventController extends Controller
         return view('entries.index', [
             'events' => $events,
             'currentMonth' => $currentMonth,
-            'pageTitle' => 'Entries',
+            'pageTitle' => __('entries.title'),
             'headerOptions' => $headerOptions,
             'totalIncome' => $totalIncome,
             'totalExpense' => $totalExpense,
@@ -101,9 +101,9 @@ class EventController extends Controller
                 'type' => 'form',
                 'action' => url('/months/' . $monthDate->year . '/' . $monthDate->month . '/close'),
                 'method' => 'POST',
-                'label' => 'Close Month',
+                'label' => __('entries.actions.close_month'),
                 'icon' => 'bi bi-lock',
-                'confirm' => 'Close this month? All events must be consolidated.',
+                'confirm' => __('messages.confirm.close_month'),
             ];
         }
 
@@ -112,9 +112,9 @@ class EventController extends Controller
                 'type' => 'form',
                 'action' => url('/months/reopen'),
                 'method' => 'POST',
-                'label' => 'Reopen Month',
+                'label' => __('entries.actions.reopen_month'),
                 'icon' => 'bi bi-unlock',
-                'confirm' => 'Reopen this month? This will unconsolidate all events.',
+                'confirm' => __('messages.confirm.reopen_month'),
             ];
         }
 
@@ -122,7 +122,7 @@ class EventController extends Controller
             $options[] = [
                 'type' => 'link',
                 'url' => '#',
-                'label' => 'Month Closed',
+                'label' => __('entries.status.month_closed'),
                 'icon' => 'bi bi-lock-fill',
             ];
         }

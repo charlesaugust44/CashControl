@@ -17,7 +17,7 @@
                         <i class="bi bi-arrow-down-left"></i>
                     </div>
                     <div class="summary-card__content">
-                        <span class="summary-card__label">Income</span>
+                        <span class="summary-card__label">{{ __('templates.types.income') }}</span>
                         <span class="summary-card__value">{{ $fmt->currency($totalIncome) }}</span>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                         <i class="bi bi-arrow-up-right"></i>
                     </div>
                     <div class="summary-card__content">
-                        <span class="summary-card__label">Expense</span>
+                        <span class="summary-card__label">{{ __('templates.types.expense') }}</span>
                         <span class="summary-card__value">{{ $fmt->currency($totalExpense) }}</span>
                     </div>
                 </div>
@@ -38,10 +38,10 @@
                         $baseUrl = request()->url();
                         $monthParam = request('month', now()->format('Y-m'));
                         $filters = [
-                            'all' => ['label' => 'All', 'icon' => 'bi-grid-3x3-gap'],
-                            'income' => ['label' => 'Income', 'icon' => 'bi-arrow-down-left'],
-                            'expense' => ['label' => 'Expense', 'icon' => 'bi-arrow-up-right'],
-                            'transfer' => ['label' => 'Transfer', 'icon' => 'bi-arrow-left-right'],
+                            'all' => ['label' => __('ui.all'), 'icon' => 'bi-grid-3x3-gap'],
+                            'income' => ['label' => __('templates.types.income'), 'icon' => 'bi-arrow-down-left'],
+                            'expense' => ['label' => __('templates.types.expense'), 'icon' => 'bi-arrow-up-right'],
+                            'transfer' => ['label' => __('templates.types.transfer'), 'icon' => 'bi-arrow-left-right'],
                         ];
                     @endphp
                     @foreach($filters as $key => $filterConfig)
@@ -71,7 +71,7 @@
             @empty
                 <div class="text-center text-muted py-5">
                     <i class="bi bi-inbox fs-1"></i>
-                    <p>No events for this month</p>
+                    <p>{{ __('entries.no_entries') }}</p>
                 </div>
             @endforelse
         </div>

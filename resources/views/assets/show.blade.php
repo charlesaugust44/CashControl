@@ -8,7 +8,7 @@
     <div class="asset-detail-container">
         @component('components.asset-header', ['total' => $asset->balance ?? 0, 'actionUrl' => url("/assets/{$asset->id}/edit")])
             <i class="bi bi-pencil-square"></i>
-            <span>Edit</span>
+            <span>{{ __('ui.edit') }}</span>
         @endcomponent
         <div class="entries-section">
             @include('components.month-picker', ['currentMonth' => $currentMonth])
@@ -23,9 +23,9 @@
                             <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <h3 class="empty-title">No entries found</h3>
+                    <h3 class="empty-title">{{ __('ui.no_results') }}</h3>
                     <p class="empty-description">
-                        This asset doesn't have any entries for the selected month.
+                        {{ __('entries.no_entries') }}
                     </p>
                 </div>
             @else

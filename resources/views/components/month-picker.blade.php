@@ -16,7 +16,7 @@
     </a>
     <a href="{{ request()->url() }}?month={{ now()->format('Y-m') }}"
        class="month-text-flat {{ $isCurrentMonth ? 'current-month' : '' }}">
-        {{ $monthDate->format('F Y') }}
+        {{ $monthDate->translatedFormat('F Y') }}
         @if($isMonthClosed)
             <i class="bi bi-lock-fill month-lock closed"></i>
         @else

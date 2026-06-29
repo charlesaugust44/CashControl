@@ -24,7 +24,7 @@ class HeaderController extends Controller
 
         return view('templates.index', [
             'headers' => $headers,
-            'pageTitle' => 'Templates',
+            'pageTitle' => __('templates.title'),
         ]);
     }
 
@@ -34,10 +34,10 @@ class HeaderController extends Controller
 
         return view('templates.form', [
             'assets' => $assets,
-            'pageTitle' => 'New Template',
+            'pageTitle' => __('templates.new'),
             'breadcrumbs' => [
-                ['label' => 'Templates', 'url' => '/templates'],
-                ['label' => 'New Template', 'url' => null],
+                ['label' => __('templates.title'), 'url' => '/templates'],
+                ['label' => __('templates.new'), 'url' => null],
             ],
         ]);
     }
@@ -63,7 +63,7 @@ class HeaderController extends Controller
 
         $this->headerService->create($validated);
 
-        return redirect('/templates')->with('success', 'Template created successfully');
+        return redirect('/templates')->with('success', __('messages.success.created', ['item' => __('templates.singular')]));
     }
 
     public function show(int $id): View
@@ -74,7 +74,7 @@ class HeaderController extends Controller
             'header' => $header,
             'pageTitle' => $header->name,
             'breadcrumbs' => [
-                ['label' => 'Templates', 'url' => '/templates'],
+                ['label' => __('templates.title'), 'url' => '/templates'],
                 ['label' => $header->name, 'url' => null],
             ],
         ]);
@@ -90,11 +90,11 @@ class HeaderController extends Controller
             'header' => $header,
             'assets' => $assets,
             'futureEvents' => $futureEvents,
-            'pageTitle' => "Edit {$header->name}",
+            'pageTitle' => __('templates.edit') . " {$header->name}",
             'breadcrumbs' => [
-                ['label' => 'Templates', 'url' => '/templates'],
+                ['label' => __('templates.title'), 'url' => '/templates'],
                 ['label' => $header->name, 'url' => "/templates/{$id}"],
-                ['label' => 'Edit', 'url' => null],
+                ['label' => __('ui.edit'), 'url' => null],
             ],
         ]);
     }
@@ -129,7 +129,7 @@ class HeaderController extends Controller
             Event::whereIn('id', $deleteEvents)->delete();
         }
 
-        return redirect("/templates/{$id}")->with('success', 'Template updated successfully');
+        return redirect("/templates/{$id}")->with('success', __('messages.success.updated', ['item' => __('templates.singular')]));
     }
 
     public function delete(int $id): View
@@ -140,11 +140,11 @@ class HeaderController extends Controller
         return view('templates.delete', [
             'header' => $header,
             'futureEvents' => $futureEvents,
-            'pageTitle' => "Delete {$header->name}",
+            'pageTitle' => __('templates.delete') . " {$header->name}",
             'breadcrumbs' => [
-                ['label' => 'Templates', 'url' => '/templates'],
+                ['label' => __('templates.title'), 'url' => '/templates'],
                 ['label' => $header->name, 'url' => "/templates/{$id}"],
-                ['label' => 'Delete', 'url' => null],
+                ['label' => __('ui.delete'), 'url' => null],
             ],
         ]);
     }
@@ -159,6 +159,6 @@ class HeaderController extends Controller
 
         $this->headerService->delete($id);
 
-        return redirect('/templates')->with('success', 'Template deleted successfully');
+        return redirect('/templates')->with('success', __('messages.success.deleted', ['item' => __('templates.singular')]));
     }
 }

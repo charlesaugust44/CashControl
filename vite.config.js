@@ -16,8 +16,16 @@ export default defineConfig({
         }),
     ],
     server: {
+        host: '0.0.0.0',
+        hmr: {
+            host: '192.168.2.129'
+        },
+        cors: true,
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
+    },
+    build: {
+        assetsInlineLimit: 4096,
     },
 });
