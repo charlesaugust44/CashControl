@@ -19,14 +19,6 @@
     @endphp
 
     <div class="event-detail-wrapper">
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
-
         <div class="event-detail-card">
             <div class="event-detail-header">
                 <div class="event-detail-title">

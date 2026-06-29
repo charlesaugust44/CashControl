@@ -23,10 +23,6 @@
                 <p class="template-detail-description">{{ $header->description }}</p>
             @endif
 
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-
             <div class="template-detail-section">
                 <h3 class="template-detail-section__title">{{ __('templates.configuration.title') }}</h3>
                 <div class="template-detail-grid">

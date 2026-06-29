@@ -14,10 +14,6 @@
             </a>
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
         @if($headers->isEmpty())
             <div class="empty-state">
                 <i class="bi bi-clipboard-data empty-state__icon"></i>
