@@ -58,10 +58,11 @@ class EventDetailService
             ]);
 
             foreach ($entriesData['entries'] as $entryData) {
+                $amount = $this->adjustAmountSign($header, $entryData['amount']);
                 Entry::create([
                     'event_id' => $event->id,
                     'asset_id' => $entryData['asset_id'],
-                    'amount' => $entryData['amount'],
+                    'amount' => $amount,
                 ]);
             }
 
@@ -88,10 +89,11 @@ class EventDetailService
             $event->entries()->delete();
 
             foreach ($data['entries'] as $entryData) {
+                $amount = $this->adjustAmountSign($event->header, $entryData['amount']);
                 Entry::create([
                     'event_id' => $event->id,
                     'asset_id' => $entryData['asset_id'],
-                    'amount' => $entryData['amount'],
+                    'amount' => $amount,
                 ]);
             }
 
@@ -129,5 +131,16 @@ class EventDetailService
     public function getAssets(): \Illuminate\Database\Eloquent\Collection
     {
         return Asset::orderBy('name')->get();
+    }
+
+    private function adjustAmountSign(Header $header, float $amount): float
+    {
+        $absoluteAmount = abs($amount);
+
+        if ($header->type === EventType::Expense) {
+            return -$absoluteAmount;
+        }
+
+        return $absoluteAmount;
     }
 }
