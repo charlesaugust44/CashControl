@@ -30,6 +30,15 @@
                         <span class="summary-card__value">{{ $fmt->currency($totalExpense) }}</span>
                     </div>
                 </div>
+                <div class="summary-card summary-card--balance {{ $balance >= 0 ? 'summary-card--positive' : 'summary-card--negative' }}">
+                    <div class="summary-card__icon">
+                        <i class="bi bi-{{ $balance >= 0 ? 'cash' : 'exclamation-circle' }}"></i>
+                    </div>
+                    <div class="summary-card__content">
+                        <span class="summary-card__label">{{ __('entries.balance') }}</span>
+                        <span class="summary-card__value">{{ $fmt->currency(abs($balance)) }}</span>
+                    </div>
+                </div>
             </div>
 
             <div class="entries-filter">

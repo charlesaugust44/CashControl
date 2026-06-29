@@ -4,6 +4,7 @@ return [
     'title' => 'Entries',
     'singular' => 'Entry',
     'no_entries' => 'No events for this month',
+    'balance' => 'Balance',
 
     'status' => [
         'forecast' => 'Forecast',

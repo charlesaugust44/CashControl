@@ -4,6 +4,7 @@ return [
     'title' => 'Lançamentos',
     'singular' => 'Lançamento',
     'no_entries' => 'Nenhum evento para este mês',
+    'balance' => 'Saldo',
 
     'status' => [
         'forecast' => 'Previsão',

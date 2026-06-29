@@ -42,6 +42,8 @@ class EventController extends Controller
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => abs((float) $entry->amount));
 
+        $balance = $totalIncome - $totalExpense;
+
         if ($filter !== 'all') {
             $events = $events->filter(fn($e) => $e->header->type?->value === $filter)->values();
         }
@@ -55,6 +57,7 @@ class EventController extends Controller
             'headerOptions' => $headerOptions,
             'totalIncome' => $totalIncome,
             'totalExpense' => $totalExpense,
+            'balance' => $balance,
             'currentFilter' => $filter,
         ]);
     }

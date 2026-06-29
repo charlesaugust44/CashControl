@@ -58,7 +58,7 @@ class EventDetailService
             ]);
 
             foreach ($entriesData['entries'] as $entryData) {
-                $amount = $this->adjustAmountSign($header, $entryData['amount']);
+                $amount = $this->adjustAmountSign($header, $entryData['amount'], $entryData['asset_id']);
                 Entry::create([
                     'event_id' => $event->id,
                     'asset_id' => $entryData['asset_id'],
@@ -89,7 +89,7 @@ class EventDetailService
             $event->entries()->delete();
 
             foreach ($data['entries'] as $entryData) {
-                $amount = $this->adjustAmountSign($event->header, $entryData['amount']);
+                $amount = $this->adjustAmountSign($event->header, $entryData['amount'], $entryData['asset_id']);
                 Entry::create([
                     'event_id' => $event->id,
                     'asset_id' => $entryData['asset_id'],
@@ -133,12 +133,19 @@ class EventDetailService
         return Asset::orderBy('name')->get();
     }
 
-    private function adjustAmountSign(Header $header, float $amount): float
+    private function adjustAmountSign(Header $header, float $amount, int $assetId): float
     {
         $absoluteAmount = abs($amount);
 
         if ($header->type === EventType::Expense) {
             return -$absoluteAmount;
+        }
+
+        if ($header->type === EventType::Transfer) {
+            if ($assetId === $header->asset_id) {
+                return -$absoluteAmount;
+            }
+            return $absoluteAmount;
         }
 
         return $absoluteAmount;
