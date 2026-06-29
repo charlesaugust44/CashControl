@@ -63,7 +63,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Transfer Amount</label>
                                     <div class="amount-input-wrapper">
-                                        <span class="currency-symbol">$</span>
+                                        <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                         <input
                                             type="number"
                                             name="transfer_amount"
@@ -134,7 +134,7 @@
 
                                         <div class="form-group">
                                             <div class="amount-input-wrapper">
-                                                <span class="currency-symbol">$</span>
+                                        <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                                 <input
                                                     type="number"
                                                     name="entries[{{ $index }}][amount]"
@@ -230,7 +230,7 @@
                     </div>
                     <div class="form-group">
                         <div class="amount-input-wrapper">
-                            <span class="currency-symbol">$</span>
+                            <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                             <input
                                 type="number"
                                 name="entries[__INDEX__][amount]"

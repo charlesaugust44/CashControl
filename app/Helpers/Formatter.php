@@ -46,15 +46,46 @@ class Formatter
     public function currency($amount): string
     {
         $amount = $amount ?? 0;
-        $symbols = [
-            'USD' => '$',
-            'EUR' => '€',
-            'GBP' => '£',
-            'JPY' => '¥',
-            'BRL' => 'R$',
+        $symbol = $this->currencySymbol();
+        return $symbol . $this->number($amount, 2);
+    }
+
+    public function currencySymbol(): string
+    {
+        $localeSymbols = [
+            'pt_BR' => 'R$',
+            'en' => '$',
         ];
-        $symbol = $symbols[$this->currency] ?? $this->currency . ' ';
-        return $symbol . number_format($amount, 2);
+        
+        return $localeSymbols[$this->locale] ?? $this->currency;
+    }
+
+    public function number($value, int $decimals = 2): string
+    {
+        $value = $value ?? 0;
+        $decimalSep = $this->decimalSeparator();
+        $thousandsSep = $this->thousandsSeparator();
+        return number_format($value, $decimals, $decimalSep, $thousandsSep);
+    }
+
+    public function decimalSeparator(): string
+    {
+        $separators = [
+            'pt_BR' => ',',
+            'en' => '.',
+        ];
+        
+        return $separators[$this->locale] ?? '.';
+    }
+
+    public function thousandsSeparator(): string
+    {
+        $separators = [
+            'pt_BR' => '.',
+            'en' => ',',
+        ];
+        
+        return $separators[$this->locale] ?? ',';
     }
 
     public function signal($value): string
