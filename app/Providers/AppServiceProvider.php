@@ -22,7 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        view()->share('fmt', new Formatter());
+        View::composer('*', function ($view) {
+            $view->with('fmt', new Formatter());
+        });
 
         View::composer('components.header', NotificationsComposer::class);
     }

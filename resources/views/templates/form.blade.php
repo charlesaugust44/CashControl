@@ -64,7 +64,7 @@
                     <div class="mb-4" id="defaultAmountField">
                         <label for="default_amount" class="form-label">{{ __('templates.fields.default_amount') }}</label>
                         <div class="input-group">
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">{{ $fmt->currencySymbol() }}</span>
                             <input type="number" step="0.01" min="0" class="form-control @error('default_amount') is-invalid @enderror" id="default_amount" name="default_amount" value="{{ old('default_amount', $header->default_amount ?? '') }}" placeholder="{{ __('templates.placeholders.default_amount') }}">
                         </div>
                         @error('default_amount')
@@ -141,7 +141,7 @@
                                                 <i class="bi bi-wallet2"></i>
                                                 {{ $entry->asset->name ?? __('ui.none') }}:
                                                 <span class="{{ $entry->amount >= 0 ? 'positive' : 'negative' }}">
-                                                    {{ number_format(abs($entry->amount), 2) }}
+                                                    {{ $fmt->currency(abs($entry->amount)) }}
                                                 </span>
                                             </span>
                                         @endforeach

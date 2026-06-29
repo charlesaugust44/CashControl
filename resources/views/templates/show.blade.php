@@ -33,7 +33,7 @@
                     @if($header->default_amount)
                         <div class="template-detail-item">
                             <span class="template-detail-item__label">{{ __('templates.fields.default_amount') }}</span>
-                            <span class="template-detail-item__value">${{ number_format($header->default_amount, 2) }}</span>
+                            <span class="template-detail-item__value">{{ $fmt->currency($header->default_amount) }}</span>
                         </div>
                     @endif
                 </div>

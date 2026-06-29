@@ -35,7 +35,7 @@
                                                 <i class="bi bi-wallet2"></i>
                                                 {{ $entry->asset->name ?? __('ui.none') }}:
                                                 <span class="{{ $entry->amount >= 0 ? 'positive' : 'negative' }}">
-                                                    {{ number_format(abs($entry->amount), 2) }}
+                                                    {{ $fmt->currency(abs($entry->amount)) }}
                                                 </span>
                                             </span>
                                         @endforeach

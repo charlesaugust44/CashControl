@@ -31,18 +31,21 @@
 
                 <div class="mb-4">
                     <label for="assetBalance" class="form-label">{{ __('assets.fields.balance') }}</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        class="form-control @error('balance') is-invalid @enderror"
-                        id="assetBalance"
-                        name="balance"
-                        value="{{ old('balance', $asset->balance ?? '') }}"
-                        placeholder="{{ __('assets.placeholders.balance') }}"
-                    />
-                    @error('balance')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <div class="input-group">
+                        <span class="input-group-text">{{ $fmt->currencySymbol() }}</span>
+                        <input
+                            type="number"
+                            step="0.01"
+                            class="form-control @error('balance') is-invalid @enderror"
+                            id="assetBalance"
+                            name="balance"
+                            value="{{ old('balance', $asset->balance ?? '') }}"
+                            placeholder="{{ __('assets.placeholders.balance') }}"
+                        />
+                        @error('balance')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="asset-form__actions">
