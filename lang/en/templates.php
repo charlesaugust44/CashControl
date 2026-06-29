@@ -66,6 +66,7 @@ return [
         'title' => 'Affected Future Events',
         'edit_description' => 'These events have been saved with custom values. Choose whether to keep them as-is or delete them (they will revert to forecast using the updated template).',
         'delete_description' => 'These events will be affected by this deletion. Choose whether to keep them as-is or delete them.',
+        'will_be_regenerated' => 'These future events will be automatically regenerated using the updated template rules.',
         'keep' => 'Keep',
         'delete' => 'Delete',
     ],

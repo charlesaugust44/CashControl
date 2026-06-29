@@ -66,6 +66,7 @@ return [
         'title' => 'Eventos Futuros Afetados',
         'edit_description' => 'Estes eventos foram salvos com valores personalizados. Escolha se deseja mantê-los como estão ou excluí-los (eles voltarão a ser previsões usando o modelo atualizado).',
         'delete_description' => 'Estes eventos serão afetados por esta exclusão. Escolha se deseja mantê-los como estão ou excluí-los.',
+        'will_be_regenerated' => 'Estes eventos futuros serão automaticamente regenerados usando as regras atualizadas do modelo.',
         'keep' => 'Manter',
         'delete' => 'Excluir',
     ],

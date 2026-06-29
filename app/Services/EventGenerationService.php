@@ -127,9 +127,9 @@ class EventGenerationService
     private function applyRule(Header $header, int $year, int $month): float
     {
         return match ($header->rule) {
-            EventRule::Fixed->value => (float) $header->default_amount,
-            EventRule::MaxLastFiveMonths->value => $this->calculateMaxLastFiveMonths($header, $year, $month),
-            EventRule::MeanLastFiveMonths->value => $this->calculateMeanLastFiveMonths($header, $year, $month),
+            EventRule::Fixed => (float) $header->default_amount,
+            EventRule::MaxLastFiveMonths => $this->calculateMaxLastFiveMonths($header, $year, $month),
+            EventRule::MeanLastFiveMonths => $this->calculateMeanLastFiveMonths($header, $year, $month),
             default => (float) $header->default_amount,
         };
     }
@@ -164,24 +164,49 @@ class EventGenerationService
         for ($i = 1; $i <= 5; $i++) {
             $checkDate->subMonth();
 
-            $events = Event::where('header_id', $header->id)
+            $persistedEvent = Event::where('header_id', $header->id)
                 ->whereYear('date', $checkDate->year)
                 ->whereMonth('date', $checkDate->month)
                 ->with('entries')
-                ->get();
+                ->first();
 
-            foreach ($events as $event) {
-                $totalAmount = $event->entries->sum('amount');
+            if ($persistedEvent) {
+                $totalAmount = $persistedEvent->entries->sum('amount');
                 if ($header->isTransfer()) {
-                    $totalAmount = $event->entries->where('amount', '>', 0)->sum('amount');
+                    $totalAmount = $persistedEvent->entries->where('amount', '>', 0)->sum('amount');
                 } else {
                     $totalAmount = abs($totalAmount);
                 }
                 $amounts->push($totalAmount);
+            } else {
+                $forecastedAmount = $this->calculateForecastedAmount($header, $checkDate->year, $checkDate->month);
+                if ($forecastedAmount !== null) {
+                    $amounts->push($forecastedAmount);
+                }
             }
         }
 
         return $amounts;
+    }
+
+    private function calculateForecastedAmount(Header $header, int $year, int $month): ?float
+    {
+        $eventDate = Carbon::create($year, $month, 1);
+
+        if ($header->start_date && $eventDate->lessThan($header->start_date)) {
+            return null;
+        }
+
+        if ($header->end_date && $eventDate->greaterThan($header->end_date)) {
+            return null;
+        }
+
+        return match ($header->rule) {
+            EventRule::Fixed => (float) $header->default_amount,
+            EventRule::MaxLastFiveMonths => $this->calculateMaxLastFiveMonths($header, $year, $month),
+            EventRule::MeanLastFiveMonths => $this->calculateMeanLastFiveMonths($header, $year, $month),
+            default => (float) $header->default_amount,
+        };
     }
 
     private function mergeEvents(Collection $virtualEvents, Collection $persistedEvents): Collection
