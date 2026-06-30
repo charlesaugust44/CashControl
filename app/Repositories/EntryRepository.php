@@ -18,12 +18,7 @@ class EntryRepository extends BaseRepository
     public function history(Asset $asset): Collection
     {
         return Event::query()
-            ->with([
-                'header',
-                'entries' => function ($query) use ($asset) {
-                    $query->where('asset_id', $asset->id)->with('asset');
-                }
-            ])
+            ->with(['header', 'entries.asset'])
             ->whereHas('entries', function ($query) use ($asset) {
                 $query->where('asset_id', $asset->id);
             })
