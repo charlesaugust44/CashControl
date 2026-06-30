@@ -3,6 +3,7 @@
 return [
     'title' => 'Lançamentos',
     'singular' => 'Lançamento',
+    'create' => 'Novo',
     'no_entries' => 'Nenhum evento para este mês',
     'balance' => 'Saldo',
 
@@ -22,13 +23,23 @@ return [
     ],
 
     'fields' => [
+        'name' => 'Nome',
+        'type' => 'Tipo',
         'asset' => 'Ativo',
         'amount' => 'Valor',
         'note' => 'Observação',
         'note_optional' => 'Observação (opcional)',
         'note_placeholder' => 'Adicionar uma observação...',
         'date' => 'Data',
+        'transfer_amount' => 'Valor da Transferência',
+        'from' => 'De',
+        'to' => 'Para',
     ],
+
+    'select_asset' => 'Selecionar ativo',
+    'select_source_asset' => 'Selecionar ativo de origem',
+    'select_destination_asset' => 'Selecionar ativo de destino',
+    'add_entry' => 'Adicionar Lançamento',
 
     'transfer' => [
         'info' => 'Transferências movem dinheiro entre dois ativos. O valor total é o mesmo para ambos.',

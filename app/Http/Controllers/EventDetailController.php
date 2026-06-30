@@ -19,6 +19,48 @@ class EventDetailController extends Controller
         $this->consolidationService = new ConsolidationService();
     }
 
+    public function create(Request $request): View
+    {
+        $assets = $this->eventDetailService->getAssets();
+        $currentMonth = $request->get('month', now()->format('Y-m'));
+        $defaultDate = \Carbon\Carbon::parse($currentMonth)->startOfMonth();
+
+        return view('entries.create', [
+            'assets' => $assets,
+            'defaultDate' => $defaultDate,
+            'currentMonth' => $currentMonth,
+            'pageTitle' => __('entries.create'),
+            'breadcrumbs' => [
+                ['label' => __('entries.title'), 'url' => '/entries?month=' . $currentMonth],
+                ['label' => __('entries.create'), 'url' => null],
+            ],
+        ]);
+    }
+
+    public function storeStandalone(Request $request): RedirectResponse
+    {
+        try {
+            $validated = $this->validateStandaloneEventData($request);
+            $event = $this->eventDetailService->createStandaloneEvent($validated);
+
+            $action = $request->input('action', 'submit');
+
+            if ($action === 'save') {
+                return redirect('/entries/' . $event->id)
+                    ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
+            }
+
+            $eventDate = \Carbon\Carbon::parse($event->date);
+
+            return redirect('/entries?month=' . $eventDate->format('Y-m'))
+                ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
+    }
+
     public function show(int $id): View
     {
         $event = $this->eventDetailService->getEvent($id);
@@ -29,10 +71,10 @@ class EventDetailController extends Controller
             'event' => $event,
             'assets' => $assets,
             'isVirtual' => false,
-            'pageTitle' => $event->header->name ?? __('entries.title'),
+            'pageTitle' => $event->name ?? __('entries.title'),
             'breadcrumbs' => [
                 ['label' => __('entries.title'), 'url' => '/entries?month=' . $eventDate->format('Y-m')],
-                ['label' => $event->header->name ?? __('entries.title'), 'url' => null],
+                ['label' => $event->name ?? __('entries.title'), 'url' => null],
             ],
         ]);
     }
@@ -54,10 +96,10 @@ class EventDetailController extends Controller
             'headerId' => $headerId,
             'year' => $year,
             'month' => $month,
-            'pageTitle' => $event->header->name ?? __('entries.title'),
+            'pageTitle' => $event->name ?? __('entries.title'),
             'breadcrumbs' => [
                 ['label' => __('entries.title'), 'url' => '/entries?month=' . \Carbon\Carbon::create($year, $month, 1)->format('Y-m')],
-                ['label' => $event->header->name ?? __('entries.title'), 'url' => null],
+                ['label' => $event->name ?? __('entries.title'), 'url' => null],
             ],
         ]);
     }
@@ -139,6 +181,21 @@ class EventDetailController extends Controller
     private function validateEventData(Request $request): array
     {
         $validated = $request->validate([
+            'note' => 'nullable|string|max:300',
+            'entries' => 'required|array|min:1',
+            'entries.*.asset_id' => 'required|exists:assets,id',
+            'entries.*.amount' => 'required|numeric',
+        ]);
+
+        return $validated;
+    }
+
+    private function validateStandaloneEventData(Request $request): array
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'type' => 'required|in:income,expense,transfer',
+            'date' => 'required|date',
             'note' => 'nullable|string|max:300',
             'entries' => 'required|array|min:1',
             'entries.*.asset_id' => 'required|exists:assets,id',

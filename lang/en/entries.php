@@ -3,6 +3,7 @@
 return [
     'title' => 'Entries',
     'singular' => 'Entry',
+    'create' => 'New',
     'no_entries' => 'No events for this month',
     'balance' => 'Balance',
 
@@ -22,13 +23,23 @@ return [
     ],
 
     'fields' => [
+        'name' => 'Name',
+        'type' => 'Type',
         'asset' => 'Asset',
         'amount' => 'Amount',
         'note' => 'Note',
         'note_optional' => 'Note (optional)',
         'note_placeholder' => 'Add a note...',
         'date' => 'Date',
+        'transfer_amount' => 'Transfer Amount',
+        'from' => 'From',
+        'to' => 'To',
     ],
+
+    'select_asset' => 'Select asset',
+    'select_source_asset' => 'Select source asset',
+    'select_destination_asset' => 'Select destination asset',
+    'add_entry' => 'Add Entry',
 
     'transfer' => [
         'info' => 'Transfers move money between two assets. The total amount is the same for both.',

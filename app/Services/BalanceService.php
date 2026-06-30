@@ -78,11 +78,11 @@ class BalanceService
     {
         $events = $this->eventRepository->listByMonth($year, $month);
 
-        $income = $events->filter(fn($e) => $e->header->type?->value === 'income')
+        $income = $events->filter(fn($e) => $e->type?->value === 'income')
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => max(0, (float) $entry->amount));
 
-        $expense = $events->filter(fn($e) => $e->header->type?->value === 'expense')
+        $expense = $events->filter(fn($e) => $e->type?->value === 'expense')
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => abs((float) $entry->amount));
 
@@ -93,19 +93,19 @@ class BalanceService
     {
         $events = $this->eventRepository->listByMonth($year, $month);
 
-        $consolidatedIncome = $events->filter(fn($e) => $e->consolidated && $e->header->type?->value === 'income')
+        $consolidatedIncome = $events->filter(fn($e) => $e->consolidated && $e->type?->value === 'income')
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => max(0, (float) $entry->amount));
 
-        $consolidatedExpense = $events->filter(fn($e) => $e->consolidated && $e->header->type?->value === 'expense')
+        $consolidatedExpense = $events->filter(fn($e) => $e->consolidated && $e->type?->value === 'expense')
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => abs((float) $entry->amount));
 
-        $unconsolidatedIncome = $events->filter(fn($e) => !$e->consolidated && $e->header->type?->value === 'income')
+        $unconsolidatedIncome = $events->filter(fn($e) => !$e->consolidated && $e->type?->value === 'income')
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => max(0, (float) $entry->amount));
 
-        $unconsolidatedExpense = $events->filter(fn($e) => !$e->consolidated && $e->header->type?->value === 'expense')
+        $unconsolidatedExpense = $events->filter(fn($e) => !$e->consolidated && $e->type?->value === 'expense')
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => abs((float) $entry->amount));
 

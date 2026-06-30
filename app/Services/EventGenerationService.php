@@ -71,6 +71,8 @@ class EventGenerationService
 
         $event = new Event([
             'header_id' => $header->id,
+            'type' => $header->type,
+            'name' => $header->name,
             'date' => $eventDate,
             'consolidated' => false,
             'note' => null,
@@ -211,10 +213,10 @@ class EventGenerationService
 
     private function mergeEvents(Collection $virtualEvents, Collection $persistedEvents): Collection
     {
-        $merged = $virtualEvents->keyBy(fn($event) => $event->header_id . '_' . $event->date->format('Y-m-d'));
+        $merged = $virtualEvents->keyBy(fn($event) => 'v_' . $event->header_id . '_' . $event->date->format('Y-m-d'));
 
         foreach ($persistedEvents as $persistedEvent) {
-            $key = $persistedEvent->header_id . '_' . $persistedEvent->date->format('Y-m-d');
+            $key = 'p_' . $persistedEvent->id;
             $merged[$key] = $persistedEvent;
         }
 

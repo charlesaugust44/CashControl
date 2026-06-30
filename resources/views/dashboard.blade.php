@@ -95,7 +95,7 @@
                 <ul class="pending-list">
                     @foreach($pendingConsolidations as $event)
                         @php
-                            $type = $event->header->type?->value ?? 'event';
+                            $type = $event->type?->value ?? 'event';
                             $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
                             $typeIcon = $typeIcons[$type] ?? 'bi-tag';
                             $isTransfer = $type === 'transfer';
@@ -113,7 +113,7 @@
                             <a href="{{ $detailUrl }}" class="pending-item__info" style="text-decoration: none; color: inherit;">
                                 <i class="bi {{ $typeIcon }} pending-item__icon"></i>
                                 <div class="pending-item__details">
-                                    <span class="pending-item__name">{{ $event->header->name ?? 'Unnamed' }}</span>
+                                    <span class="pending-item__name">{{ $event->name ?? 'Unnamed' }}</span>
                                     <span class="pending-item__date">{{ $fmt->date($event->date) }}</span>
                                 </div>
                             </a>

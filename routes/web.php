@@ -29,6 +29,8 @@ Route::get('/templates/{id}/delete', [HeaderController::class, 'delete']);
 Route::delete('/templates/{id}', [HeaderController::class, 'destroy']);
 
 Route::get('/entries', [EventController::class, 'index']);
+Route::get('/entries/create', [EventDetailController::class, 'create']);
+Route::post('/entries', [EventDetailController::class, 'storeStandalone']);
 Route::get('/entries/virtual/{headerId}/{year}/{month}', [EventDetailController::class, 'showVirtual']);
 Route::post('/entries/virtual/{headerId}/{year}/{month}', [EventDetailController::class, 'store']);
 Route::get('/entries/{id}', [EventDetailController::class, 'show']);

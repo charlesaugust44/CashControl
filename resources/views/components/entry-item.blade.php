@@ -1,5 +1,5 @@
 @php
-    $type = $event->header->type?->value ?? 'event';
+    $type = $event->type?->value ?? 'event';
     $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
     $typeIcon = $typeIcons[$type] ?? 'bi-tag';
     $isVirtual = $event->id === 0 || $event->id === null;
@@ -17,7 +17,7 @@
         <div class="event-header">
             <h3 class="event-name">
                 <i class="{{ $typeIcon }}"></i>
-                {{ $event->header->name ?? 'Unnamed Event' }}
+                {{ $event->name ?? 'Unnamed Event' }}
                 @if($isVirtual)
                     <span class="badge bg-info">{{ __('entries.status.forecast') }}</span>
                 @elseif($isConsolidated)
@@ -35,7 +35,7 @@
             {{ $fmt->date($event->date) }}
         </div>
         <div class="event-entries">
-            @if($event->header->isTransfer())
+            @if($event->isTransfer())
                 @php
                     $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0);
                     $destEntry = $event->entries->first(fn($e) => $e->amount > 0);

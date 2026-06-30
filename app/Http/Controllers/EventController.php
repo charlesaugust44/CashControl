@@ -34,18 +34,18 @@ class EventController extends Controller
             $monthDate->month
         );
 
-        $totalIncome = $events->filter(fn($e) => $e->header->type?->value === 'income')
+        $totalIncome = $events->filter(fn($e) => $e->type?->value === 'income')
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => max(0, (float) $entry->amount));
 
-        $totalExpense = $events->filter(fn($e) => $e->header->type?->value === 'expense')
+        $totalExpense = $events->filter(fn($e) => $e->type?->value === 'expense')
             ->flatMap(fn($e) => $e->entries)
             ->sum(fn($entry) => abs((float) $entry->amount));
 
         $balance = $totalIncome - $totalExpense;
 
         if ($filter !== 'all') {
-            $events = $events->filter(fn($e) => $e->header->type?->value === $filter)->values();
+            $events = $events->filter(fn($e) => $e->type?->value === $filter)->values();
         }
 
         $headerOptions = $this->buildHeaderOptions($monthDate);

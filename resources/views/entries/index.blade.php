@@ -7,8 +7,17 @@
 @section('content')
     <div class="entries-container">
         <div class="entries-top-bar">
-            <div class="month-picker-wrapper">
-                @include('components.month-picker', ['currentMonth' => $currentMonth])
+            <div class="entries-month-row">
+                <div class="month-picker-wrapper">
+                    @include('components.month-picker', ['currentMonth' => $currentMonth])
+                </div>
+
+                <div class="entries-actions">
+                    <a href="{{ url('/entries/create?month=' . $currentMonth) }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        {{ __('entries.create') }}
+                    </a>
+                </div>
             </div>
 
             <div class="entries-summary">

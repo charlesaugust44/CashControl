@@ -52,13 +52,15 @@ class EventDetailService
         return DB::transaction(function () use ($header, $eventDate, $entriesData) {
             $event = Event::create([
                 'header_id' => $header->id,
+                'type' => $header->type,
+                'name' => $header->name,
                 'date' => $eventDate,
                 'consolidated' => false,
                 'note' => $entriesData['note'] ?? null,
             ]);
 
-            foreach ($entriesData['entries'] as $entryData) {
-                $amount = $this->adjustAmountSign($header, $entryData['amount'], $entryData['asset_id']);
+            foreach ($entriesData['entries'] as $index => $entryData) {
+                $amount = $this->adjustAmountSign($header->type, $entryData['amount'], $index);
                 Entry::create([
                     'event_id' => $event->id,
                     'asset_id' => $entryData['asset_id'],
@@ -67,6 +69,41 @@ class EventDetailService
             }
 
             return $event->load(['entries.asset', 'header']);
+        });
+    }
+
+    public function createStandaloneEvent(array $data): Event
+    {
+        $eventDate = Carbon::parse($data['date']);
+
+        if ($this->monthClosureService->isMonthClosed($eventDate->year, $eventDate->month)) {
+            throw new Exception('Cannot create events in closed months');
+        }
+
+        if ($eventDate->greaterThan(Carbon::now()->endOfMonth())) {
+            throw new Exception('Cannot create future events');
+        }
+
+        return DB::transaction(function () use ($data, $eventDate) {
+            $event = Event::create([
+                'header_id' => null,
+                'type' => EventType::from($data['type']),
+                'name' => $data['name'],
+                'date' => $eventDate,
+                'consolidated' => false,
+                'note' => $data['note'] ?? null,
+            ]);
+
+            foreach ($data['entries'] as $index => $entryData) {
+                $amount = $this->adjustAmountSign($event->type, $entryData['amount'], $index);
+                Entry::create([
+                    'event_id' => $event->id,
+                    'asset_id' => $entryData['asset_id'],
+                    'amount' => $amount,
+                ]);
+            }
+
+            return $event->load(['entries.asset']);
         });
     }
 
@@ -88,8 +125,8 @@ class EventDetailService
 
             $event->entries()->delete();
 
-            foreach ($data['entries'] as $entryData) {
-                $amount = $this->adjustAmountSign($event->header, $entryData['amount'], $entryData['asset_id']);
+            foreach ($data['entries'] as $index => $entryData) {
+                $amount = $this->adjustAmountSign($event->type, $entryData['amount'], $index);
                 Entry::create([
                     'event_id' => $event->id,
                     'asset_id' => $entryData['asset_id'],
@@ -133,16 +170,16 @@ class EventDetailService
         return Asset::orderBy('name')->get();
     }
 
-    private function adjustAmountSign(Header $header, float $amount, int $assetId): float
+    private function adjustAmountSign(EventType $type, float $amount, int $entryIndex): float
     {
         $absoluteAmount = abs($amount);
 
-        if ($header->type === EventType::Expense) {
+        if ($type === EventType::Expense) {
             return -$absoluteAmount;
         }
 
-        if ($header->type === EventType::Transfer) {
-            if ($assetId === $header->asset_id) {
+        if ($type === EventType::Transfer) {
+            if ($entryIndex === 0) {
                 return -$absoluteAmount;
             }
             return $absoluteAmount;

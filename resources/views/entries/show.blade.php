@@ -6,11 +6,11 @@
 
 @section('content')
     @php
-        $type = $event->header->type?->value ?? 'event';
+        $type = $event->type?->value ?? 'event';
         $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
         $typeIcon = $typeIcons[$type] ?? 'bi-tag';
         $isConsolidated = $event->consolidated ?? false;
-        $isTransfer = $event->header->isTransfer();
+        $isTransfer = $event->isTransfer();
 
         $formAction = $isVirtual
             ? url('/entries/virtual/' . $headerId . '/' . $year . '/' . $month)
@@ -23,7 +23,7 @@
             <div class="event-detail-header">
                 <div class="event-detail-title">
                     <i class="{{ $typeIcon }}"></i>
-                    <h2>{{ $event->header->name ?? 'Event Details' }}</h2>
+                    <h2>{{ $event->name ?? 'Event Details' }}</h2>
                 </div>
                 <div class="event-detail-badges">
                     @if($isVirtual)

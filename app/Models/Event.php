@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EventType;
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,12 +16,15 @@ class Event extends Model
 
     protected $fillable = [
         'header_id',
+        'type',
+        'name',
         'date',
         'consolidated',
         'note',
     ];
 
     protected $casts = [
+        'type' => EventType::class,
         'date' => 'date',
         'consolidated' => 'boolean',
     ];
@@ -53,6 +57,6 @@ class Event extends Model
 
     public function isTransfer(): bool
     {
-        return $this->header && $this->header->isTransfer();
+        return $this->type === EventType::Transfer;
     }
 }
