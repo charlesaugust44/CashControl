@@ -44,6 +44,16 @@ class EventController extends Controller
 
         $balance = $totalIncome - $totalExpense;
 
+        $consolidatedIncome = $events->filter(fn($e) => $e->consolidated && $e->type?->value === 'income')
+            ->flatMap(fn($e) => $e->entries)
+            ->sum(fn($entry) => max(0, (float) $entry->amount));
+
+        $consolidatedExpense = $events->filter(fn($e) => $e->consolidated && $e->type?->value === 'expense')
+            ->flatMap(fn($e) => $e->entries)
+            ->sum(fn($entry) => abs((float) $entry->amount));
+
+        $consolidatedBalance = $consolidatedIncome - $consolidatedExpense;
+
         if ($filter !== 'all') {
             $events = $events->filter(fn($e) => $e->type?->value === $filter)->values();
         }
@@ -58,6 +68,9 @@ class EventController extends Controller
             'totalIncome' => $totalIncome,
             'totalExpense' => $totalExpense,
             'balance' => $balance,
+            'consolidatedIncome' => $consolidatedIncome,
+            'consolidatedExpense' => $consolidatedExpense,
+            'consolidatedBalance' => $consolidatedBalance,
             'currentFilter' => $filter,
         ]);
     }

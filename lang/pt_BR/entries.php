@@ -6,6 +6,8 @@ return [
     'create' => 'Novo',
     'no_entries' => 'Nenhum evento para este mês',
     'balance' => 'Saldo',
+    'forecasted' => 'Previsto',
+    'consolidated' => 'Consolidado',
 
     'status' => [
         'forecast' => 'Previsão',

@@ -6,6 +6,8 @@ return [
     'create' => 'New',
     'no_entries' => 'No events for this month',
     'balance' => 'Balance',
+    'forecasted' => 'Forecasted',
+    'consolidated' => 'Consolidated',
 
     'status' => [
         'forecast' => 'Forecast',

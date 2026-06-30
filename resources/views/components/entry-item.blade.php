@@ -19,11 +19,20 @@
                 <i class="{{ $typeIcon }}"></i>
                 {{ $event->name ?? 'Unnamed Event' }}
                 @if($isVirtual)
-                    <span class="badge bg-info">{{ __('entries.status.forecast') }}</span>
+                    <span class="event-badge event-badge--forecast">
+                        <span class="event-badge__dot"></span>
+                        {{ __('entries.status.forecast') }}
+                    </span>
                 @elseif($isConsolidated)
-                    <span class="badge bg-success">{{ __('entries.status.consolidated') }}</span>
+                    <span class="event-badge event-badge--consolidated">
+                        <span class="event-badge__dot"></span>
+                        {{ __('entries.status.consolidated') }}
+                    </span>
                 @else
-                    <span class="badge bg-warning">{{ __('entries.status.pending') }}</span>
+                    <span class="event-badge event-badge--pending">
+                        <span class="event-badge__dot"></span>
+                        {{ __('entries.status.pending') }}
+                    </span>
                 @endif
             </h3>
             <span class="event-type {{ $type }}">
