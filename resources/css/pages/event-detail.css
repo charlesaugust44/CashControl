@@ -217,7 +217,7 @@
 }
 
 .amount-input-wrapper .form-control {
-    padding-left: calc(var(--space-3) + 1rem);
+    padding-left: calc(var(--space-3) + 1.5rem);
 }
 
 .btn-add-entry {

@@ -66,7 +66,7 @@
                         <label for="default_amount" class="form-label">{{ __('templates.fields.default_amount') }}</label>
                         <div class="input-group">
                             <span class="input-group-text">{{ $fmt->currencySymbol() }}</span>
-                            <input type="number" step="0.01" min="0" class="form-control @error('default_amount') is-invalid @enderror" id="default_amount" name="default_amount" value="{{ old('default_amount', $header->default_amount ?? '') }}" placeholder="{{ __('templates.placeholders.default_amount') }}">
+                            <input type="text" inputmode="decimal" autocomplete="off" class="form-control money-input @error('default_amount') is-invalid @enderror" id="default_amount" name="default_amount" value="{{ old('default_amount', $header->default_amount ?? '') }}" placeholder="0.00">
                         </div>
                         @error('default_amount')
                             <div class="invalid-feedback">{{ $message }}</div>

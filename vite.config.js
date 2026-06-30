@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/js/theme.js',
                 'resources/js/toast.js',
                 'resources/js/dashboard.js',
+                'resources/js/money-input.js',
                 'resources/css/pages/assets.css',
                 'resources/css/pages/asset-detail.css',
                 'resources/css/pages/asset-form.css',

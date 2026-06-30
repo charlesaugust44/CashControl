@@ -77,12 +77,12 @@
                                     <div class="amount-input-wrapper">
                                         <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                         <input
-                                            type="number"
+                                            type="text"
+                                            inputmode="decimal"
+                                            autocomplete="off"
                                             name="entries[0][amount]"
-                                            class="form-control"
+                                            class="form-control money-input"
                                             value="{{ old('entries.0.amount') }}"
-                                            step="0.01"
-                                            min="0"
                                             required
                                         >
                                     </div>
@@ -98,13 +98,13 @@
                                 <div class="amount-input-wrapper">
                                     <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                     <input
-                                        type="number"
+                                        type="text"
+                                        inputmode="decimal"
+                                        autocomplete="off"
                                         name="transfer_amount"
                                         id="transferAmount"
-                                        class="form-control"
+                                        class="form-control money-input"
                                         value="{{ old('transfer_amount') }}"
-                                        step="0.01"
-                                        min="0"
                                         required
                                     >
                                 </div>
@@ -147,13 +147,13 @@
                                 <div class="amount-input-wrapper">
                                     <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                     <input
-                                        type="number"
+                                        type="text"
+                                        inputmode="decimal"
+                                        autocomplete="off"
                                         name="expense_transfer_amount"
                                         id="expenseTransferAmount"
-                                        class="form-control"
+                                        class="form-control money-input"
                                         value="{{ old('expense_transfer_amount') }}"
-                                        step="0.01"
-                                        min="0"
                                         required
                                     >
                                 </div>
@@ -245,11 +245,11 @@
                     <div class="amount-input-wrapper">
                         <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
                             name="entries[__INDEX__][amount]"
-                            class="form-control"
-                            step="0.01"
-                            min="0"
+                            class="form-control money-input"
                             required
                         >
                     </div>

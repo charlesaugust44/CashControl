@@ -66,13 +66,13 @@
                                     <div class="amount-input-wrapper">
                                         <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                         <input
-                                            type="number"
+                                            type="text"
+                                            inputmode="decimal"
+                                            autocomplete="off"
                                             name="transfer_amount"
                                             id="transferAmount"
-                                            class="form-control"
+                                            class="form-control money-input"
                                             value="{{ $transferAmount }}"
-                                            step="0.01"
-                                            min="0"
                                             {{ $isConsolidated ? 'disabled' : 'required' }}
                                         >
                                     </div>
@@ -119,13 +119,13 @@
                                     <div class="amount-input-wrapper">
                                         <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                         <input
-                                            type="number"
+                                            type="text"
+                                            inputmode="decimal"
+                                            autocomplete="off"
                                             name="expense_transfer_amount"
                                             id="expenseTransferAmount"
-                                            class="form-control"
+                                            class="form-control money-input"
                                             value="{{ $amount }}"
-                                            step="0.01"
-                                            min="0"
                                             {{ $isConsolidated ? 'disabled' : 'required' }}
                                         >
                                     </div>
@@ -192,12 +192,12 @@
                                             <div class="amount-input-wrapper">
                                         <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                                 <input
-                                                    type="number"
+                                                    type="text"
+                                                    inputmode="decimal"
+                                                    autocomplete="off"
                                                     name="entries[{{ $index }}][amount]"
-                                                    class="form-control entry-amount-input"
+                                                    class="form-control entry-amount-input money-input"
                                                     value="{{ $absoluteAmount }}"
-                                                    step="0.01"
-                                                    min="0"
                                                     {{ $isConsolidated ? 'disabled' : 'required' }}
                                                     data-original-amount="{{ $entry->amount }}"
                                                 >
@@ -286,11 +286,11 @@
                         <div class="amount-input-wrapper">
                             <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                             <input
-                                type="number"
+                                type="text"
+                                inputmode="decimal"
+                                autocomplete="off"
                                 name="entries[__INDEX__][amount]"
-                                class="form-control entry-amount-input"
-                                step="0.01"
-                                min="0"
+                                class="form-control entry-amount-input money-input"
                                 required
                             >
                         </div>

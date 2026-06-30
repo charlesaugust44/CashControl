@@ -14,7 +14,7 @@
             document.documentElement.setAttribute('data-theme', t);
         })();
     </script>
-    @vite(['resources/css/app.css', 'resources/js/theme.js', 'resources/js/toast.js'])
+    @vite(['resources/css/app.css', 'resources/js/theme.js', 'resources/js/toast.js', 'resources/js/money-input.js'])
     @stack('styles')
 </head>
 <body>
