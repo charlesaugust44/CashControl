@@ -10,7 +10,4 @@
             </span>
         </div>
     </div>
-    <a href="{{ $actionUrl }}" class="add-asset-btn">
-        {{ $slot }}
-    </a>
 </div>

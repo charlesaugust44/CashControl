@@ -3,7 +3,7 @@
 return [
     'title' => 'Lançamentos',
     'singular' => 'Lançamento',
-    'create' => 'Novo',
+    'create' => 'Novo Lançamento',
     'no_entries' => 'Nenhum evento para este mês',
     'balance' => 'Saldo',
     'forecasted' => 'Previsto',

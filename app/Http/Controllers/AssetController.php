@@ -26,6 +26,14 @@ class AssetController extends Controller
             'assets' => $assets,
             'total' => $total,
             'pageTitle' => __('assets.title'),
+            'headerOptions' => [
+                [
+                    'type' => 'link',
+                    'url' => url('/assets/create'),
+                    'label' => __('ui.new', ['item' => __('assets.singular')]),
+                    'icon' => 'bi bi-plus-circle',
+                ],
+            ],
         ]);
     }
 
@@ -51,6 +59,14 @@ class AssetController extends Controller
             'events' => $events,
             'currentMonth' => $currentMonth,
             'pageTitle' => $asset->name,
+            'headerOptions' => [
+                [
+                    'type' => 'link',
+                    'url' => url("/assets/{$asset->id}/edit"),
+                    'label' => __('ui.edit'),
+                    'icon' => 'bi bi-pencil',
+                ],
+            ],
             'breadcrumbs' => [
                 ['label' => __('assets.title'), 'url' => '/assets'],
                 ['label' => $asset->name, 'url' => null],

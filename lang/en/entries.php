@@ -3,7 +3,7 @@
 return [
     'title' => 'Entries',
     'singular' => 'Entry',
-    'create' => 'New',
+    'create' => 'New Entry',
     'no_entries' => 'No events for this month',
     'balance' => 'Balance',
     'forecasted' => 'Forecasted',

@@ -6,13 +6,15 @@
 
 @section('content')
     <div class="templates-container">
-        <div class="templates-header">
-            <h2 class="templates-title">{{ __('templates.title') }}</h2>
-            <a href="{{ url('/templates/create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i>
-                <span>{{ __('ui.new', ['item' => __('templates.singular')]) }}</span>
-            </a>
-        </div>
+        @include('components.filter-tabs', [
+            'filters' => [
+                'all'      => ['label' => __('ui.all'),                  'icon' => 'bi-grid-3x3-gap'],
+                'income'   => ['label' => __('templates.types.income'),  'icon' => 'bi-arrow-down-left'],
+                'expense'  => ['label' => __('templates.types.expense'), 'icon' => 'bi-arrow-up-right'],
+                'transfer' => ['label' => __('templates.types.transfer'),'icon' => 'bi-arrow-left-right'],
+            ],
+            'currentFilter' => $currentFilter,
+        ])
 
         @if($headers->isEmpty())
             <div class="empty-state">

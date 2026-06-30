@@ -59,40 +59,6 @@
     color: var(--color-text-secondary);
 }
 
-.add-asset-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.5rem 1rem;
-    background: var(--color-primary);
-    border: none;
-    border-radius: var(--radius-md);
-    color: #fff;
-    font-weight: 500;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    text-decoration: none;
-    box-shadow: var(--shadow-xs);
-}
-
-.add-asset-btn i {
-    font-size: 1rem;
-}
-
-.add-asset-btn:hover {
-    background: var(--color-primary-hover);
-    color: #fff;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
-    text-decoration: none;
-}
-
-.add-asset-btn:active {
-    transform: translateY(0);
-    box-shadow: var(--shadow-xs);
-}
-
 @media (max-width: 640px) {
     .asset-header {
         gap: var(--space-3);
@@ -102,9 +68,5 @@
 
     .total-amount {
         font-size: 1.125rem;
-    }
-
-    .add-asset-btn {
-        justify-content: center;
     }
 }

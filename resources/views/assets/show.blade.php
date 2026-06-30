@@ -6,12 +6,9 @@
 
 @section('content')
     <div class="asset-detail-container">
-        @component('components.asset-header', ['total' => $asset->balance ?? 0, 'actionUrl' => url("/assets/{$asset->id}/edit")])
-            <i class="bi bi-pencil-square"></i>
-            <span>{{ __('ui.edit') }}</span>
+        @component('components.asset-header', ['total' => $asset->balance ?? 0])
         @endcomponent
         <div class="entries-section">
-            @include('components.month-picker', ['currentMonth' => $currentMonth])
             @if($events->isEmpty())
                 <div class="empty-state">
                     <div class="empty-icon">

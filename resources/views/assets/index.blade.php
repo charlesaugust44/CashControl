@@ -6,9 +6,7 @@
 
 @section('content')
     <div class="assets-container">
-        @component('components.asset-header', ['total' => $total, 'actionUrl' => url('/assets/create')])
-            <i class="bi bi-plus-circle"></i>
-            <span>{{ __('ui.new', ['item' => __('assets.singular')]) }}</span>
+        @component('components.asset-header', ['total' => $total])
         @endcomponent
         <div class="list-wrapper">
             @foreach($assets as $asset)

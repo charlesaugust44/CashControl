@@ -22,7 +22,7 @@
 <div class="d-flex overflow-hidden">
     @include('components.sidebar')
     <div class="d-flex flex-column overflow-hidden vh-100 vw-100">
-        @include('components.header', ['pageTitle' => $pageTitle ?? null, 'headerOptions' => $headerOptions ?? []])
+        @include('components.header', ['pageTitle' => $pageTitle ?? null, 'headerOptions' => $headerOptions ?? [], 'currentMonth' => $currentMonth ?? null])
         @include('components.breadcrumbs', ['breadcrumbs' => $breadcrumbs ?? []])
         <main>
             @yield('content')

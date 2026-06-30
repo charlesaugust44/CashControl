@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Asset;
 use App\Models\Event;
 use App\Services\HeaderService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,13 +19,27 @@ class HeaderController extends Controller
         $this->headerService = new HeaderService;
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
+        $filter = $request->get('filter', 'all');
         $headers = $this->headerService->list();
+
+        if ($filter !== 'all') {
+            $headers = $headers->filter(fn ($h) => $h->type?->value === $filter)->values();
+        }
 
         return view('templates.index', [
             'headers' => $headers,
+            'currentFilter' => $filter,
             'pageTitle' => __('templates.title'),
+            'headerOptions' => [
+                [
+                    'type' => 'link',
+                    'url' => url('/templates/create'),
+                    'label' => __('ui.new', ['item' => __('templates.singular')]),
+                    'icon' => 'bi bi-plus-circle',
+                ],
+            ],
         ]);
     }
 
@@ -62,9 +77,9 @@ class HeaderController extends Controller
             ]);
         }
 
-        $validated['start_date'] = \Carbon\Carbon::parse($validated['start_date'])->firstOfMonth();
-        if (!empty($validated['end_date'])) {
-            $validated['end_date'] = \Carbon\Carbon::parse($validated['end_date'])->firstOfMonth();
+        $validated['start_date'] = Carbon::parse($validated['start_date'])->firstOfMonth();
+        if (! empty($validated['end_date'])) {
+            $validated['end_date'] = Carbon::parse($validated['end_date'])->firstOfMonth();
         }
 
         $this->headerService->create($validated);
@@ -96,7 +111,7 @@ class HeaderController extends Controller
             'header' => $header,
             'assets' => $assets,
             'futureEvents' => $futureEvents,
-            'pageTitle' => __('templates.edit') . " {$header->name}",
+            'pageTitle' => __('templates.edit')." {$header->name}",
             'breadcrumbs' => [
                 ['label' => __('templates.title'), 'url' => '/templates'],
                 ['label' => $header->name, 'url' => "/templates/{$id}"],
@@ -127,9 +142,9 @@ class HeaderController extends Controller
             ]);
         }
 
-        $validated['start_date'] = \Carbon\Carbon::parse($validated['start_date'])->firstOfMonth();
-        if (!empty($validated['end_date'])) {
-            $validated['end_date'] = \Carbon\Carbon::parse($validated['end_date'])->firstOfMonth();
+        $validated['start_date'] = Carbon::parse($validated['start_date'])->firstOfMonth();
+        if (! empty($validated['end_date'])) {
+            $validated['end_date'] = Carbon::parse($validated['end_date'])->firstOfMonth();
         }
 
         $deleteEvents = $validated['delete_events'] ?? [];
@@ -137,7 +152,7 @@ class HeaderController extends Controller
 
         $this->headerService->update($id, $validated);
 
-        if (!empty($deleteEvents)) {
+        if (! empty($deleteEvents)) {
             $eventsToDelete = Event::whereIn('id', $deleteEvents)->get();
             foreach ($eventsToDelete as $event) {
                 $event->entries()->delete();
@@ -156,7 +171,7 @@ class HeaderController extends Controller
         return view('templates.delete', [
             'header' => $header,
             'futureEvents' => $futureEvents,
-            'pageTitle' => __('templates.delete') . " {$header->name}",
+            'pageTitle' => __('templates.delete')." {$header->name}",
             'breadcrumbs' => [
                 ['label' => __('templates.title'), 'url' => '/templates'],
                 ['label' => $header->name, 'url' => "/templates/{$id}"],

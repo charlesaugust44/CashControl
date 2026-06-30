@@ -60,6 +60,13 @@ class EventController extends Controller
 
         $headerOptions = $this->buildHeaderOptions($monthDate);
 
+        array_unshift($headerOptions, [
+            'type' => 'link',
+            'url' => url('/entries/create?month=' . $currentMonth),
+            'label' => __('entries.create'),
+            'icon' => 'bi bi-plus-circle',
+        ]);
+
         return view('entries.index', [
             'events' => $events,
             'currentMonth' => $currentMonth,
@@ -136,8 +143,7 @@ class EventController extends Controller
 
         if ($isMonthClosed) {
             $options[] = [
-                'type' => 'link',
-                'url' => '#',
+                'type' => 'status',
                 'label' => __('entries.status.month_closed'),
                 'icon' => 'bi bi-lock-fill',
             ];

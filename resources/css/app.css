@@ -13,6 +13,7 @@
 @import './components/breadcrumbs.css';
 @import './components/toast.css';
 @import './components/amount.css';
+@import './components/filter-tabs.css';
 @import './pages/dashboard.css';
 
 :root {
