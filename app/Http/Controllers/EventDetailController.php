@@ -148,6 +148,12 @@ class EventDetailController extends Controller
 
             $action = $request->input('action', 'submit');
 
+            if ($action === 'consolidate') {
+                $event = $this->consolidationService->consolidateEvent($event->id);
+                return redirect('/entries/' . $event->id)
+                    ->with('success', __('messages.success.consolidated'));
+            }
+
             if ($action === 'save') {
                 return redirect('/entries/' . $event->id)
                     ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));

@@ -194,11 +194,9 @@
                         <i class="bi bi-check-circle"></i>
                         Submit
                     </button>
-                    @if(!$isVirtual)
-                        <button type="submit" name="action" value="consolidate" form="eventForm" class="btn btn-success">
-                            <i class="bi bi-check-all"></i> Consolidate
-                        </button>
-                    @endif
+                    <button type="submit" name="action" value="consolidate" form="eventForm" class="btn btn-success">
+                        <i class="bi bi-check-all"></i> Consolidate
+                    </button>
                 @endif
 
                 @if(!$isVirtual && $isConsolidated)
