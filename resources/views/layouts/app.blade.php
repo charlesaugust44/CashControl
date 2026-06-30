@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $pageTitle ?? config('app.name', 'Cash Control') }}</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <script>
         (function() {
             var t = localStorage.getItem('cashcontrol-theme');
@@ -14,7 +18,7 @@
             document.documentElement.setAttribute('data-theme', t);
         })();
     </script>
-    @vite(['resources/css/app.css', 'resources/js/theme.js', 'resources/js/toast.js', 'resources/js/money-input.js', 'resources/js/form-submit.js', 'resources/js/bootstrap-dropdown.js'])
+    @vite(['resources/css/app.css', 'resources/js/theme.js', 'resources/js/toast.js', 'resources/js/money-input.js', 'resources/js/form-submit.js', 'resources/js/bootstrap-dropdown.js', 'resources/js/register-sw.js'])
     @stack('styles')
 </head>
 <body>
