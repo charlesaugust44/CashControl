@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\EventRule;
 use App\Enums\EventType;
 use App\Models\Asset;
+use App\Models\Entry;
 use App\Models\Event;
 use App\Models\Header;
 use App\Repositories\EntryRepository;
@@ -12,23 +13,27 @@ use App\Repositories\EventRepository;
 use App\Repositories\HeaderRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 
 class EventGenerationService
 {
     private HeaderRepository $headerRepository;
+
     private EventRepository $eventRepository;
+
     private EntryRepository $entryRepository;
+
     private MonthClosureService $monthClosureService;
 
     public function __construct()
     {
-        $this->headerRepository = new HeaderRepository();
-        $this->eventRepository = new EventRepository();
-        $this->entryRepository = new EntryRepository();
-        $this->monthClosureService = new MonthClosureService();
+        $this->headerRepository = new HeaderRepository;
+        $this->eventRepository = new EventRepository;
+        $this->entryRepository = new EntryRepository;
+        $this->monthClosureService = new MonthClosureService;
     }
 
-    public function getMonthEvents(int $year, int $month): Collection
+    public function getMonthEvents(int $year, int $month): Enumerable
     {
         if ($this->monthClosureService->isMonthClosed($year, $month)) {
             return $this->eventRepository->listByMonth($year, $month);
@@ -42,7 +47,7 @@ class EventGenerationService
 
     public function generateVirtualEvents(int $year, int $month): Collection
     {
-        $activeHeaders = $this->headerRepository->active();
+        $activeHeaders = $this->headerRepository->active($year, $month);
         $virtualEvents = collect();
 
         foreach ($activeHeaders as $header) {
@@ -59,11 +64,11 @@ class EventGenerationService
     {
         $eventDate = Carbon::create($year, $month, 1);
 
-        if ($header->start_date && $eventDate->lessThan($header->start_date)) {
+        if ($header->start_date && $eventDate->lessThan($header->start_date->copy()->startOfMonth())) {
             return null;
         }
 
-        if ($header->end_date && $eventDate->greaterThan($header->end_date)) {
+        if ($header->end_date && $eventDate->greaterThan($header->end_date->copy()->endOfMonth())) {
             return null;
         }
 
@@ -92,7 +97,7 @@ class EventGenerationService
 
         if ($header->isTransfer()) {
             if ($header->asset_id) {
-                $debitEntry = new \App\Models\Entry([
+                $debitEntry = new Entry([
                     'event_id' => 0,
                     'asset_id' => $header->asset_id,
                     'amount' => -$amount,
@@ -102,7 +107,7 @@ class EventGenerationService
             }
 
             if ($header->destination_asset_id) {
-                $creditEntry = new \App\Models\Entry([
+                $creditEntry = new Entry([
                     'event_id' => 0,
                     'asset_id' => $header->destination_asset_id,
                     'amount' => $amount,
@@ -112,7 +117,7 @@ class EventGenerationService
             }
         } elseif ($header->isExpenseWithTransfer()) {
             if ($header->asset_id) {
-                $transferOutEntry = new \App\Models\Entry([
+                $transferOutEntry = new Entry([
                     'event_id' => 0,
                     'asset_id' => $header->asset_id,
                     'amount' => -$amount,
@@ -122,7 +127,7 @@ class EventGenerationService
             }
 
             if ($header->destination_asset_id) {
-                $transferInEntry = new \App\Models\Entry([
+                $transferInEntry = new Entry([
                     'event_id' => 0,
                     'asset_id' => $header->destination_asset_id,
                     'amount' => $amount,
@@ -130,7 +135,7 @@ class EventGenerationService
                 $transferInEntry->asset = Asset::find($header->destination_asset_id);
                 $entries->push($transferInEntry);
 
-                $expenseEntry = new \App\Models\Entry([
+                $expenseEntry = new Entry([
                     'event_id' => 0,
                     'asset_id' => $header->destination_asset_id,
                     'amount' => -$amount,
@@ -141,7 +146,7 @@ class EventGenerationService
         } else {
             if ($header->asset_id) {
                 $entryAmount = $header->type === EventType::Expense ? -$amount : $amount;
-                $entry = new \App\Models\Entry([
+                $entry = new Entry([
                     'event_id' => 0,
                     'asset_id' => $header->asset_id,
                     'amount' => $entryAmount,
@@ -225,11 +230,11 @@ class EventGenerationService
     {
         $eventDate = Carbon::create($year, $month, 1);
 
-        if ($header->start_date && $eventDate->lessThan($header->start_date)) {
+        if ($header->start_date && $eventDate->lessThan($header->start_date->copy()->startOfMonth())) {
             return null;
         }
 
-        if ($header->end_date && $eventDate->greaterThan($header->end_date)) {
+        if ($header->end_date && $eventDate->greaterThan($header->end_date->copy()->endOfMonth())) {
             return null;
         }
 
@@ -241,12 +246,12 @@ class EventGenerationService
         };
     }
 
-    private function mergeEvents(Collection $virtualEvents, Collection $persistedEvents): Collection
+    private function mergeEvents(Collection $virtualEvents, Collection $persistedEvents): Enumerable
     {
-        $merged = $virtualEvents->keyBy(fn($event) => 'v_' . $event->header_id . '_' . $event->date->format('Y-m-d'));
+        $merged = $virtualEvents->keyBy(fn ($event) => 'v_'.$event->header_id.'_'.$event->date->format('Y-m-d'));
 
         foreach ($persistedEvents as $persistedEvent) {
-            $key = 'p_' . $persistedEvent->id;
+            $key = 'p_'.$persistedEvent->id;
             $merged[$key] = $persistedEvent;
         }
 

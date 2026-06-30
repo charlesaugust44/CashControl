@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Repositories\EventRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 
 class EventService
 {
@@ -23,7 +24,7 @@ class EventService
         return $this->eventRepository->consolidate($id);
     }
 
-    public function listByMonth(int $year, int $month): Collection
+    public function listByMonth(int $year, int $month): Enumerable
     {
         return $this->eventGenerationService->getMonthEvents($year, $month);
     }
