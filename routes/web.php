@@ -34,6 +34,7 @@ Route::post('/entries', [EventDetailController::class, 'storeStandalone']);
 Route::get('/entries/virtual/{headerId}/{year}/{month}', [EventDetailController::class, 'showVirtual']);
 Route::post('/entries/virtual/{headerId}/{year}/{month}', [EventDetailController::class, 'store']);
 Route::get('/entries/{id}', [EventDetailController::class, 'show']);
+Route::get('/entries/{id}/delete', [EventDetailController::class, 'delete']);
 Route::put('/entries/{id}', [EventDetailController::class, 'update']);
 Route::delete('/entries/{id}', [EventDetailController::class, 'destroy']);
 

@@ -1,0 +1,76 @@
+.form-actions {
+    position: fixed;
+    bottom: var(--space-4);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    min-width: min(calc(100% - var(--space-8)), 680px);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-xl);
+    box-shadow:
+        0 4px 24px -4px rgba(0, 0, 0, 0.08),
+        0 1px 2px rgba(0, 0, 0, 0.04);
+    z-index: 100;
+    animation: form-actions-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes form-actions-enter {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.form-actions__danger {
+    flex-shrink: 0;
+}
+
+.form-actions__group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto;
+}
+
+[data-theme="dark"] .form-actions {
+    background: rgba(26, 29, 46, 0.85);
+    border-color: var(--color-border);
+    box-shadow:
+        0 4px 24px -4px rgba(0, 0, 0, 0.3),
+        0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .form-actions {
+        bottom: var(--space-3);
+        left: var(--space-3);
+        right: var(--space-3);
+        transform: none;
+        min-width: auto;
+        padding: var(--space-2) var(--space-3);
+        padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+        animation-name: form-actions-enter-mobile;
+    }
+
+    @keyframes form-actions-enter-mobile {
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}

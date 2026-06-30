@@ -55,11 +55,12 @@
                     </div>
                 @endif
 
-                <div class="template-delete-actions">
-                    <a href="{{ url('/templates/' . $header->id) }}" class="btn btn-outline-secondary">{{ __('ui.cancel') }}</a>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash"></i> {{ __('templates.delete') }}
-                    </button>
+                <div class="form-actions">
+                    <div class="form-actions__danger">
+                        <button type="submit" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

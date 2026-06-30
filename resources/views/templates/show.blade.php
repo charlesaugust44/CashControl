@@ -69,16 +69,17 @@
                 </div>
             </div>
 
-            <div class="template-detail-actions">
-                <a href="{{ url('/templates') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> {{ __('ui.back_to_list', ['item' => __('templates.title')]) }}
-                </a>
-                <a href="{{ url('/templates/' . $header->id . '/edit') }}" class="btn btn-primary">
-                    <i class="bi bi-pencil"></i> {{ __('ui.edit') }}
-                </a>
-                <a href="{{ url('/templates/' . $header->id . '/delete') }}" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> {{ __('ui.delete') }}
-                </a>
+            <div class="form-actions">
+                <div class="form-actions__danger">
+                    <a href="{{ url('/templates/' . $header->id . '/delete') }}" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+                <div class="form-actions__group">
+                    <a href="{{ url('/templates/' . $header->id . '/edit') }}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> {{ __('ui.edit') }}
+                    </a>
+                </div>
             </div>
         </div>
     </div>

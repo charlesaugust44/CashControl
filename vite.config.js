@@ -10,6 +10,8 @@ export default defineConfig({
                 'resources/js/toast.js',
                 'resources/js/dashboard.js',
                 'resources/js/money-input.js',
+                'resources/js/form-submit.js',
+                'resources/js/bootstrap-dropdown.js',
                 'resources/css/pages/assets.css',
                 'resources/css/pages/asset-detail.css',
                 'resources/css/pages/asset-form.css',

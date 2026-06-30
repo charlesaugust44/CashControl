@@ -230,36 +230,44 @@
                 </div>
             </form>
 
-            <div class="event-detail-actions">
-                <a href="{{ url('/entries?month=' . \Carbon\Carbon::parse($event->date)->format('Y-m')) }}" class="btn btn-outline-secondary">
-                    {{ __('ui.cancel') }}
-                </a>
-
+            <div class="form-actions">
                 @if(!$isVirtual && !$isConsolidated)
-                    <button type="button" class="btn btn-danger" onclick="deleteEvent()">
-                        <i class="bi bi-trash"></i> {{ __('ui.delete') }}
-                    </button>
+                    <div class="form-actions__danger">
+                        <a href="{{ url('/entries/' . $event->id . '/delete') }}" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
                 @endif
 
-                @if(!$isConsolidated)
-                    <button type="submit" name="action" value="save" form="eventForm" class="btn btn-primary">
-                        <i class="bi bi-save"></i>
-                        {{ __('ui.save') }}
-                    </button>
-                    <button type="submit" name="action" value="submit" form="eventForm" class="btn btn-secondary">
-                        <i class="bi bi-check-circle"></i>
-                        {{ __('ui.submit') }}
-                    </button>
-                    <button type="submit" name="action" value="consolidate" form="eventForm" class="btn btn-success">
-                        <i class="bi bi-check-all"></i> {{ __('entries.actions.consolidate') }}
-                    </button>
-                @endif
+                <div class="form-actions__group">
+                    @if(!$isVirtual && $isConsolidated)
+                        <button type="submit" name="action" value="unconsolidate" form="eventForm" class="btn btn-warning">
+                            <i class="bi bi-arrow-counterclockwise"></i> {{ __('entries.actions.unconsolidate') }}
+                        </button>
+                    @endif
 
-                @if(!$isVirtual && $isConsolidated)
-                    <button type="submit" name="action" value="unconsolidate" form="eventForm" class="btn btn-warning">
-                        <i class="bi bi-arrow-counterclockwise"></i> {{ __('entries.actions.unconsolidate') }}
-                    </button>
-                @endif
+                    @if(!$isConsolidated)
+                        <button type="submit" name="action" value="consolidate" form="eventForm" class="btn btn-success">
+                            <i class="bi bi-check-all"></i> {{ __('entries.actions.consolidate') }}
+                        </button>
+                    @endif
+
+                    @if(!$isConsolidated)
+                        <div class="btn-split">
+                            <button type="submit" name="action" value="save" form="eventForm" class="btn btn-primary">
+                                <i class="bi bi-save"></i> {{ __('ui.save') }}
+                            </button>
+                            <button type="button" class="btn btn-primary btn-split__toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><button type="submit" name="action" value="submit" form="eventForm" class="dropdown-item">
+                                    <i class="bi bi-check-circle"></i> {{ __('ui.save_and_close') }}
+                                </button></li>
+                            </ul>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -316,29 +324,6 @@
             const row = document.querySelector(`.entry-row[data-index="${index}"]`);
             if (row) {
                 row.remove();
-            }
-        }
-
-        function deleteEvent() {
-            if (confirm('{{ __('entries.delete_confirmation') }}')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '{{ url('/entries/' . $event->id) }}';
-
-                const methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'DELETE';
-                form.appendChild(methodInput);
-
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_token';
-                csrfInput.value = '{{ csrf_token() }}';
-                form.appendChild(csrfInput);
-
-                document.body.appendChild(form);
-                form.submit();
             }
         }
 

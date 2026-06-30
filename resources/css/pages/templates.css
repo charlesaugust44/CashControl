@@ -171,6 +171,7 @@
     display: flex;
     justify-content: center;
     padding: var(--space-6);
+    padding-bottom: calc(var(--space-12) + 80px);
 }
 
 .template-form-card {
@@ -243,15 +244,6 @@
 
 .input-group .form-control {
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
-}
-
-.template-form__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-6);
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--color-border-light);
 }
 
 /* Conflict Section */
@@ -340,6 +332,7 @@
     display: flex;
     justify-content: center;
     padding: var(--space-6);
+    padding-bottom: calc(var(--space-12) + 80px);
 }
 
 .template-detail-card {
@@ -439,20 +432,12 @@
     color: var(--color-text-primary);
 }
 
-.template-detail-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-6);
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--color-border-light);
-}
-
 /* Template Delete */
 .template-delete-wrapper {
     display: flex;
     justify-content: center;
     padding: var(--space-6);
+    padding-bottom: calc(var(--space-12) + 80px);
 }
 
 .template-delete-card {
@@ -489,13 +474,6 @@
     line-height: 1.6;
 }
 
-.template-delete-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-6);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .templates-list {
@@ -504,18 +482,6 @@
 
     .form-row {
         grid-template-columns: 1fr;
-    }
-
-    .template-form__actions,
-    .template-detail-actions,
-    .template-delete-actions {
-        flex-direction: column;
-    }
-
-    .template-form__actions .btn,
-    .template-detail-actions .btn,
-    .template-delete-actions .btn {
-        width: 100%;
     }
 
     .conflict-event {

@@ -64,5 +64,8 @@ return [
         'expense_with_transfer' => 'expense + transfer',
     ],
 
-    'delete_confirmation' => 'Are you sure you want to delete this event?',
+    'delete_confirmation' => [
+        'title' => 'Delete Entry',
+        'message' => 'Are you sure you want to delete <strong>:name</strong>? This action cannot be undone.',
+    ],
 ];

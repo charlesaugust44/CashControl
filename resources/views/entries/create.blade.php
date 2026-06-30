@@ -208,18 +208,22 @@
                 </div>
             </form>
 
-            <div class="event-detail-actions">
-                <a href="{{ url('/entries?month=' . $currentMonth) }}" class="btn btn-outline-secondary">
-                    {{ __('ui.cancel') }}
-                </a>
-                <button type="submit" name="action" value="save" form="eventForm" class="btn btn-primary">
-                    <i class="bi bi-save"></i>
-                    {{ __('ui.save') }}
-                </button>
-                <button type="submit" name="action" value="submit" form="eventForm" class="btn btn-secondary">
-                    <i class="bi bi-check-circle"></i>
-                    {{ __('ui.submit') }}
-                </button>
+            <div class="form-actions">
+                <div class="form-actions__group">
+                    <div class="btn-split">
+                        <button type="submit" name="action" value="save" form="eventForm" class="btn btn-primary">
+                            <i class="bi bi-save"></i> {{ __('ui.save') }}
+                        </button>
+                        <button type="button" class="btn btn-primary btn-split__toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><button type="submit" name="action" value="submit" form="eventForm" class="dropdown-item">
+                                <i class="bi bi-check-circle"></i> {{ __('ui.save_and_close') }}
+                            </button></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

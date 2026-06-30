@@ -159,14 +159,22 @@
                     </div>
                 @endif
 
-                <div class="template-form__actions">
-                    <a href="{{ isset($header) ? url('/templates/' . $header->id) : url('/templates') }}" class="btn btn-outline-secondary">{{ __('ui.cancel') }}</a>
-                    <button type="submit" name="action" value="save" class="btn btn-primary">
-                        <i class="bi bi-save"></i> {{ __('ui.save') }}
-                    </button>
-                    <button type="submit" name="action" value="submit" class="btn btn-secondary">
-                        <i class="bi bi-check-circle"></i> {{ __('ui.submit') }}
-                    </button>
+                <div class="form-actions">
+                    <div class="form-actions__group">
+                        <div class="btn-split">
+                            <button type="submit" name="action" value="save" class="btn btn-primary">
+                                <i class="bi bi-save"></i> {{ __('ui.save') }}
+                            </button>
+                            <button type="button" class="btn btn-primary btn-split__toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><button type="submit" name="action" value="submit" class="dropdown-item">
+                                    <i class="bi bi-check-circle"></i> {{ __('ui.save_and_close') }}
+                                </button></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>

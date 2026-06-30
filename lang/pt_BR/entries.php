@@ -63,5 +63,8 @@ return [
         'transfer' => 'transferência',
     ],
 
-    'delete_confirmation' => 'Tem certeza que deseja excluir este evento?',
+    'delete_confirmation' => [
+        'title' => 'Excluir Lançamento',
+        'message' => 'Tem certeza que deseja excluir <strong>:name</strong>? Esta ação não pode ser desfeita.',
+    ],
 ];

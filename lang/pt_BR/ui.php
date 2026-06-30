@@ -10,6 +10,7 @@ return [
     'back_to_list' => 'Voltar para :item',
     'cancel' => 'Cancelar',
     'save' => 'Salvar',
+    'save_and_close' => 'Salvar e fechar',
     'submit' => 'Enviar',
     'edit' => 'Editar',
     'delete' => 'Excluir',
