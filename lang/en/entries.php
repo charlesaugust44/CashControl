@@ -34,6 +34,8 @@ return [
         'transfer_amount' => 'Transfer Amount',
         'from' => 'From',
         'to' => 'To',
+        'from_source' => 'From (Source)',
+        'to_expense_asset' => 'To / Expense Asset',
     ],
 
     'select_asset' => 'Select asset',
@@ -59,4 +61,6 @@ return [
         'transfer' => 'transfer',
         'expense_with_transfer' => 'expense + transfer',
     ],
+
+    'delete_confirmation' => 'Are you sure you want to delete this event?',
 ];

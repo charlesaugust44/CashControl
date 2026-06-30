@@ -2,6 +2,8 @@
 
 return [
     'total_balance' => 'Total Balance',
+    'total_assets' => 'Total Assets',
+    'forecasted_total' => 'Forecasted Total',
     'monthly_income' => 'Monthly Income',
     'monthly_expenses' => 'Monthly Expenses',
     'forecast_balance' => 'Forecast Balance',

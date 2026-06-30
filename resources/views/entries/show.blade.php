@@ -50,7 +50,7 @@
                 @endif
 
                 <div class="event-entries-section">
-                    <h3 class="section-title">Entries</h3>
+                    <h3 class="section-title">{{ __('entries.entries_section.title') }}</h3>
 
                     <div class="entries-list" id="entriesList">
                         @if($isTransfer)
@@ -62,7 +62,7 @@
                             
                             <div class="transfer-amount-section">
                                 <div class="form-group">
-                                    <label class="form-label">Transfer Amount</label>
+                                    <label class="form-label">{{ __('entries.fields.transfer_amount') }}</label>
                                     <div class="amount-input-wrapper">
                                         <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                         <input
@@ -81,9 +81,9 @@
 
                             <div class="transfer-assets-row">
                                 <div class="form-group">
-                                    <label class="form-label">From</label>
+                                    <label class="form-label">{{ __('entries.fields.from') }}</label>
                                     <select name="entries[0][asset_id]" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
-                                        <option value="">Select source asset</option>
+                                        <option value="">{{ __('entries.select_source_asset') }}</option>
                                         @foreach($assets as $asset)
                                             <option value="{{ $asset->id }}" {{ $sourceEntry && $sourceEntry->asset_id == $asset->id ? 'selected' : '' }}>
                                                 {{ $asset->name }}
@@ -94,9 +94,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">To</label>
+                                    <label class="form-label">{{ __('entries.fields.to') }}</label>
                                     <select name="entries[1][asset_id]" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
-                                        <option value="">Select destination asset</option>
+                                        <option value="">{{ __('entries.select_destination_asset') }}</option>
                                         @foreach($assets as $asset)
                                             <option value="{{ $asset->id }}" {{ $destEntry && $destEntry->asset_id == $asset->id ? 'selected' : '' }}>
                                                 {{ $asset->name }}
@@ -115,7 +115,7 @@
 
                             <div class="transfer-amount-section">
                                 <div class="form-group">
-                                    <label class="form-label">Amount</label>
+                                    <label class="form-label">{{ __('entries.fields.amount') }}</label>
                                     <div class="amount-input-wrapper">
                                         <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
                                         <input
@@ -134,9 +134,9 @@
 
                             <div class="transfer-assets-row">
                                 <div class="form-group">
-                                    <label class="form-label">From (Source)</label>
+                                    <label class="form-label">{{ __('entries.fields.from_source') }}</label>
                                     <select name="entries[0][asset_id]" id="ewtSourceAsset" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
-                                        <option value="">Select source asset</option>
+                                        <option value="">{{ __('entries.select_source_asset') }}</option>
                                         @foreach($assets as $asset)
                                             <option value="{{ $asset->id }}" {{ $sourceEntry && $sourceEntry->asset_id == $asset->id ? 'selected' : '' }}>
                                                 {{ $asset->name }}
@@ -147,9 +147,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">To / Expense Asset</label>
+                                    <label class="form-label">{{ __('entries.fields.to_expense_asset') }}</label>
                                     <select name="entries[1][asset_id]" id="ewtDestAsset" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
-                                        <option value="">Select destination asset</option>
+                                        <option value="">{{ __('entries.select_destination_asset') }}</option>
                                         @foreach($assets as $asset)
                                             <option value="{{ $asset->id }}" {{ $destTransferEntry && $destTransferEntry->asset_id == $asset->id ? 'selected' : '' }}>
                                                 {{ $asset->name }}
@@ -168,7 +168,7 @@
                                 @endphp
                                 <div class="entry-row" data-index="{{ $index }}">
                                     <div class="entry-row-header">
-                                        <span class="entry-label">Asset</span>
+                                        <span class="entry-label">{{ __('entries.fields.asset') }}</span>
                                         @if(!$isVirtual && !$isConsolidated && count($event->entries) > 1)
                                             <button type="button" class="btn-remove-entry" onclick="removeEntry({{ $index }})">
                                                 <i class="bi bi-trash"></i>
@@ -179,7 +179,7 @@
                                     <div class="entry-fields">
                                         <div class="form-group">
                                             <select name="entries[{{ $index }}][asset_id]" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
-                                                <option value="">Select asset</option>
+                                                <option value="">{{ __('entries.select_asset') }}</option>
                                                 @foreach($assets as $asset)
                                                     <option value="{{ $asset->id }}" {{ $entry->asset_id == $asset->id ? 'selected' : '' }}>
                                                         {{ $asset->name }}
@@ -212,19 +212,19 @@
                     @if(!$isConsolidated && !$isTransfer && !$isExpenseWithTransfer)
                         <button type="button" class="btn-add-entry" onclick="addEntry()">
                             <i class="bi bi-plus-circle"></i>
-                            <span>Add Entry</span>
+                            <span>{{ __('entries.add_entry') }}</span>
                         </button>
                     @endif
                 </div>
 
                 <div class="event-note-section">
-                    <label for="note" class="form-label">Note (optional)</label>
+                    <label for="note" class="form-label">{{ __('entries.fields.note_optional') }}</label>
                     <textarea
                         name="note"
                         id="note"
                         class="form-control"
                         rows="3"
-                        placeholder="Add a note..."
+                        placeholder="{{ __('entries.fields.note_placeholder') }}"
                         {{ $isConsolidated ? 'disabled' : '' }}
                     >{{ old('note', $event->note ?? '') }}</textarea>
                 </div>
@@ -232,32 +232,32 @@
 
             <div class="event-detail-actions">
                 <a href="{{ url('/entries?month=' . \Carbon\Carbon::parse($event->date)->format('Y-m')) }}" class="btn btn-outline-secondary">
-                    Cancel
+                    {{ __('ui.cancel') }}
                 </a>
 
                 @if(!$isVirtual && !$isConsolidated)
                     <button type="button" class="btn btn-danger" onclick="deleteEvent()">
-                        <i class="bi bi-trash"></i> Delete
+                        <i class="bi bi-trash"></i> {{ __('ui.delete') }}
                     </button>
                 @endif
 
                 @if(!$isConsolidated)
                     <button type="submit" name="action" value="save" form="eventForm" class="btn btn-primary">
                         <i class="bi bi-save"></i>
-                        Save
+                        {{ __('ui.save') }}
                     </button>
                     <button type="submit" name="action" value="submit" form="eventForm" class="btn btn-secondary">
                         <i class="bi bi-check-circle"></i>
-                        Submit
+                        {{ __('ui.submit') }}
                     </button>
                     <button type="submit" name="action" value="consolidate" form="eventForm" class="btn btn-success">
-                        <i class="bi bi-check-all"></i> Consolidate
+                        <i class="bi bi-check-all"></i> {{ __('entries.actions.consolidate') }}
                     </button>
                 @endif
 
                 @if(!$isVirtual && $isConsolidated)
                     <button type="submit" name="action" value="unconsolidate" form="eventForm" class="btn btn-warning">
-                        <i class="bi bi-arrow-counterclockwise"></i> Unconsolidate
+                        <i class="bi bi-arrow-counterclockwise"></i> {{ __('entries.actions.unconsolidate') }}
                     </button>
                 @endif
             </div>
@@ -268,7 +268,7 @@
         <template id="entryTemplate">
             <div class="entry-row" data-index="__INDEX__">
                 <div class="entry-row-header">
-                    <span class="entry-label">Asset</span>
+                    <span class="entry-label">{{ __('entries.fields.asset') }}</span>
                     <button type="button" class="btn-remove-entry" onclick="removeEntry(__INDEX__)">
                         <i class="bi bi-trash"></i>
                     </button>
@@ -276,7 +276,7 @@
                 <div class="entry-fields">
                     <div class="form-group">
                         <select name="entries[__INDEX__][asset_id]" class="form-control" required>
-                            <option value="">Select asset</option>
+                            <option value="">{{ __('entries.select_asset') }}</option>
                             @foreach($assets as $asset)
                                 <option value="{{ $asset->id }}">{{ $asset->name }}</option>
                             @endforeach
@@ -320,7 +320,7 @@
         }
 
         function deleteEvent() {
-            if (confirm('Are you sure you want to delete this event?')) {
+            if (confirm('{{ __('entries.delete_confirmation') }}')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ url('/entries/' . $event->id) }}';

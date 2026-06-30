@@ -37,7 +37,7 @@
                     <div class="dashboard-stat">
                         <div class="dashboard-stat__label">
                             <i class="bi bi-wallet2"></i>
-                            {{ __('dashboard.total_balance') }}
+                            {{ __('dashboard.total_assets') }}
                         </div>
                         <div class="dashboard-stat__value">{{ $fmt->currency($totalBalance) }}</div>
                     </div>
@@ -82,7 +82,7 @@
                     <div class="dashboard-stat">
                         <div class="dashboard-stat__label">
                             <i class="bi bi-graph-up-arrow"></i>
-                            {{ __('dashboard.balance') }}
+                            {{ __('dashboard.forecasted_total') }}
                         </div>
                         <div class="dashboard-stat__value">{{ $fmt->currency($forecastBalance) }}</div>
                     </div>
@@ -96,7 +96,7 @@
                     @foreach($pendingConsolidations as $event)
                         @php
                             $type = $event->type?->value ?? 'event';
-                            $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
+                            $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus'];
                             $typeIcon = $typeIcons[$type] ?? 'bi-tag';
                             $isTransfer = $type === 'transfer';
                             $total = $isTransfer
@@ -113,7 +113,7 @@
                             <a href="{{ $detailUrl }}" class="pending-item__info" style="text-decoration: none; color: inherit;">
                                 <i class="bi {{ $typeIcon }} pending-item__icon"></i>
                                 <div class="pending-item__details">
-                                    <span class="pending-item__name">{{ $event->name ?? 'Unnamed' }}</span>
+                                    <span class="pending-item__name">{{ $event->name ?? __('ui.none') }}</span>
                                     <span class="pending-item__date">{{ $fmt->date($event->date) }}</span>
                                 </div>
                             </a>

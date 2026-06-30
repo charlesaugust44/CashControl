@@ -34,6 +34,8 @@ return [
         'transfer_amount' => 'Valor da Transferência',
         'from' => 'De',
         'to' => 'Para',
+        'from_source' => 'De (Origem)',
+        'to_expense_asset' => 'Para / Ativo de Despesa',
     ],
 
     'select_asset' => 'Selecionar ativo',
@@ -58,4 +60,6 @@ return [
         'expense' => 'despesa',
         'transfer' => 'transferência',
     ],
+
+    'delete_confirmation' => 'Tem certeza que deseja excluir este evento?',
 ];

@@ -2,6 +2,8 @@
 
 return [
     'total_balance' => 'Saldo Total',
+    'total_assets' => 'Total de Ativos',
+    'forecasted_total' => 'Total Previsto',
     'monthly_income' => 'Receita Mensal',
     'monthly_expenses' => 'Despesas Mensais',
     'forecast_balance' => 'Saldo Projetado',

@@ -20,11 +20,7 @@ class BalanceService
 
     public function getActualBalance(Asset $asset): float
     {
-        return (float) $asset->entries()
-            ->whereHas('event', function ($query) {
-                $query->where('consolidated', true);
-            })
-            ->sum('amount');
+        return (float) $asset->balance;
     }
 
     public function getForecastBalance(Asset $asset, int $year, int $month): float
