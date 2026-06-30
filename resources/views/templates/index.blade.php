@@ -51,7 +51,6 @@
                             </div>
                             @if($header->rule->value === 'fixed' && $header->default_amount)
                                 <div class="template-card__detail">
-                                    <i class="bi bi-currency-dollar"></i>
                                     <span>{{ $fmt->currency($header->default_amount) }}</span>
                                 </div>
                             @endif
