@@ -16,20 +16,23 @@
                 {!! __('templates.delete_confirmation.message', ['name' => e($header->name)]) !!}
             </p>
 
-            @if($futureEvents->isNotEmpty())
-                <div class="conflict-section">
-                    <h3 class="conflict-section__title">{{ __('templates.affected_events.title') }}</h3>
-                    <p class="conflict-section__description">{{ __('templates.affected_events.delete_description') }}</p>
+            <form method="POST" action="{{ url('/templates/' . $header->id) }}" id="deleteForm">
+                @csrf
+                @method('DELETE')
 
-                    <form method="POST" action="{{ url('/templates/' . $header->id) }}" id="deleteForm">
-                        @csrf
-                        @method('DELETE')
+                @if($futureEvents->isNotEmpty())
+                    <div class="conflict-section">
+                        <h3 class="conflict-section__title">{{ __('templates.affected_events.title') }}</h3>
+                        <p class="conflict-section__description">{{ __('templates.affected_events.delete_description') }}</p>
 
                         <div class="conflict-events-list">
                             @foreach($futureEvents as $event)
                                 <div class="conflict-event">
                                     <div class="conflict-event__info">
                                         <span class="conflict-event__date">{{ $event->date->format('M Y') }}</span>
+                                        @if($event->consolidated)
+                                            <span class="badge bg-success">{{ __('entries.status.consolidated') }}</span>
+                                        @endif
                                         @foreach($event->entries as $entry)
                                             <span class="conflict-event__entry">
                                                 <i class="bi bi-wallet2"></i>
@@ -49,28 +52,16 @@
                                 </div>
                             @endforeach
                         </div>
-
-                        <div class="template-delete-actions">
-                            <a href="{{ url('/templates/' . $header->id) }}" class="btn btn-outline-secondary">{{ __('ui.cancel') }}</a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> {{ __('templates.delete') }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            @else
-                <form method="POST" action="{{ url('/templates/' . $header->id) }}">
-                    @csrf
-                    @method('DELETE')
-
-                    <div class="template-delete-actions">
-                        <a href="{{ url('/templates/' . $header->id) }}" class="btn btn-outline-secondary">{{ __('ui.cancel') }}</a>
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash"></i> {{ __('templates.delete') }}
-                        </button>
                     </div>
-                </form>
-            @endif
+                @endif
+
+                <div class="template-delete-actions">
+                    <a href="{{ url('/templates/' . $header->id) }}" class="btn btn-outline-secondary">{{ __('ui.cancel') }}</a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> {{ __('templates.delete') }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 @endsection

@@ -50,6 +50,46 @@ class EventDetailService
         $eventDate = Carbon::create($year, $month, 1);
 
         return DB::transaction(function () use ($header, $eventDate, $entriesData) {
+            if ($header->isExpenseWithTransfer()) {
+                $transferEvent = Event::create([
+                    'header_id' => $header->id,
+                    'type' => EventType::Transfer,
+                    'name' => $header->name,
+                    'date' => $eventDate,
+                    'consolidated' => false,
+                    'note' => $entriesData['note'] ?? null,
+                ]);
+
+                Entry::create([
+                    'event_id' => $transferEvent->id,
+                    'asset_id' => $entriesData['entries'][0]['asset_id'],
+                    'amount' => -abs($entriesData['entries'][0]['amount']),
+                ]);
+
+                Entry::create([
+                    'event_id' => $transferEvent->id,
+                    'asset_id' => $entriesData['entries'][1]['asset_id'],
+                    'amount' => abs($entriesData['entries'][1]['amount']),
+                ]);
+
+                $expenseEvent = Event::create([
+                    'header_id' => $header->id,
+                    'type' => EventType::Expense,
+                    'name' => $header->name,
+                    'date' => $eventDate,
+                    'consolidated' => false,
+                    'note' => $entriesData['note'] ?? null,
+                ]);
+
+                Entry::create([
+                    'event_id' => $expenseEvent->id,
+                    'asset_id' => $entriesData['entries'][2]['asset_id'],
+                    'amount' => -abs($entriesData['entries'][2]['amount']),
+                ]);
+
+                return $transferEvent->load(['entries.asset', 'header']);
+            }
+
             $event = Event::create([
                 'header_id' => $header->id,
                 'type' => $header->type,
@@ -183,6 +223,16 @@ class EventDetailService
                 return -$absoluteAmount;
             }
             return $absoluteAmount;
+        }
+
+        if ($type === EventType::ExpenseWithTransfer) {
+            if ($entryIndex === 0) {
+                return -$absoluteAmount;
+            }
+            if ($entryIndex === 1) {
+                return $absoluteAmount;
+            }
+            return -$absoluteAmount;
         }
 
         return $absoluteAmount;

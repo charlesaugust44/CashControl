@@ -37,6 +37,7 @@
                             <option value="income" {{ old('type') === 'income' ? 'selected' : '' }}>{{ __('templates.types.income') }}</option>
                             <option value="expense" {{ old('type') === 'expense' ? 'selected' : '' }}>{{ __('templates.types.expense') }}</option>
                             <option value="transfer" {{ old('type') === 'transfer' ? 'selected' : '' }}>{{ __('templates.types.transfer') }}</option>
+                            <option value="expense_with_transfer" {{ old('type') === 'expense_with_transfer' ? 'selected' : '' }}>{{ __('templates.types.expense_with_transfer') }}</option>
                         </select>
                     </div>
 
@@ -139,6 +140,56 @@
                         </div>
                     </div>
 
+                    <div id="expenseWithTransferEntries" class="entries-list" style="display: none;">
+                        <div class="transfer-amount-section">
+                            <div class="form-group">
+                                <label class="form-label">{{ __('entries.fields.amount') }}</label>
+                                <div class="amount-input-wrapper">
+                                    <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
+                                    <input
+                                        type="number"
+                                        name="expense_transfer_amount"
+                                        id="expenseTransferAmount"
+                                        class="form-control"
+                                        value="{{ old('expense_transfer_amount') }}"
+                                        step="0.01"
+                                        min="0"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="transfer-assets-row">
+                            <div class="form-group">
+                                <label class="form-label">{{ __('entries.fields.from') }}</label>
+                                <select name="ewt_entries[0][asset_id]" id="ewtSourceAsset" class="form-control" required>
+                                    <option value="">{{ __('entries.select_source_asset') }}</option>
+                                    @foreach($assets as $asset)
+                                        <option value="{{ $asset->id }}" {{ old('ewt_entries.0.asset_id') == $asset->id ? 'selected' : '' }}>
+                                            {{ $asset->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="ewt_entries[0][amount]" id="ewtSourceAmount" value="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">{{ __('entries.fields.to') }} / {{ __('entries.fields.asset') }}</label>
+                                <select name="ewt_entries[1][asset_id]" id="ewtDestAsset" class="form-control" required>
+                                    <option value="">{{ __('entries.select_destination_asset') }}</option>
+                                    @foreach($assets as $asset)
+                                        <option value="{{ $asset->id }}" {{ old('ewt_entries.1.asset_id') == $asset->id ? 'selected' : '' }}>
+                                            {{ $asset->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="ewt_entries[1][amount]" id="ewtDestTransferAmount" value="0">
+                                <input type="hidden" name="ewt_entries[2][amount]" id="ewtExpenseAmount" value="0">
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="button" class="btn-add-entry" id="addEntryBtn" onclick="addEntry()">
                         <i class="bi bi-plus-circle"></i>
                         <span>{{ __('entries.add_entry') }}</span>
@@ -214,24 +265,38 @@
         const typeSelect = document.getElementById('type');
         const normalEntries = document.getElementById('normalEntries');
         const transferEntries = document.getElementById('transferEntries');
+        const expenseWithTransferEntries = document.getElementById('expenseWithTransferEntries');
         const addEntryBtn = document.getElementById('addEntryBtn');
         const dateMonthInput = document.getElementById('dateMonth');
         const dateValueInput = document.getElementById('dateValue');
         const transferAmountInput = document.getElementById('transferAmount');
         const sourceAmountInput = document.getElementById('sourceAmount');
         const destAmountInput = document.getElementById('destAmount');
+        const expenseTransferAmountInput = document.getElementById('expenseTransferAmount');
+        const ewtSourceAmountInput = document.getElementById('ewtSourceAmount');
+        const ewtDestTransferAmountInput = document.getElementById('ewtDestTransferAmount');
+        const ewtExpenseAmountInput = document.getElementById('ewtExpenseAmount');
+        const ewtSourceAsset = document.getElementById('ewtSourceAsset');
+        const ewtDestAsset = document.getElementById('ewtDestAsset');
 
         function toggleTypeUI() {
             const isTransfer = typeSelect.value === 'transfer';
-            normalEntries.style.display = isTransfer ? 'none' : '';
+            const isExpenseWithTransfer = typeSelect.value === 'expense_with_transfer';
+            const isNormal = !isTransfer && !isExpenseWithTransfer;
+
+            normalEntries.style.display = isNormal ? '' : 'none';
             transferEntries.style.display = isTransfer ? '' : 'none';
-            addEntryBtn.style.display = isTransfer ? 'none' : '';
+            expenseWithTransferEntries.style.display = isExpenseWithTransfer ? '' : 'none';
+            addEntryBtn.style.display = isNormal ? '' : 'none';
 
             normalEntries.querySelectorAll('input, select').forEach(el => {
-                el.disabled = isTransfer;
+                el.disabled = !isNormal;
             });
             transferEntries.querySelectorAll('input, select').forEach(el => {
                 el.disabled = !isTransfer;
+            });
+            expenseWithTransferEntries.querySelectorAll('input, select').forEach(el => {
+                el.disabled = !isExpenseWithTransfer;
             });
         }
 
@@ -245,6 +310,13 @@
             const amount = parseFloat(transferAmountInput.value) || 0;
             sourceAmountInput.value = -amount;
             destAmountInput.value = amount;
+        }
+
+        function updateExpenseWithTransferAmounts() {
+            const amount = parseFloat(expenseTransferAmountInput.value) || 0;
+            ewtSourceAmountInput.value = -amount;
+            ewtDestTransferAmountInput.value = amount;
+            ewtExpenseAmountInput.value = -amount;
         }
 
         function addEntry() {
@@ -266,10 +338,32 @@
         if (transferAmountInput) {
             transferAmountInput.addEventListener('input', updateTransferAmounts);
         }
+        if (expenseTransferAmountInput) {
+            expenseTransferAmountInput.addEventListener('input', updateExpenseWithTransferAmounts);
+        }
 
-        document.getElementById('eventForm').addEventListener('submit', function() {
+        document.getElementById('eventForm').addEventListener('submit', function(e) {
             if (typeSelect.value === 'transfer') {
                 updateTransferAmounts();
+            } else if (typeSelect.value === 'expense_with_transfer') {
+                updateExpenseWithTransferAmounts();
+                const destAssetId = ewtDestAsset.value;
+                for (let i = 0; i < 3; i++) {
+                    const existingInput = document.querySelector(`input[name="entries[${i}][asset_id]"]`);
+                    if (!existingInput) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = `entries[${i}][asset_id]`;
+                        input.value = i === 0 ? ewtSourceAsset.value : destAssetId;
+                        this.appendChild(input);
+                    }
+                    const amountInput = document.createElement('input');
+                    amountInput.type = 'hidden';
+                    amountInput.name = `entries[${i}][amount]`;
+                    amountInput.value = i === 0 ? ewtSourceAmountInput.value : (i === 1 ? ewtDestTransferAmountInput.value : ewtExpenseAmountInput.value);
+                    this.appendChild(amountInput);
+                }
+                document.querySelectorAll('input[name^="ewt_entries"]').forEach(el => el.disabled = true);
             }
         });
 

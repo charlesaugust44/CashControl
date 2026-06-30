@@ -1,6 +1,6 @@
 @php
     $type = $event->type?->value ?? 'event';
-    $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
+    $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus'];
     $typeIcon = $typeIcons[$type] ?? 'bi-tag';
     $isVirtual = $event->id === 0 || $event->id === null;
     $isConsolidated = $event->consolidated ?? false;
@@ -47,6 +47,31 @@
                     </span>
                     <span class="entry-amount amount-transfer">
                         {{ $fmt->currency(abs($destEntry->amount ?? 0)) }}
+                    </span>
+                </div>
+            @elseif($event->isExpenseWithTransfer())
+                @php
+                    $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0 && $e->asset_id === $event->header?->asset_id);
+                    $destTransferEntry = $event->entries->first(fn($e) => $e->amount > 0);
+                    $expenseEntry = $event->entries->last();
+                    $amount = abs($destTransferEntry->amount ?? 0);
+                @endphp
+                <div class="entry-item transfer-item">
+                    <span class="entry-asset">
+                        <i class="bi bi-arrow-right"></i>
+                        {{ $sourceEntry->asset->name ?? 'Unknown' }} → {{ $destTransferEntry->asset->name ?? 'Unknown' }}
+                    </span>
+                    <span class="entry-amount amount-transfer">
+                        {{ $fmt->currency($amount) }}
+                    </span>
+                </div>
+                <div class="entry-item">
+                    <span class="entry-asset">
+                        <i class="bi bi-cart-plus"></i>
+                        {{ $expenseEntry->asset->name ?? 'Unknown' }}
+                    </span>
+                    <span class="entry-amount amount-negative">
+                        -{{ $fmt->currency($amount) }}
                     </span>
                 </div>
             @else

@@ -57,5 +57,6 @@ return [
         'income' => 'income',
         'expense' => 'expense',
         'transfer' => 'transfer',
+        'expense_with_transfer' => 'expense + transfer',
     ],
 ];

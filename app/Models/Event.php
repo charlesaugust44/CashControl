@@ -59,4 +59,9 @@ class Event extends Model
     {
         return $this->type === EventType::Transfer;
     }
+
+    public function isExpenseWithTransfer(): bool
+    {
+        return $this->type === EventType::ExpenseWithTransfer;
+    }
 }

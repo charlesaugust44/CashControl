@@ -47,7 +47,7 @@ class HeaderController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string|max:300',
-            'type' => 'required|string|in:income,expense,transfer',
+            'type' => 'required|string|in:income,expense,transfer,expense_with_transfer',
             'rule' => 'required|string|in:fixed,max_last_five_months,mean_last_five_months',
             'default_amount' => 'nullable|numeric|min:0',
             'start_date' => 'required|date',
@@ -55,6 +55,12 @@ class HeaderController extends Controller
             'asset_id' => 'required|exists:assets,id',
             'destination_asset_id' => 'nullable|exists:assets,id|different:asset_id',
         ]);
+
+        if (in_array($validated['type'], ['transfer', 'expense_with_transfer'])) {
+            $request->validate([
+                'destination_asset_id' => 'required|exists:assets,id|different:asset_id',
+            ]);
+        }
 
         $validated['start_date'] = \Carbon\Carbon::parse($validated['start_date'])->firstOfMonth();
         if (!empty($validated['end_date'])) {
@@ -104,7 +110,7 @@ class HeaderController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string|max:300',
-            'type' => 'required|string|in:income,expense,transfer',
+            'type' => 'required|string|in:income,expense,transfer,expense_with_transfer',
             'rule' => 'required|string|in:fixed,max_last_five_months,mean_last_five_months',
             'default_amount' => 'nullable|numeric|min:0',
             'start_date' => 'required|date',
@@ -114,6 +120,12 @@ class HeaderController extends Controller
             'delete_events' => 'nullable|array',
             'delete_events.*' => 'exists:events,id',
         ]);
+
+        if (in_array($validated['type'], ['transfer', 'expense_with_transfer'])) {
+            $request->validate([
+                'destination_asset_id' => 'required|exists:assets,id|different:asset_id',
+            ]);
+        }
 
         $validated['start_date'] = \Carbon\Carbon::parse($validated['start_date'])->firstOfMonth();
         if (!empty($validated['end_date'])) {
@@ -126,7 +138,11 @@ class HeaderController extends Controller
         $this->headerService->update($id, $validated);
 
         if (!empty($deleteEvents)) {
-            Event::whereIn('id', $deleteEvents)->delete();
+            $eventsToDelete = Event::whereIn('id', $deleteEvents)->get();
+            foreach ($eventsToDelete as $event) {
+                $event->entries()->delete();
+                $event->delete();
+            }
         }
 
         return redirect("/templates/{$id}")->with('success', __('messages.success.updated', ['item' => __('templates.singular')]));
@@ -153,8 +169,16 @@ class HeaderController extends Controller
     {
         $deleteEvents = $request->input('delete_events', []);
 
-        if (!empty($deleteEvents)) {
-            Event::whereIn('id', $deleteEvents)->delete();
+        $futureEvents = $this->headerService->futurePersistedEvents($id);
+
+        foreach ($futureEvents as $event) {
+            if (in_array($event->id, $deleteEvents)) {
+                $event->entries()->delete();
+                $event->delete();
+            } else {
+                $event->header_id = null;
+                $event->save();
+            }
         }
 
         $this->headerService->delete($id);

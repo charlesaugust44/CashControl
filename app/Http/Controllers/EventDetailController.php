@@ -200,7 +200,7 @@ class EventDetailController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'type' => 'required|in:income,expense,transfer',
+            'type' => 'required|in:income,expense,transfer,expense_with_transfer',
             'date' => 'required|date',
             'note' => 'nullable|string|max:300',
             'entries' => 'required|array|min:1',

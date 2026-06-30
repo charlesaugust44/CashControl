@@ -7,10 +7,11 @@
 @section('content')
     @php
         $type = $event->type?->value ?? 'event';
-        $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
+        $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus'];
         $typeIcon = $typeIcons[$type] ?? 'bi-tag';
         $isConsolidated = $event->consolidated ?? false;
         $isTransfer = $event->isTransfer();
+        $isExpenseWithTransfer = $event->isExpenseWithTransfer();
 
         $formAction = $isVirtual
             ? url('/entries/virtual/' . $headerId . '/' . $year . '/' . $month)
@@ -33,7 +34,7 @@
                     @else
                         <span class="badge bg-warning">Pending</span>
                     @endif
-                    <span class="event-type-badge {{ $type }}">{{ $type }}</span>
+                    <span class="event-type-badge {{ $type }}">{{ __('entries.event_types.' . $type) }}</span>
                 </div>
             </div>
 
@@ -105,6 +106,61 @@
                                     <input type="hidden" name="entries[1][amount]" value="{{ $transferAmount }}">
                                 </div>
                             </div>
+                        @elseif($isExpenseWithTransfer)
+                            @php
+                                $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0);
+                                $destTransferEntry = $event->entries->first(fn($e) => $e->amount > 0);
+                                $amount = abs($destTransferEntry->amount ?? 0);
+                            @endphp
+
+                            <div class="transfer-amount-section">
+                                <div class="form-group">
+                                    <label class="form-label">Amount</label>
+                                    <div class="amount-input-wrapper">
+                                        <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
+                                        <input
+                                            type="number"
+                                            name="expense_transfer_amount"
+                                            id="expenseTransferAmount"
+                                            class="form-control"
+                                            value="{{ $amount }}"
+                                            step="0.01"
+                                            min="0"
+                                            {{ $isConsolidated ? 'disabled' : 'required' }}
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="transfer-assets-row">
+                                <div class="form-group">
+                                    <label class="form-label">From (Source)</label>
+                                    <select name="entries[0][asset_id]" id="ewtSourceAsset" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                        <option value="">Select source asset</option>
+                                        @foreach($assets as $asset)
+                                            <option value="{{ $asset->id }}" {{ $sourceEntry && $sourceEntry->asset_id == $asset->id ? 'selected' : '' }}>
+                                                {{ $asset->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <input type="hidden" name="entries[0][amount]" id="ewtSourceAmount" value="-{{ $amount }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">To / Expense Asset</label>
+                                    <select name="entries[1][asset_id]" id="ewtDestAsset" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                        <option value="">Select destination asset</option>
+                                        @foreach($assets as $asset)
+                                            <option value="{{ $asset->id }}" {{ $destTransferEntry && $destTransferEntry->asset_id == $asset->id ? 'selected' : '' }}>
+                                                {{ $asset->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <input type="hidden" name="entries[1][amount]" id="ewtDestTransferAmount" value="{{ $amount }}">
+                                    <input type="hidden" name="entries[2][asset_id]" id="ewtExpenseAssetId" value="{{ $destTransferEntry->asset_id ?? '' }}">
+                                    <input type="hidden" name="entries[2][amount]" id="ewtExpenseAmount" value="-{{ $amount }}">
+                                </div>
+                            </div>
                         @else
                             @foreach($event->entries as $index => $entry)
                                 @php
@@ -153,7 +209,7 @@
                         @endif
                     </div>
 
-                    @if(!$isConsolidated && !$isTransfer)
+                    @if(!$isConsolidated && !$isTransfer && !$isExpenseWithTransfer)
                         <button type="button" class="btn-add-entry" onclick="addEntry()">
                             <i class="bi bi-plus-circle"></i>
                             <span>Add Entry</span>
@@ -316,6 +372,31 @@
                         destAmountInput.value = amount;
                     }
                 });
+            }
+
+            // Handle expense with transfer amount sync
+            const expenseTransferAmountInput = document.getElementById('expenseTransferAmount');
+            if (expenseTransferAmountInput) {
+                const ewtSourceAmount = document.getElementById('ewtSourceAmount');
+                const ewtDestTransferAmount = document.getElementById('ewtDestTransferAmount');
+                const ewtExpenseAmount = document.getElementById('ewtExpenseAmount');
+                const ewtDestAsset = document.getElementById('ewtDestAsset');
+                const ewtExpenseAssetId = document.getElementById('ewtExpenseAssetId');
+
+                expenseTransferAmountInput.addEventListener('input', function() {
+                    const amount = parseFloat(this.value) || 0;
+                    if (ewtSourceAmount) ewtSourceAmount.value = -amount;
+                    if (ewtDestTransferAmount) ewtDestTransferAmount.value = amount;
+                    if (ewtExpenseAmount) ewtExpenseAmount.value = -amount;
+                });
+
+                if (ewtDestAsset) {
+                    ewtDestAsset.addEventListener('change', function() {
+                        if (ewtExpenseAssetId) {
+                            ewtExpenseAssetId.value = this.value;
+                        }
+                    });
+                }
             }
         });
     </script>

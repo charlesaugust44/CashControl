@@ -42,6 +42,7 @@
                                 <option value="income" {{ old('type', $header->type->value ?? '') === 'income' ? 'selected' : '' }}>{{ __('templates.types.income') }}</option>
                                 <option value="expense" {{ old('type', $header->type->value ?? '') === 'expense' ? 'selected' : '' }}>{{ __('templates.types.expense') }}</option>
                                 <option value="transfer" {{ old('type', $header->type->value ?? '') === 'transfer' ? 'selected' : '' }}>{{ __('templates.types.transfer') }}</option>
+                                <option value="expense_with_transfer" {{ old('type', $header->type->value ?? '') === 'expense_with_transfer' ? 'selected' : '' }}>{{ __('templates.types.expense_with_transfer') }}</option>
                             </select>
                             @error('type')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -186,9 +187,11 @@
 
             function updateTypeFields() {
                 const isTransfer = typeSelect.value === 'transfer';
-                destinationField.style.display = isTransfer ? 'block' : 'none';
-                assetLabel.textContent = isTransfer ? translations.sourceAsset : translations.asset;
-                if (!isTransfer) {
+                const isExpenseWithTransfer = typeSelect.value === 'expense_with_transfer';
+                const showDestination = isTransfer || isExpenseWithTransfer;
+                destinationField.style.display = showDestination ? 'block' : 'none';
+                assetLabel.textContent = showDestination ? translations.sourceAsset : translations.asset;
+                if (!showDestination) {
                     document.getElementById('destination_asset_id').value = '';
                 }
             }

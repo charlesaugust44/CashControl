@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Header extends Model
 {
     /** @use HasFactory<HeaderFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -53,5 +54,10 @@ class Header extends Model
     public function isTransfer(): bool
     {
         return $this->type === EventType::Transfer;
+    }
+
+    public function isExpenseWithTransfer(): bool
+    {
+        return $this->type === EventType::ExpenseWithTransfer;
     }
 }
