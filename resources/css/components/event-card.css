@@ -126,14 +126,6 @@
     font-variant-numeric: tabular-nums;
 }
 
-.entry-amount.positive {
-    color: var(--color-success);
-}
-
-.entry-amount.negative {
-    color: var(--color-danger);
-}
-
 .entry-amount.zero {
     color: var(--color-text-muted);
 }

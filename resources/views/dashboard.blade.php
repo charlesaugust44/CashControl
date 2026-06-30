@@ -117,7 +117,7 @@
                                     <span class="pending-item__date">{{ $fmt->date($event->date) }}</span>
                                 </div>
                             </a>
-                            <span class="pending-item__amount {{ $isTransfer ? '' : $fmt->signal($total) }}">
+                            <span class="pending-item__amount amount-{{ $isTransfer ? 'transfer' : $fmt->signal($total) }}">
                                 {{ $fmt->currency($total) }}
                             </span>
                         </li>

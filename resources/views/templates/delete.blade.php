@@ -34,7 +34,7 @@
                                             <span class="conflict-event__entry">
                                                 <i class="bi bi-wallet2"></i>
                                                 {{ $entry->asset->name ?? __('ui.none') }}:
-                                                <span class="{{ $entry->amount >= 0 ? 'positive' : 'negative' }}">
+                                                <span class="amount-{{ $entry->amount >= 0 ? 'positive' : 'negative' }}">
                                                     {{ $fmt->currency(abs($entry->amount)) }}
                                                 </span>
                                             </span>

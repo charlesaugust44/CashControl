@@ -45,7 +45,7 @@
                         <i class="bi bi-arrow-right"></i>
                         {{ $sourceEntry->asset->name ?? 'Unknown' }} → {{ $destEntry->asset->name ?? 'Unknown' }}
                     </span>
-                    <span class="entry-amount positive">
+                    <span class="entry-amount amount-transfer">
                         {{ $fmt->currency(abs($destEntry->amount ?? 0)) }}
                     </span>
                 </div>
@@ -56,7 +56,7 @@
                             <i class="bi bi-wallet2"></i>
                             {{ $entry->asset->name ?? 'Unknown' }}
                         </span>
-                        <span class="entry-amount {{ $fmt->signal($entry->amount) }}">
+                        <span class="entry-amount amount-{{ $fmt->signal($entry->amount) }}">
                             {{ $fmt->currency($entry->amount) }}
                         </span>
                     </div>

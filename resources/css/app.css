@@ -12,6 +12,7 @@
 @import './components/stat-card.css';
 @import './components/breadcrumbs.css';
 @import './components/toast.css';
+@import './components/amount.css';
 @import './pages/dashboard.css';
 
 :root {

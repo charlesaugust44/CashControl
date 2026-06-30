@@ -1,0 +1,11 @@
+.amount-positive {
+    color: var(--color-success);
+}
+
+.amount-negative {
+    color: var(--color-danger);
+}
+
+.amount-transfer {
+    color: var(--color-info);
+}
