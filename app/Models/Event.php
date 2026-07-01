@@ -19,6 +19,7 @@ class Event extends Model
         'type',
         'name',
         'date',
+        'due_day',
         'consolidated',
         'note',
     ];
@@ -26,6 +27,7 @@ class Event extends Model
     protected $casts = [
         'type' => EventType::class,
         'date' => 'date',
+        'due_day' => 'integer',
         'consolidated' => 'boolean',
     ];
 

@@ -29,6 +29,9 @@ class EventRepository extends BaseRepository
         return Event::with(['entries.asset', 'header.asset', 'header.destinationAsset'])
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
+            ->orderBy('consolidated', 'asc')
+            ->orderByRaw('CASE WHEN due_day IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('due_day', 'asc')
             ->get();
     }
 }

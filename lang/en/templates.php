@@ -21,6 +21,9 @@ return [
         'start_date' => 'Start Date',
         'end_date' => 'End Date',
         'end_date_optional' => 'End Date (optional)',
+        'due_day' => 'Due Day',
+        'no_due_day' => 'No due day',
+        'day_label' => 'Day :day',
         'asset' => 'Asset',
         'source_asset' => 'Source Asset',
         'destination_asset' => 'Destination Asset',
@@ -34,6 +37,7 @@ return [
 
     'help' => [
         'end_date' => 'Leave empty for ongoing templates.',
+        'due_day' => 'Day of the month (1-31). If the day doesn\'t exist in a month, the closest available day will be used.',
         'default_amount' => 'Used for fixed rule. For max/mean rules, this is the fallback when no history exists.',
     ],
 

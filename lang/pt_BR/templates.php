@@ -21,6 +21,9 @@ return [
         'start_date' => 'Data de Início',
         'end_date' => 'Data de Término',
         'end_date_optional' => 'Data de Término (opcional)',
+        'due_day' => 'Dia de Vencimento',
+        'no_due_day' => 'Sem dia de vencimento',
+        'day_label' => 'Dia :day',
         'asset' => 'Ativo',
         'source_asset' => 'Ativo de Origem',
         'destination_asset' => 'Ativo de Destino',
@@ -34,6 +37,7 @@ return [
 
     'help' => [
         'end_date' => 'Deixe vazio para modelos contínuos.',
+        'due_day' => 'Dia do mês (1-31). Se o dia não existir em um mês, o dia mais próximo disponível será usado.',
         'default_amount' => 'Usado para regra fixa. Para regras de máximo/média, este é o valor padrão quando não há histórico.',
     ],
 

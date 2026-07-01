@@ -55,6 +55,7 @@ class EventDetailService
                 'type' => $header->type,
                 'name' => $header->name,
                 'date' => $eventDate,
+                'due_day' => $entriesData['due_day'] ?? $header->due_day,
                 'consolidated' => false,
                 'note' => $entriesData['note'] ?? null,
             ]);
@@ -90,6 +91,7 @@ class EventDetailService
                 'type' => EventType::from($data['type']),
                 'name' => $data['name'],
                 'date' => $eventDate,
+                'due_day' => $data['due_day'] ?? null,
                 'consolidated' => false,
                 'note' => $data['note'] ?? null,
             ]);
@@ -120,6 +122,7 @@ class EventDetailService
             }
 
             $event->update([
+                'due_day' => $data['due_day'] ?? $event->due_day,
                 'note' => $data['note'] ?? null,
             ]);
 

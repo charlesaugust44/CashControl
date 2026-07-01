@@ -204,6 +204,7 @@ class EventDetailController extends Controller
     {
         $validated = $request->validate([
             'note' => 'nullable|string|max:300',
+            'due_day' => 'nullable|integer|min:1|max:31',
             'entries' => 'required|array|min:1',
             'entries.*.asset_id' => 'required|exists:assets,id',
             'entries.*.amount' => 'required|numeric',
@@ -218,6 +219,7 @@ class EventDetailController extends Controller
             'name' => 'required|string|max:100',
             'type' => 'required|in:income,expense,transfer,expense_with_transfer,income_with_transfer',
             'date' => 'required|date',
+            'due_day' => 'nullable|integer|min:1|max:31',
             'note' => 'nullable|string|max:300',
             'entries' => 'required|array|min:1',
             'entries.*.asset_id' => 'required|exists:assets,id',

@@ -42,6 +42,12 @@
         <div class="event-date">
             <i class="bi bi-calendar3"></i>
             {{ $fmt->month($event->date) }}
+            @if($event->due_day)
+                <span class="event-due-date">
+                    <i class="bi bi-bell"></i>
+                    {{ $event->due_day }}
+                </span>
+            @endif
         </div>
         <div class="event-entries">
             @if($event->isTransfer())

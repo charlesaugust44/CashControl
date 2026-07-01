@@ -8,13 +8,20 @@
     
     $monthClosureService = new \App\Services\MonthClosureService();
     $isMonthClosed = $monthClosureService->isMonthClosed($monthDate->year, $monthDate->month);
+
+    $baseQueryParams = collect(request()->query())->except('month')->toArray();
+    $baseUrl = request()->url();
+    $buildUrl = function(string $month) use ($baseUrl, $baseQueryParams) {
+        $params = array_merge($baseQueryParams, ['month' => $month]);
+        return $baseUrl . '?' . http_build_query($params);
+    };
 @endphp
 
 <div class="month-nav-flat">
-    <a href="{{ request()->url() }}?month={{ $prevMonth }}" class="btn-arrow">
+    <a href="{{ $buildUrl($prevMonth) }}" class="btn-arrow">
         <i class="bi bi-chevron-left"></i>
     </a>
-    <a href="{{ request()->url() }}?month={{ now()->format('Y-m') }}"
+    <a href="{{ $buildUrl(now()->format('Y-m')) }}"
        class="month-text-flat {{ $isCurrentMonth ? 'current-month' : '' }}">
         {{ $monthDate->translatedFormat('F Y') }}
         @if($isMonthClosed)
@@ -23,7 +30,7 @@
             <i class="bi bi-unlock-fill month-lock open"></i>
         @endif
     </a>
-    <a href="{{ request()->url() }}?month={{ $nextMonth }}" class="btn-arrow">
+    <a href="{{ $buildUrl($nextMonth) }}" class="btn-arrow">
         <i class="bi bi-chevron-right"></i>
     </a>
 </div>

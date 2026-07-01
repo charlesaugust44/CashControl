@@ -50,6 +50,10 @@
                         <span class="template-detail-item__label">{{ __('templates.fields.end_date') }}</span>
                         <span class="template-detail-item__value">{{ $header->end_date ? $header->end_date->translatedFormat('M Y') : __('templates.schedule.ongoing') }}</span>
                     </div>
+                    <div class="template-detail-item">
+                        <span class="template-detail-item__label">{{ __('templates.fields.due_day') }}</span>
+                        <span class="template-detail-item__value">{{ $header->due_day ?? __('ui.none') }}</span>
+                    </div>
                 </div>
             </div>
 

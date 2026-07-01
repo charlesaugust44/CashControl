@@ -96,6 +96,20 @@
                             <small class="form-text">{{ __('templates.help.end_date') }}</small>
                         </div>
                     </div>
+
+                    <div class="mb-4">
+                        <label for="due_day" class="form-label">{{ __('templates.fields.due_day') }}</label>
+                        <select class="form-control @error('due_day') is-invalid @enderror" id="due_day" name="due_day">
+                            <option value="">{{ __('templates.fields.no_due_day') }}</option>
+                            @for ($d = 1; $d <= 31; $d++)
+                                <option value="{{ $d }}" {{ old('due_day', isset($header) ? $header->due_day : '') == $d ? 'selected' : '' }}>{{ $d }}</option>
+                            @endfor
+                        </select>
+                        @error('due_day')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text">{{ __('templates.help.due_day') }}</small>
+                    </div>
                 </div>
 
                 <div class="form-section">

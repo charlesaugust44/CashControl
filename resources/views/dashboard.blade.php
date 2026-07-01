@@ -6,9 +6,8 @@
 
 @section('content')
     @php
-        $now = now();
-        $currentMonthLabel = $now->translatedFormat('M Y');
-        $nextMonthLabel = $now->copy()->addMonth()->translatedFormat('M Y');
+        $currentMonthLabel = $monthDate->translatedFormat('M Y');
+        $nextMonthLabel = $monthDate->copy()->addMonth()->translatedFormat('M Y');
     @endphp
 
     <div class="dashboard-grid">
@@ -128,7 +127,13 @@
                                 <i class="bi {{ $typeIcon }} pending-item__icon"></i>
                                 <div class="pending-item__details">
                                     <span class="pending-item__name">{{ $event->name ?? __('ui.none') }}</span>
-                                    <span class="pending-item__date">{{ $fmt->month($event->date) }}</span>
+                                    <span class="pending-item__date">
+                                        @if($event->due_day)
+                                            {{ $fmt->month($event->date) . ' ' . $event->due_day }}
+                                        @else
+                                            {{ $fmt->month($event->date) }}
+                                        @endif
+                                    </span>
                                 </div>
                             </a>
                             <span class="pending-item__amount amount-{{ $isTransfer ? 'transfer' : $fmt->signal($total) }}">

@@ -21,20 +21,21 @@ class DashboardController extends Controller
 
     public function index(Request $request): View
     {
-        $now = now();
+        $currentMonth = $request->get('month', now()->format('Y-m'));
+        $monthDate = \Carbon\Carbon::parse($currentMonth);
         $pendingFilter = $request->get('pending_filter', 'all');
 
         $totalBalance = $this->balanceService->getTotalBalance();
-        $monthlyTotalsSplit = $this->balanceService->getMonthlyTotalsSplit($now->year, $now->month);
+        $monthlyTotalsSplit = $this->balanceService->getMonthlyTotalsSplit($monthDate->year, $monthDate->month);
 
         $forecastBalance = 0;
         foreach (\App\Models\Asset::all() as $asset) {
-            $forecastBalance += $this->balanceService->getForecastBalance($asset, $now->year, $now->month);
+            $forecastBalance += $this->balanceService->getForecastBalance($asset, $monthDate->year, $monthDate->month);
         }
 
-        $balanceHistory = $this->balanceService->getBalanceHistoryAggregated(6);
-        $monthlyBreakdown = $this->balanceService->getMonthlyBreakdown(6);
-        $pendingConsolidations = $this->balanceService->getPendingConsolidations();
+        $balanceHistory = $this->balanceService->getBalanceHistoryAggregated(6, $monthDate);
+        $monthlyBreakdown = $this->balanceService->getMonthlyBreakdown(6, $monthDate);
+        $pendingConsolidations = $this->balanceService->getPendingConsolidations($monthDate->year, $monthDate->month);
 
         if ($pendingFilter !== 'all') {
             $filterTypes = \App\Enums\EventType::filterTypes($pendingFilter);
@@ -42,8 +43,8 @@ class DashboardController extends Controller
         }
 
         $prevMonthTotals = $this->balanceService->getMonthlyTotals(
-            $now->copy()->subMonth()->year,
-            $now->copy()->subMonth()->month
+            $monthDate->copy()->subMonth()->year,
+            $monthDate->copy()->subMonth()->month
         );
 
         $forecastedIncome = $monthlyTotalsSplit['consolidated']['income'] + $monthlyTotalsSplit['unconsolidated']['income'];
@@ -67,6 +68,8 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'pageTitle' => __('ui.dashboard'),
+            'currentMonth' => $currentMonth,
+            'monthDate' => $monthDate,
             'totalBalance' => $totalBalance,
             'consolidatedIncome' => $monthlyTotalsSplit['consolidated']['income'],
             'consolidatedExpense' => $monthlyTotalsSplit['consolidated']['expense'],

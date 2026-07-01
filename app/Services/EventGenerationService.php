@@ -74,11 +74,14 @@ class EventGenerationService
 
         $amount = $this->applyRule($header, $year, $month);
 
+        $dueDate = $this->calculateDueDateForMonth($header->due_day, $year, $month);
+
         $event = new Event([
             'header_id' => $header->id,
             'type' => $header->type,
             'name' => $header->name,
             'date' => $eventDate,
+            'due_day' => $dueDate?->day,
             'consolidated' => false,
             'note' => null,
         ]);
@@ -89,6 +92,20 @@ class EventGenerationService
         $event->entries = $entries;
 
         return $event;
+    }
+
+    private function calculateDueDateForMonth(?int $dueDay, int $year, int $month): ?Carbon
+    {
+        if (!$dueDay) {
+            return null;
+        }
+
+        $eventMonth = Carbon::create($year, $month, 1);
+        $lastDayOfMonth = $eventMonth->daysInMonth;
+
+        $adjustedDay = min($dueDay, $lastDayOfMonth);
+
+        return Carbon::create($year, $month, $adjustedDay);
     }
 
     private function createVirtualEntries(Header $header, float $amount): Collection
@@ -288,6 +305,10 @@ class EventGenerationService
             $merged[$key] = $persistedEvent;
         }
 
-        return $merged->values();
+        return $merged->values()->sortBy([
+            fn ($a, $b) => ($a->consolidated ? 1 : 0) <=> ($b->consolidated ? 1 : 0),
+            fn ($a, $b) => ($a->due_day === null ? 1 : 0) <=> ($b->due_day === null ? 1 : 0),
+            fn ($a, $b) => ($a->due_day ?? PHP_INT_MAX) <=> ($b->due_day ?? PHP_INT_MAX),
+        ])->values();
     }
 }

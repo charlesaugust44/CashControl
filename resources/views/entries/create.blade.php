@@ -54,6 +54,13 @@
                         >
                         <input type="hidden" name="date" id="dateValue" value="{{ old('date', $defaultDate->format('Y-m-d')) }}">
                     </div>
+
+                    <div class="form-group">
+                        <label for="due_day" class="form-label">{{ __('entries.fields.due_day') }}</label>
+                        <select name="due_day" id="dueDay" class="form-control">
+                            <option value="">{{ __('entries.fields.no_due_day') }}</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="event-entries-section">
@@ -325,6 +332,7 @@
         const addEntryBtn = document.getElementById('addEntryBtn');
         const dateMonthInput = document.getElementById('dateMonth');
         const dateValueInput = document.getElementById('dateValue');
+        const dueDaySelect = document.getElementById('dueDay');
         const transferAmountInput = document.getElementById('transferAmount');
         const sourceAmountInput = document.getElementById('sourceAmount');
         const destAmountInput = document.getElementById('destAmount');
@@ -370,6 +378,34 @@
         function updateDate() {
             if (dateMonthInput.value) {
                 dateValueInput.value = dateMonthInput.value + '-01';
+            }
+            updateDueDayOptions();
+        }
+
+        function updateDueDayOptions() {
+            const currentValue = dueDaySelect.value;
+            const selectedMonth = dateMonthInput.value;
+            if (!selectedMonth) return;
+
+            const [year, month] = selectedMonth.split('-').map(Number);
+            const daysInMonth = new Date(year, month, 0).getDate();
+
+            dueDaySelect.innerHTML = '<option value="">{{ __('entries.fields.no_due_day') }}</option>';
+            for (let d = 1; d <= 31; d++) {
+                const option = document.createElement('option');
+                option.value = d;
+                option.textContent = d;
+                if (d > daysInMonth) {
+                    option.disabled = true;
+                    option.textContent = d + ' *';
+                }
+                dueDaySelect.appendChild(option);
+            }
+
+            if (currentValue && parseInt(currentValue) <= daysInMonth) {
+                dueDaySelect.value = currentValue;
+            } else if (currentValue && parseInt(currentValue) > daysInMonth) {
+                dueDaySelect.value = daysInMonth;
             }
         }
 
@@ -466,5 +502,6 @@
 
         toggleTypeUI();
         updateDate();
+        updateDueDayOptions();
     </script>
 @endpush

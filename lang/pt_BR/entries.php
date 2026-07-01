@@ -33,6 +33,8 @@ return [
         'note_optional' => 'Observação (opcional)',
         'note_placeholder' => 'Adicionar uma observação...',
         'date' => 'Data',
+        'due_day' => 'Dia de Vencimento',
+        'no_due_day' => 'Sem dia de vencimento',
         'transfer_amount' => 'Valor da Transferência',
         'from' => 'De',
         'to' => 'Para',

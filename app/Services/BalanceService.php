@@ -111,12 +111,13 @@ class BalanceService
         ];
     }
 
-    public function getMonthlyBreakdown(int $months = 6): array
+    public function getMonthlyBreakdown(int $months = 6, ?\Carbon\Carbon $referenceDate = null): array
     {
+        $referenceDate = $referenceDate ?? now();
         $data = ['labels' => [], 'income' => [], 'expense' => []];
 
         for ($i = $months - 1; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
+            $date = $referenceDate->copy()->subMonths($i);
             $totals = $this->getMonthlyTotals($date->year, $date->month);
             $data['labels'][] = $date->translatedFormat('M Y');
             $data['income'][] = round($totals['income'], 2);
@@ -126,12 +127,13 @@ class BalanceService
         return $data;
     }
 
-    public function getBalanceHistoryAggregated(int $months = 6): array
+    public function getBalanceHistoryAggregated(int $months = 6, ?\Carbon\Carbon $referenceDate = null): array
     {
+        $referenceDate = $referenceDate ?? now();
         $data = ['labels' => [], 'balances' => []];
 
         for ($i = $months - 1; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
+            $date = $referenceDate->copy()->subMonths($i);
             $label = $date->translatedFormat('M Y');
             $data['labels'][] = $label;
 
@@ -191,11 +193,10 @@ class BalanceService
         return $alerts;
     }
 
-    public function getPendingConsolidations(): Collection
+    public function getPendingConsolidations(int $year, int $month): Collection
     {
-        $now = now();
         $eventGenerationService = new EventGenerationService();
-        $virtualEvents = $eventGenerationService->generateVirtualEvents($now->year, $now->month);
+        $virtualEvents = $eventGenerationService->generateVirtualEvents($year, $month);
         $persistedEvents = \App\Models\Event::with(['header', 'entries.asset'])
             ->where('consolidated', false)
             ->orderBy('date', 'asc')
@@ -211,6 +212,9 @@ class BalanceService
             $merged[$key] = $persistedEvent;
         }
 
-        return $merged->values()->sortBy('date');
+        return $merged->values()->sortBy([
+            fn ($a, $b) => ($a->due_day === null ? 1 : 0) <=> ($b->due_day === null ? 1 : 0),
+            fn ($a, $b) => ($a->due_day ?? PHP_INT_MAX) <=> ($b->due_day ?? PHP_INT_MAX),
+        ])->values();
     }
 }

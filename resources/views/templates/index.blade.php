@@ -74,6 +74,12 @@
                             <span>{{ $header->start_date->translatedFormat('M Y') }}</span>
                             <i class="bi bi-arrow-right"></i>
                             <span>{{ $header->end_date ? $header->end_date->translatedFormat('M Y') : __('templates.schedule.ongoing') }}</span>
+                            @if($header->due_day)
+                                <span class="template-card__due-date" style="margin-left: auto;">
+                                    <i class="bi bi-bell"></i>
+                                    {{ __('templates.fields.day_label', ['day' => $header->due_day]) }}
+                                </span>
+                            @endif
                         </div>
                     </a>
                 @endforeach

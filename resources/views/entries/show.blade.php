@@ -50,6 +50,24 @@
                     @method($formMethod)
                 @endif
 
+                @if(!$isConsolidated)
+                    @php
+                        $eventMonth = \Carbon\Carbon::parse($event->date);
+                        $daysInMonth = $eventMonth->daysInMonth;
+                    @endphp
+                    <div class="event-meta-section">
+                        <div class="form-group">
+                            <label for="due_day" class="form-label">{{ __('entries.fields.due_day') }}</label>
+                            <select name="due_day" id="dueDay" class="form-control">
+                                <option value="">{{ __('entries.fields.no_due_day') }}</option>
+                                @for ($d = 1; $d <= $daysInMonth; $d++)
+                                    <option value="{{ $d }}" {{ old('due_day', $event->due_day) == $d ? 'selected' : '' }}>{{ $d }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="event-entries-section">
                     <h3 class="section-title">{{ __('entries.entries_section.title') }}</h3>
 

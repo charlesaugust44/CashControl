@@ -24,6 +24,7 @@ class Header extends Model
         'default_amount',
         'start_date',
         'end_date',
+        'due_day',
         'asset_id',
         'destination_asset_id',
     ];
@@ -34,6 +35,7 @@ class Header extends Model
         'default_amount' => 'decimal:2',
         'start_date' => 'date',
         'end_date' => 'date',
+        'due_day' => 'integer',
     ];
 
     public function events(): HasMany

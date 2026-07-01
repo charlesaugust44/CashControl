@@ -68,6 +68,7 @@ class HeaderController extends Controller
             'default_amount' => 'nullable|numeric|min:0',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'due_day' => 'nullable|integer|min:1|max:31',
             'asset_id' => 'required|exists:assets,id',
             'destination_asset_id' => 'nullable|exists:assets,id|different:asset_id',
         ]);
@@ -81,6 +82,9 @@ class HeaderController extends Controller
         $validated['start_date'] = Carbon::parse($validated['start_date'])->firstOfMonth();
         if (! empty($validated['end_date'])) {
             $validated['end_date'] = Carbon::parse($validated['end_date'])->firstOfMonth();
+        }
+        if (empty($validated['due_day'])) {
+            $validated['due_day'] = null;
         }
 
         $this->headerService->create($validated);
@@ -131,6 +135,7 @@ class HeaderController extends Controller
             'default_amount' => 'nullable|numeric|min:0',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'due_day' => 'nullable|integer|min:1|max:31',
             'asset_id' => 'required|exists:assets,id',
             'destination_asset_id' => 'nullable|exists:assets,id|different:asset_id',
             'delete_events' => 'nullable|array',
@@ -146,6 +151,9 @@ class HeaderController extends Controller
         $validated['start_date'] = Carbon::parse($validated['start_date'])->firstOfMonth();
         if (! empty($validated['end_date'])) {
             $validated['end_date'] = Carbon::parse($validated['end_date'])->firstOfMonth();
+        }
+        if (empty($validated['due_day'])) {
+            $validated['due_day'] = null;
         }
 
         $deleteEvents = $validated['delete_events'] ?? [];

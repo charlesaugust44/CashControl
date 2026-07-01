@@ -33,6 +33,8 @@ return [
         'note_optional' => 'Note (optional)',
         'note_placeholder' => 'Add a note...',
         'date' => 'Date',
+        'due_day' => 'Due Day',
+        'no_due_day' => 'No due day',
         'transfer_amount' => 'Transfer Amount',
         'from' => 'From',
         'to' => 'To',
