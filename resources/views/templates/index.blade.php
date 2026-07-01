@@ -8,10 +8,12 @@
     <div class="templates-container">
         @include('components.filter-tabs', [
             'filters' => [
-                'all'      => ['label' => __('ui.all'),                  'icon' => 'bi-grid-3x3-gap'],
-                'income'   => ['label' => __('templates.types.income'),  'icon' => 'bi-arrow-down-left'],
-                'expense'  => ['label' => __('templates.types.expense'), 'icon' => 'bi-arrow-up-right'],
-                'transfer' => ['label' => __('templates.types.transfer'),'icon' => 'bi-arrow-left-right'],
+                'all'                   => ['label' => __('ui.all'),                          'icon' => 'bi-grid-3x3-gap'],
+                'income'                => ['label' => __('templates.types.income'),           'icon' => 'bi-arrow-down-left'],
+                'expense'               => ['label' => __('templates.types.expense'),          'icon' => 'bi-arrow-up-right'],
+                'transfer'              => ['label' => __('templates.types.transfer'),         'icon' => 'bi-arrow-left-right'],
+                'expense_with_transfer' => ['label' => __('templates.types.expense_with_transfer'), 'icon' => 'bi-cart-plus'],
+                'income_with_transfer'  => ['label' => __('templates.types.income_with_transfer'),  'icon' => 'bi-cash-coin'],
             ],
             'currentFilter' => $currentFilter,
         ])
@@ -33,7 +35,7 @@
                         <div class="template-card__header">
                             <div class="template-card__title-row">
                                 @php
-                                    $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right'];
+                                    $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus', 'income_with_transfer' => 'bi-cash-coin'];
                                     $typeIcon = $typeIcons[$header->type->value] ?? 'bi-tag';
                                 @endphp
                                 <i class="{{ $typeIcon }} template-card__type-icon type-{{ $header->type->value }}"></i>
@@ -60,7 +62,7 @@
                                 <i class="bi bi-wallet2"></i>
                                 <span>{{ $header->asset->name ?? __('ui.none') }}</span>
                             </div>
-                            @if($header->isTransfer() && $header->destinationAsset)
+                            @if(($header->isTransfer() || $header->isExpenseWithTransfer() || $header->isIncomeWithTransfer()) && $header->destinationAsset)
                                 <div class="template-card__detail">
                                     <i class="bi bi-arrow-right"></i>
                                     <span>{{ $header->destinationAsset->name }}</span>

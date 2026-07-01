@@ -38,6 +38,7 @@
                             <option value="expense" {{ old('type') === 'expense' ? 'selected' : '' }}>{{ __('templates.types.expense') }}</option>
                             <option value="transfer" {{ old('type') === 'transfer' ? 'selected' : '' }}>{{ __('templates.types.transfer') }}</option>
                             <option value="expense_with_transfer" {{ old('type') === 'expense_with_transfer' ? 'selected' : '' }}>{{ __('templates.types.expense_with_transfer') }}</option>
+                            <option value="income_with_transfer" {{ old('type') === 'income_with_transfer' ? 'selected' : '' }}>{{ __('templates.types.income_with_transfer') }}</option>
                         </select>
                     </div>
 
@@ -190,6 +191,56 @@
                         </div>
                     </div>
 
+                    <div id="incomeWithTransferEntries" class="entries-list" style="display: none;">
+                        <div class="transfer-amount-section">
+                            <div class="form-group">
+                                <label class="form-label">{{ __('entries.fields.amount') }}</label>
+                                <div class="amount-input-wrapper">
+                                    <span class="currency-symbol">{{ $fmt->currencySymbol() }}</span>
+                                    <input
+                                        type="text"
+                                        inputmode="decimal"
+                                        autocomplete="off"
+                                        name="income_transfer_amount"
+                                        id="incomeTransferAmount"
+                                        class="form-control money-input"
+                                        value="{{ old('income_transfer_amount') }}"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="transfer-assets-row">
+                            <div class="form-group">
+                                <label class="form-label">{{ __('entries.fields.from') }} / {{ __('entries.fields.asset') }}</label>
+                                <select name="iwt_entries[0][asset_id]" id="iwtSourceAsset" class="form-control" required>
+                                    <option value="">{{ __('entries.select_source_asset') }}</option>
+                                    @foreach($assets as $asset)
+                                        <option value="{{ $asset->id }}" {{ old('iwt_entries.0.asset_id') == $asset->id ? 'selected' : '' }}>
+                                            {{ $asset->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="iwt_entries[0][amount]" id="iwtIncomeAmount" value="0">
+                                <input type="hidden" name="iwt_entries[1][amount]" id="iwtSourceAmount" value="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">{{ __('entries.fields.to') }}</label>
+                                <select name="iwt_entries[2][asset_id]" id="iwtDestAsset" class="form-control" required>
+                                    <option value="">{{ __('entries.select_destination_asset') }}</option>
+                                    @foreach($assets as $asset)
+                                        <option value="{{ $asset->id }}" {{ old('iwt_entries.2.asset_id') == $asset->id ? 'selected' : '' }}>
+                                            {{ $asset->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="iwt_entries[2][amount]" id="iwtDestTransferAmount" value="0">
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="button" class="btn-add-entry" id="addEntryBtn" onclick="addEntry()">
                         <i class="bi bi-plus-circle"></i>
                         <span>{{ __('entries.add_entry') }}</span>
@@ -270,6 +321,7 @@
         const normalEntries = document.getElementById('normalEntries');
         const transferEntries = document.getElementById('transferEntries');
         const expenseWithTransferEntries = document.getElementById('expenseWithTransferEntries');
+        const incomeWithTransferEntries = document.getElementById('incomeWithTransferEntries');
         const addEntryBtn = document.getElementById('addEntryBtn');
         const dateMonthInput = document.getElementById('dateMonth');
         const dateValueInput = document.getElementById('dateValue');
@@ -282,15 +334,23 @@
         const ewtExpenseAmountInput = document.getElementById('ewtExpenseAmount');
         const ewtSourceAsset = document.getElementById('ewtSourceAsset');
         const ewtDestAsset = document.getElementById('ewtDestAsset');
+        const incomeTransferAmountInput = document.getElementById('incomeTransferAmount');
+        const iwtIncomeAmountInput = document.getElementById('iwtIncomeAmount');
+        const iwtSourceAmountInput = document.getElementById('iwtSourceAmount');
+        const iwtDestTransferAmountInput = document.getElementById('iwtDestTransferAmount');
+        const iwtSourceAsset = document.getElementById('iwtSourceAsset');
+        const iwtDestAsset = document.getElementById('iwtDestAsset');
 
         function toggleTypeUI() {
             const isTransfer = typeSelect.value === 'transfer';
             const isExpenseWithTransfer = typeSelect.value === 'expense_with_transfer';
-            const isNormal = !isTransfer && !isExpenseWithTransfer;
+            const isIncomeWithTransfer = typeSelect.value === 'income_with_transfer';
+            const isNormal = !isTransfer && !isExpenseWithTransfer && !isIncomeWithTransfer;
 
             normalEntries.style.display = isNormal ? '' : 'none';
             transferEntries.style.display = isTransfer ? '' : 'none';
             expenseWithTransferEntries.style.display = isExpenseWithTransfer ? '' : 'none';
+            incomeWithTransferEntries.style.display = isIncomeWithTransfer ? '' : 'none';
             addEntryBtn.style.display = isNormal ? '' : 'none';
 
             normalEntries.querySelectorAll('input, select').forEach(el => {
@@ -301,6 +361,9 @@
             });
             expenseWithTransferEntries.querySelectorAll('input, select').forEach(el => {
                 el.disabled = !isExpenseWithTransfer;
+            });
+            incomeWithTransferEntries.querySelectorAll('input, select').forEach(el => {
+                el.disabled = !isIncomeWithTransfer;
             });
         }
 
@@ -321,6 +384,13 @@
             ewtSourceAmountInput.value = -amount;
             ewtDestTransferAmountInput.value = amount;
             ewtExpenseAmountInput.value = -amount;
+        }
+
+        function updateIncomeWithTransferAmounts() {
+            const amount = parseFloat(incomeTransferAmountInput.value) || 0;
+            iwtIncomeAmountInput.value = amount;
+            iwtSourceAmountInput.value = -amount;
+            iwtDestTransferAmountInput.value = amount;
         }
 
         function addEntry() {
@@ -345,6 +415,9 @@
         if (expenseTransferAmountInput) {
             expenseTransferAmountInput.addEventListener('input', updateExpenseWithTransferAmounts);
         }
+        if (incomeTransferAmountInput) {
+            incomeTransferAmountInput.addEventListener('input', updateIncomeWithTransferAmounts);
+        }
 
         document.getElementById('eventForm').addEventListener('submit', function(e) {
             if (typeSelect.value === 'transfer') {
@@ -368,6 +441,26 @@
                     this.appendChild(amountInput);
                 }
                 document.querySelectorAll('input[name^="ewt_entries"]').forEach(el => el.disabled = true);
+            } else if (typeSelect.value === 'income_with_transfer') {
+                updateIncomeWithTransferAmounts();
+                const sourceAssetId = iwtSourceAsset.value;
+                const destAssetId = iwtDestAsset.value;
+                for (let i = 0; i < 3; i++) {
+                    const existingInput = document.querySelector(`input[name="entries[${i}][asset_id]"]`);
+                    if (!existingInput) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = `entries[${i}][asset_id]`;
+                        input.value = i < 2 ? sourceAssetId : destAssetId;
+                        this.appendChild(input);
+                    }
+                    const amountInput = document.createElement('input');
+                    amountInput.type = 'hidden';
+                    amountInput.name = `entries[${i}][amount]`;
+                    amountInput.value = i === 0 ? iwtIncomeAmountInput.value : (i === 1 ? iwtSourceAmountInput.value : iwtDestTransferAmountInput.value);
+                    this.appendChild(amountInput);
+                }
+                document.querySelectorAll('input[name^="iwt_entries"]').forEach(el => el.disabled = true);
             }
         });
 

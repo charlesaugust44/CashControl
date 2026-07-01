@@ -37,7 +37,8 @@ class DashboardController extends Controller
         $pendingConsolidations = $this->balanceService->getPendingConsolidations();
 
         if ($pendingFilter !== 'all') {
-            $pendingConsolidations = $pendingConsolidations->filter(fn($e) => $e->type?->value === $pendingFilter)->values();
+            $filterTypes = \App\Enums\EventType::filterTypes($pendingFilter);
+            $pendingConsolidations = $pendingConsolidations->filter(fn($e) => in_array($e->type?->value, $filterTypes))->values();
         }
 
         $prevMonthTotals = $this->balanceService->getMonthlyTotals(

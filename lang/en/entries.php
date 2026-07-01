@@ -62,6 +62,7 @@ return [
         'expense' => 'expense',
         'transfer' => 'transfer',
         'expense_with_transfer' => 'expense + transfer',
+        'income_with_transfer' => 'income + transfer',
     ],
 
     'delete_confirmation' => [

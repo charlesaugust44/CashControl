@@ -143,6 +143,34 @@ class EventGenerationService
                 $expenseEntry->asset = Asset::find($header->destination_asset_id);
                 $entries->push($expenseEntry);
             }
+        } elseif ($header->isIncomeWithTransfer()) {
+            if ($header->asset_id) {
+                $incomeEntry = new Entry([
+                    'event_id' => 0,
+                    'asset_id' => $header->asset_id,
+                    'amount' => $amount,
+                ]);
+                $incomeEntry->asset = Asset::find($header->asset_id);
+                $entries->push($incomeEntry);
+
+                $transferOutEntry = new Entry([
+                    'event_id' => 0,
+                    'asset_id' => $header->asset_id,
+                    'amount' => -$amount,
+                ]);
+                $transferOutEntry->asset = Asset::find($header->asset_id);
+                $entries->push($transferOutEntry);
+            }
+
+            if ($header->destination_asset_id) {
+                $transferInEntry = new Entry([
+                    'event_id' => 0,
+                    'asset_id' => $header->destination_asset_id,
+                    'amount' => $amount,
+                ]);
+                $transferInEntry->asset = Asset::find($header->destination_asset_id);
+                $entries->push($transferInEntry);
+            }
         } else {
             if ($header->asset_id) {
                 $entryAmount = $header->type === EventType::Expense ? -$amount : $amount;
@@ -211,6 +239,8 @@ class EventGenerationService
                     $totalAmount = $persistedEvent->entries->where('amount', '>', 0)->sum('amount');
                 } elseif ($header->isExpenseWithTransfer()) {
                     $totalAmount = abs($persistedEvent->entries->where('amount', '<', 0)->sum('amount')) / 2;
+                } elseif ($header->isIncomeWithTransfer()) {
+                    $totalAmount = $persistedEvent->entries->where('amount', '>', 0)->sum('amount');
                 } else {
                     $totalAmount = abs($totalAmount);
                 }

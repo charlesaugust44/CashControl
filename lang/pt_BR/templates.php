@@ -42,6 +42,7 @@ return [
         'expense' => 'Despesa',
         'transfer' => 'Transferência',
         'expense_with_transfer' => 'Despesa + Transferência',
+        'income_with_transfer' => 'Receita + Transferência',
     ],
 
     'rules' => [

@@ -42,6 +42,7 @@ return [
         'expense' => 'Expense',
         'transfer' => 'Transfer',
         'expense_with_transfer' => 'Expense with Transfer',
+        'income_with_transfer' => 'Income with Transfer',
     ],
 
     'rules' => [

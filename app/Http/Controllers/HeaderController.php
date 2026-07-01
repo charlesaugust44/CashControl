@@ -25,7 +25,8 @@ class HeaderController extends Controller
         $headers = $this->headerService->list();
 
         if ($filter !== 'all') {
-            $headers = $headers->filter(fn ($h) => $h->type?->value === $filter)->values();
+            $filterTypes = \App\Enums\EventType::filterTypes($filter);
+            $headers = $headers->filter(fn ($h) => in_array($h->type?->value, $filterTypes))->values();
         }
 
         return view('templates.index', [
@@ -62,7 +63,7 @@ class HeaderController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string|max:300',
-            'type' => 'required|string|in:income,expense,transfer,expense_with_transfer',
+            'type' => 'required|string|in:income,expense,transfer,expense_with_transfer,income_with_transfer',
             'rule' => 'required|string|in:fixed,max_last_five_months,mean_last_five_months',
             'default_amount' => 'nullable|numeric|min:0',
             'start_date' => 'required|date',
@@ -71,7 +72,7 @@ class HeaderController extends Controller
             'destination_asset_id' => 'nullable|exists:assets,id|different:asset_id',
         ]);
 
-        if (in_array($validated['type'], ['transfer', 'expense_with_transfer'])) {
+        if (in_array($validated['type'], ['transfer', 'expense_with_transfer', 'income_with_transfer'])) {
             $request->validate([
                 'destination_asset_id' => 'required|exists:assets,id|different:asset_id',
             ]);
@@ -125,7 +126,7 @@ class HeaderController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string|max:300',
-            'type' => 'required|string|in:income,expense,transfer,expense_with_transfer',
+            'type' => 'required|string|in:income,expense,transfer,expense_with_transfer,income_with_transfer',
             'rule' => 'required|string|in:fixed,max_last_five_months,mean_last_five_months',
             'default_amount' => 'nullable|numeric|min:0',
             'start_date' => 'required|date',
@@ -136,7 +137,7 @@ class HeaderController extends Controller
             'delete_events.*' => 'exists:events,id',
         ]);
 
-        if (in_array($validated['type'], ['transfer', 'expense_with_transfer'])) {
+        if (in_array($validated['type'], ['transfer', 'expense_with_transfer', 'income_with_transfer'])) {
             $request->validate([
                 'destination_asset_id' => 'required|exists:assets,id|different:asset_id',
             ]);

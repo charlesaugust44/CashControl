@@ -60,4 +60,9 @@ class Header extends Model
     {
         return $this->type === EventType::ExpenseWithTransfer;
     }
+
+    public function isIncomeWithTransfer(): bool
+    {
+        return $this->type === EventType::IncomeWithTransfer;
+    }
 }

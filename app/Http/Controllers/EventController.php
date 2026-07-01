@@ -55,7 +55,8 @@ class EventController extends Controller
         $consolidatedBalance = $consolidatedIncome - $consolidatedExpense;
 
         if ($filter !== 'all') {
-            $events = $events->filter(fn($e) => $e->type?->value === $filter)->values();
+            $filterTypes = \App\Enums\EventType::filterTypes($filter);
+            $events = $events->filter(fn($e) => in_array($e->type?->value, $filterTypes))->values();
         }
 
         $headerOptions = $this->buildHeaderOptions($monthDate);

@@ -20,12 +20,12 @@
                 <i class="bi {{ $icon }}"></i>
                 {{ $title }}
             </h3>
-            @if(isset($actions))
-                <div class="dashboard-card__actions">
-                    {{ $actions }}
-                </div>
-            @endif
         </div>
+        @if(isset($actions))
+            <div class="dashboard-card__actions">
+                {{ $actions }}
+            </div>
+        @endif
     @endif
     <div class="dashboard-card__body">
         {{ $slot }}

@@ -1,6 +1,6 @@
 @php
     $type = $event->type?->value ?? 'event';
-    $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus'];
+    $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus', 'income_with_transfer' => 'bi-cash-coin'];
     $typeIcon = $typeIcons[$type] ?? 'bi-tag';
     $isVirtual = $event->id === 0 || $event->id === null;
     $isConsolidated = $event->consolidated ?? false;
@@ -81,6 +81,30 @@
                     </span>
                     <span class="entry-amount amount-negative">
                         -{{ $fmt->currency($amount) }}
+                    </span>
+                </div>
+            @elseif($event->isIncomeWithTransfer())
+                @php
+                    $incomeEntry = $event->entries->first(fn($e) => $e->amount > 0 && $e->asset_id === $event->header?->asset_id);
+                    $destTransferEntry = $event->entries->last(fn($e) => $e->amount > 0);
+                    $amount = abs($incomeEntry->amount ?? 0);
+                @endphp
+                <div class="entry-item">
+                    <span class="entry-asset">
+                        <i class="bi bi-cash-coin"></i>
+                        {{ $incomeEntry->asset->name ?? 'Unknown' }}
+                    </span>
+                    <span class="entry-amount amount-positive">
+                        +{{ $fmt->currency($amount) }}
+                    </span>
+                </div>
+                <div class="entry-item transfer-item">
+                    <span class="entry-asset">
+                        <i class="bi bi-arrow-right"></i>
+                        {{ $incomeEntry->asset->name ?? 'Unknown' }} → {{ $destTransferEntry->asset->name ?? 'Unknown' }}
+                    </span>
+                    <span class="entry-amount amount-transfer">
+                        {{ $fmt->currency($amount) }}
                     </span>
                 </div>
             @else

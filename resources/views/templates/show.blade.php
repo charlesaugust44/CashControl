@@ -10,7 +10,7 @@
             <div class="template-detail-header">
                 <div class="template-detail-title">
                     @php
-                        $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus'];
+                        $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus', 'income_with_transfer' => 'bi-cash-coin'];
                         $typeIcon = $typeIcons[$header->type->value] ?? 'bi-tag';
                     @endphp
                     <i class="{{ $typeIcon }} type-{{ $header->type->value }}"></i>
@@ -57,10 +57,10 @@
                 <h3 class="template-detail-section__title">{{ __('ui.assets') }}</h3>
                 <div class="template-detail-grid">
                     <div class="template-detail-item">
-                        <span class="template-detail-item__label">{{ ($header->isTransfer() || $header->isExpenseWithTransfer()) ? __('templates.fields.source_asset') : __('templates.fields.asset') }}</span>
+                        <span class="template-detail-item__label">{{ ($header->isTransfer() || $header->isExpenseWithTransfer() || $header->isIncomeWithTransfer()) ? __('templates.fields.source_asset') : __('templates.fields.asset') }}</span>
                         <span class="template-detail-item__value">{{ $header->asset->name ?? __('ui.none') }}</span>
                     </div>
-                    @if(($header->isTransfer() || $header->isExpenseWithTransfer()) && $header->destinationAsset)
+                    @if(($header->isTransfer() || $header->isExpenseWithTransfer() || $header->isIncomeWithTransfer()) && $header->destinationAsset)
                         <div class="template-detail-item">
                             <span class="template-detail-item__label">{{ __('templates.fields.destination_asset') }}</span>
                             <span class="template-detail-item__value">{{ $header->destinationAsset->name }}</span>

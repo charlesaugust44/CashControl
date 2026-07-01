@@ -73,6 +73,14 @@
     color: var(--color-info);
 }
 
+.template-card__type-icon.type-expense_with_transfer {
+    color: var(--color-danger);
+}
+
+.template-card__type-icon.type-income_with_transfer {
+    color: var(--color-success);
+}
+
 .template-card__name {
     font-size: 1.125rem;
     font-weight: 600;
@@ -101,6 +109,16 @@
 .template-type-badge.type-transfer {
     background: var(--color-info-bg);
     color: var(--color-info);
+}
+
+.template-type-badge.type-expense_with_transfer {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.template-type-badge.type-income_with_transfer {
+    background: var(--color-success-bg);
+    color: var(--color-success);
 }
 
 .template-card__description {
@@ -371,6 +389,14 @@
 
 .template-detail-title i.type-transfer {
     color: var(--color-info);
+}
+
+.template-detail-title i.type-expense_with_transfer {
+    color: var(--color-danger);
+}
+
+.template-detail-title i.type-income_with_transfer {
+    color: var(--color-success);
 }
 
 .template-detail-title h2 {

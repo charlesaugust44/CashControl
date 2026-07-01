@@ -60,10 +60,12 @@
 
             @include('components.filter-tabs', [
                 'filters' => [
-                    'all'      => ['label' => __('ui.all'),                  'icon' => 'bi-grid-3x3-gap'],
-                    'income'   => ['label' => __('templates.types.income'),  'icon' => 'bi-arrow-down-left'],
-                    'expense'  => ['label' => __('templates.types.expense'), 'icon' => 'bi-arrow-up-right'],
-                    'transfer' => ['label' => __('templates.types.transfer'),'icon' => 'bi-arrow-left-right'],
+                    'all'                   => ['label' => __('ui.all'),                          'icon' => 'bi-grid-3x3-gap'],
+                    'income'                => ['label' => __('templates.types.income'),           'icon' => 'bi-arrow-down-left'],
+                    'expense'               => ['label' => __('templates.types.expense'),          'icon' => 'bi-arrow-up-right'],
+                    'transfer'              => ['label' => __('templates.types.transfer'),         'icon' => 'bi-arrow-left-right'],
+                    'expense_with_transfer' => ['label' => __('templates.types.expense_with_transfer'), 'icon' => 'bi-cart-plus'],
+                    'income_with_transfer'  => ['label' => __('templates.types.income_with_transfer'),  'icon' => 'bi-cash-coin'],
                 ],
                 'currentFilter' => $currentFilter,
             ])

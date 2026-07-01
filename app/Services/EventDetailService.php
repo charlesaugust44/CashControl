@@ -195,6 +195,16 @@ class EventDetailService
             return -$absoluteAmount;
         }
 
+        if ($type === EventType::IncomeWithTransfer) {
+            if ($entryIndex === 0) {
+                return $absoluteAmount;
+            }
+            if ($entryIndex === 1) {
+                return -$absoluteAmount;
+            }
+            return $absoluteAmount;
+        }
+
         return $absoluteAmount;
     }
 }

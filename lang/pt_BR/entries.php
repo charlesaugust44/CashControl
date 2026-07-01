@@ -61,6 +61,8 @@ return [
         'income' => 'receita',
         'expense' => 'despesa',
         'transfer' => 'transferência',
+        'expense_with_transfer' => 'despesa + transferência',
+        'income_with_transfer' => 'receita + transferência',
     ],
 
     'delete_confirmation' => [

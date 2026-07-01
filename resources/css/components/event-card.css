@@ -145,6 +145,16 @@
     color: var(--color-success);
 }
 
+.event-type.expense_with_transfer {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.event-type.income_with_transfer {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
 .event-date {
     font-size: 0.8125rem;
     color: var(--color-text-muted);

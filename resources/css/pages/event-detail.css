@@ -76,6 +76,16 @@
     color: var(--color-info);
 }
 
+.event-type-badge.expense_with_transfer {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.event-type-badge.income_with_transfer {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
 .event-detail-date {
     font-size: 0.875rem;
     color: var(--color-text-muted);
