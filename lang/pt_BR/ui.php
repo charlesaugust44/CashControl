@@ -31,4 +31,5 @@ return [
     'of' => 'de',
     'to' => 'até',
     'results' => 'resultados',
+    'optional' => 'opcional',
 ];

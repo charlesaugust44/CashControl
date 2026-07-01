@@ -203,7 +203,7 @@
                         id="note"
                         class="form-control"
                         rows="3"
-                        placeholder="{{ __('entries.note_placeholder') }}"
+                        placeholder="{{ __('entries.fields.note_placeholder') }}"
                     >{{ old('note') }}</textarea>
                 </div>
             </form>
