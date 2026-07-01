@@ -16,7 +16,7 @@ return [
         'description' => 'Description',
         'description_optional' => 'Description (optional)',
         'type' => 'Type',
-        'rule' => 'Rule',
+        'rule' => 'Recurrence Rule',
         'default_amount' => 'Default Amount',
         'start_date' => 'Start Date',
         'end_date' => 'End Date',

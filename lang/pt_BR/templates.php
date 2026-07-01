@@ -16,7 +16,7 @@ return [
         'description' => 'Descrição',
         'description_optional' => 'Descrição (opcional)',
         'type' => 'Tipo',
-        'rule' => 'Regra',
+        'rule' => 'Regra de recorrência',
         'default_amount' => 'Valor Padrão',
         'start_date' => 'Data de Início',
         'end_date' => 'Data de Término',
