@@ -23,10 +23,8 @@ export default defineConfig({
     ],
     server: {
         host: '0.0.0.0',
-        https: true,
         hmr: {
             host: '192.168.2.129',
-            protocol: 'wss'
         },
         cors: true,
         watch: {

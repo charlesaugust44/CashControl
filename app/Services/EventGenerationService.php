@@ -251,6 +251,9 @@ class EventGenerationService
         $merged = $virtualEvents->keyBy(fn ($event) => 'v_'.$event->header_id.'_'.$event->date->format('Y-m-d'));
 
         foreach ($persistedEvents as $persistedEvent) {
+            $virtualKey = 'v_'.$persistedEvent->header_id.'_'.$persistedEvent->date->format('Y-m-d');
+            unset($merged[$virtualKey]);
+
             $key = 'p_'.$persistedEvent->id;
             $merged[$key] = $persistedEvent;
         }
