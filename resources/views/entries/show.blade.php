@@ -219,6 +219,7 @@
                                         @endforeach
                                     </select>
                                     <input type="hidden" name="entries[0][amount]" id="iwtIncomeAmount" value="{{ $amount }}">
+                                    <input type="hidden" name="entries[1][asset_id]" id="iwtTransferAssetId" value="{{ $sourceTransferEntry->asset_id ?? '' }}">
                                     <input type="hidden" name="entries[1][amount]" id="iwtSourceAmount" value="-{{ $amount }}">
                                 </div>
 
@@ -470,6 +471,14 @@
                     if (iwtSourceAmount) iwtSourceAmount.value = -amount;
                     if (iwtDestTransferAmount) iwtDestTransferAmount.value = amount;
                 });
+
+                const iwtSourceAsset = document.getElementById('iwtSourceAsset');
+                const iwtTransferAssetId = document.getElementById('iwtTransferAssetId');
+                if (iwtSourceAsset && iwtTransferAssetId) {
+                    iwtSourceAsset.addEventListener('change', function() {
+                        iwtTransferAssetId.value = this.value;
+                    });
+                }
             }
         });
     </script>
