@@ -41,7 +41,7 @@
 
             <div class="event-detail-date">
                 <i class="bi bi-calendar3"></i>
-                {{ $fmt->date($event->date) }}
+                {{ $fmt->month($event->date) }}
             </div>
 
             <form method="POST" action="{{ $formAction }}" class="event-detail-form" id="eventForm">

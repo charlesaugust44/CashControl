@@ -32,6 +32,28 @@ class Formatter
         };
     }
 
+    private function monthFormat(): string
+    {
+        return 'M Y';
+    }
+
+    public function month($date): string
+    {
+        if (!$date) return '';
+
+        if ($date instanceof \Carbon\Carbon) {
+            return $date->translatedFormat($this->monthFormat());
+        }
+
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format($this->monthFormat());
+        }
+
+        $timestamp = strtotime($date);
+        if ($timestamp === false) return '';
+        return date($this->monthFormat(), $timestamp);
+    }
+
     public function date($date): string
     {
         if (!$date) return '';

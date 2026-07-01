@@ -128,7 +128,7 @@
                                 <i class="bi {{ $typeIcon }} pending-item__icon"></i>
                                 <div class="pending-item__details">
                                     <span class="pending-item__name">{{ $event->name ?? __('ui.none') }}</span>
-                                    <span class="pending-item__date">{{ $fmt->date($event->date) }}</span>
+                                    <span class="pending-item__date">{{ $fmt->month($event->date) }}</span>
                                 </div>
                             </a>
                             <span class="pending-item__amount amount-{{ $isTransfer ? 'transfer' : $fmt->signal($total) }}">

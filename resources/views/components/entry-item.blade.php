@@ -41,7 +41,7 @@
         </div>
         <div class="event-date">
             <i class="bi bi-calendar3"></i>
-            {{ $fmt->date($event->date) }}
+            {{ $fmt->month($event->date) }}
         </div>
         <div class="event-entries">
             @if($event->isTransfer())
