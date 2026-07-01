@@ -90,7 +90,19 @@
             </div>
         </x-dashboard-card>
 
-        <x-dashboard-card size="full" title="{{ __('dashboard.pending_consolidations') }}" icon="bi-clock-history">
+        <x-dashboard-card size="full" title="{{ __('dashboard.pending_consolidations') }}" icon="bi-clock-history" :scrollable="true">
+            @slot('actions')
+                @include('components.filter-tabs', [
+                    'filters' => [
+                        'all'      => ['label' => __('ui.all'),                  'icon' => 'bi-grid-3x3-gap'],
+                        'income'   => ['label' => __('templates.types.income'),  'icon' => 'bi-arrow-down-left'],
+                        'expense'  => ['label' => __('templates.types.expense'), 'icon' => 'bi-arrow-up-right'],
+                        'transfer' => ['label' => __('templates.types.transfer'),'icon' => 'bi-arrow-left-right'],
+                    ],
+                    'currentFilter' => $pendingFilter,
+                    'queryParam' => 'pending_filter',
+                ])
+            @endslot
             @if($pendingConsolidations->count() > 0)
                 <ul class="pending-list">
                     @foreach($pendingConsolidations as $event)

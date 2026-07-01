@@ -22,6 +22,7 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $now = now();
+        $pendingFilter = $request->get('pending_filter', 'all');
 
         $totalBalance = $this->balanceService->getTotalBalance();
         $monthlyTotalsSplit = $this->balanceService->getMonthlyTotalsSplit($now->year, $now->month);
@@ -34,6 +35,10 @@ class DashboardController extends Controller
         $balanceHistory = $this->balanceService->getBalanceHistoryAggregated(6);
         $monthlyBreakdown = $this->balanceService->getMonthlyBreakdown(6);
         $pendingConsolidations = $this->balanceService->getPendingConsolidations();
+
+        if ($pendingFilter !== 'all') {
+            $pendingConsolidations = $pendingConsolidations->filter(fn($e) => $e->type?->value === $pendingFilter)->values();
+        }
 
         $prevMonthTotals = $this->balanceService->getMonthlyTotals(
             $now->copy()->subMonth()->year,
@@ -70,6 +75,7 @@ class DashboardController extends Controller
             'balanceHistory' => $balanceHistory,
             'monthlyBreakdown' => $monthlyBreakdown,
             'pendingConsolidations' => $pendingConsolidations,
+            'pendingFilter' => $pendingFilter,
             'incomeTrend' => $incomeTrend,
             'incomeTrendDir' => $incomeTrendDir,
             'expenseTrend' => $expenseTrend,

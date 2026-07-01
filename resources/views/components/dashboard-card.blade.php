@@ -2,6 +2,7 @@
     $title = $title ?? '';
     $icon = $icon ?? 'bi-bar-chart';
     $size = $size ?? 'md';
+    $scrollable = $scrollable ?? false;
     $sizeClass = match($size) {
         'sm' => 'dashboard-card--sm',
         'md' => 'dashboard-card--md',
@@ -9,9 +10,10 @@
         'full' => 'dashboard-card--full',
         default => 'dashboard-card--md',
     };
+    $scrollableClass = $scrollable ? 'dashboard-card--scrollable' : '';
 @endphp
 
-<div class="dashboard-card {{ $sizeClass }}">
+<div class="dashboard-card {{ $sizeClass }} {{ $scrollableClass }}">
     @if($title)
         <div class="dashboard-card__header">
             <h3 class="dashboard-card__title">

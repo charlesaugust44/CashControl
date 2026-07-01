@@ -193,9 +193,24 @@ class BalanceService
 
     public function getPendingConsolidations(): Collection
     {
-        return \App\Models\Event::with(['header', 'entries.asset'])
+        $now = now();
+        $eventGenerationService = new EventGenerationService();
+        $virtualEvents = $eventGenerationService->generateVirtualEvents($now->year, $now->month);
+        $persistedEvents = \App\Models\Event::with(['header', 'entries.asset'])
             ->where('consolidated', false)
             ->orderBy('date', 'asc')
             ->get();
+
+        $merged = $virtualEvents->keyBy(fn ($event) => 'v_' . $event->header_id . '_' . $event->date->format('Y-m-d'));
+
+        foreach ($persistedEvents as $persistedEvent) {
+            $virtualKey = 'v_' . $persistedEvent->header_id . '_' . $persistedEvent->date->format('Y-m-d');
+            unset($merged[$virtualKey]);
+
+            $key = 'p_' . $persistedEvent->id;
+            $merged[$key] = $persistedEvent;
+        }
+
+        return $merged->values()->sortBy('date');
     }
 }
