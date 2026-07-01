@@ -228,47 +228,47 @@
                         {{ $isConsolidated ? 'disabled' : '' }}
                     >{{ old('note', $event->note ?? '') }}</textarea>
                 </div>
-            </form>
 
-            <div class="form-actions">
-                @if(!$isVirtual && !$isConsolidated)
-                    <div class="form-actions__danger">
-                        <a href="{{ url('/entries/' . $event->id . '/delete') }}" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </div>
-                @endif
-
-                <div class="form-actions__group">
-                    @if(!$isVirtual && $isConsolidated)
-                        <button type="submit" name="action" value="unconsolidate" form="eventForm" class="btn btn-warning">
-                            <i class="bi bi-arrow-counterclockwise"></i> {{ __('entries.actions.unconsolidate') }}
-                        </button>
-                    @endif
-
-                    @if(!$isConsolidated)
-                        <button type="submit" name="action" value="consolidate" form="eventForm" class="btn btn-success">
-                            <i class="bi bi-check-all"></i> {{ __('entries.actions.consolidate') }}
-                        </button>
-                    @endif
-
-                    @if(!$isConsolidated)
-                        <div class="btn-split">
-                            <button type="submit" name="action" value="save" form="eventForm" class="btn btn-primary">
-                                <i class="bi bi-save"></i> {{ __('ui.save') }}
-                            </button>
-                            <button type="button" class="btn btn-primary btn-split__toggle" data-bs-toggle="dropdown">
-                                <i class="bi bi-chevron-down"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><button type="submit" name="action" value="submit" form="eventForm" class="dropdown-item">
-                                    <i class="bi bi-check-circle"></i> {{ __('ui.save_and_close') }}
-                                </button></li>
-                            </ul>
+                <div class="form-actions">
+                    @if(!$isVirtual && !$isConsolidated)
+                        <div class="form-actions__danger">
+                            <a href="{{ url('/entries/' . $event->id . '/delete') }}" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </div>
                     @endif
+
+                    <div class="form-actions__group">
+                        @if(!$isVirtual && $isConsolidated)
+                            <button type="submit" name="action" value="unconsolidate" class="btn btn-warning">
+                                <i class="bi bi-arrow-counterclockwise"></i> {{ __('entries.actions.unconsolidate') }}
+                            </button>
+                        @endif
+
+                        @if(!$isConsolidated)
+                            <button type="submit" name="action" value="consolidate" class="btn btn-success">
+                                <i class="bi bi-check-all"></i> {{ __('entries.actions.consolidate') }}
+                            </button>
+                        @endif
+
+                        @if(!$isConsolidated)
+                            <div class="btn-split">
+                                <button type="submit" name="action" value="save" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> {{ __('ui.save') }}
+                                </button>
+                                <button type="button" class="btn btn-primary btn-split__toggle" data-bs-toggle="dropdown">
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><button type="submit" name="action" value="submit" class="dropdown-item">
+                                        <i class="bi bi-check-circle"></i> {{ __('ui.save_and_close') }}
+                                    </button></li>
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 

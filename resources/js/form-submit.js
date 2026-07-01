@@ -8,6 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 : [];
             const allButtons = [...buttons, ...externalButtons];
 
+            if (submitter && submitter.name && submitter.value) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = submitter.name;
+                hiddenInput.value = submitter.value;
+                form.appendChild(hiddenInput);
+            }
+
             allButtons.forEach(function(btn) {
                 btn.disabled = true;
                 if (btn === submitter) {

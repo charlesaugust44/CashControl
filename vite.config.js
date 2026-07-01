@@ -17,6 +17,8 @@ export default defineConfig({
                 'resources/css/pages/asset-detail.css',
                 'resources/css/pages/asset-form.css',
                 'resources/css/pages/entries.css',
+                'resources/css/pages/event-detail.css',
+                'resources/css/pages/templates.css',
             ],
             refresh: true,
         }),
