@@ -42,11 +42,9 @@
 
 .btn-primary:hover {
     box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
-    transform: translateY(-1px);
 }
 
 .btn-primary:active {
-    transform: translateY(0) scale(0.97);
     box-shadow: 0 1px 2px rgba(67, 97, 238, 0.2);
 }
 
@@ -99,11 +97,9 @@
 
 .btn-success:hover {
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-    transform: translateY(-1px);
 }
 
 .btn-success:active {
-    transform: translateY(0) scale(0.97);
     box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
 }
 

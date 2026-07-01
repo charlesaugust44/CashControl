@@ -51,6 +51,25 @@
         0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
+@media (min-width: 769px) {
+    .form-actions {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    @keyframes form-actions-enter {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(16px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+}
+
 @media (max-width: 768px) {
     .form-actions {
         bottom: var(--space-3);

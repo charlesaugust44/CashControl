@@ -49,6 +49,10 @@ main {
     overflow-y: auto;
 }
 
+.d-flex.flex-column.overflow-hidden.vh-100 {
+    position: relative;
+}
+
 :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
