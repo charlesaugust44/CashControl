@@ -44,11 +44,11 @@
                 <div class="template-detail-grid">
                     <div class="template-detail-item">
                         <span class="template-detail-item__label">{{ __('templates.fields.start_date') }}</span>
-                        <span class="template-detail-item__value">{{ $header->start_date->format('M Y') }}</span>
+                        <span class="template-detail-item__value">{{ $header->start_date->translatedFormat('M Y') }}</span>
                     </div>
                     <div class="template-detail-item">
                         <span class="template-detail-item__label">{{ __('templates.fields.end_date') }}</span>
-                        <span class="template-detail-item__value">{{ $header->end_date ? $header->end_date->format('M Y') : __('templates.schedule.ongoing') }}</span>
+                        <span class="template-detail-item__value">{{ $header->end_date ? $header->end_date->translatedFormat('M Y') : __('templates.schedule.ongoing') }}</span>
                     </div>
                 </div>
             </div>

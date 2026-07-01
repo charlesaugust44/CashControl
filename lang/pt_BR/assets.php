@@ -14,7 +14,7 @@ return [
     'fields' => [
         'name' => 'Nome do Ativo',
         'balance' => 'Saldo Inicial',
-        'closed_up_to' => 'Fechado até',
+        'closed_up_to' => 'Ultimo fechamento: ',
         'updated' => 'Atualizado',
         'not_closed' => 'Não fechado',
     ],

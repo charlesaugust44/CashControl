@@ -29,7 +29,7 @@
                             @foreach($futureEvents as $event)
                                 <div class="conflict-event">
                                     <div class="conflict-event__info">
-                                        <span class="conflict-event__date">{{ $event->date->format('M Y') }}</span>
+                                        <span class="conflict-event__date">{{ $event->date->translatedFormat('M Y') }}</span>
                                         @if($event->consolidated)
                                             <span class="badge bg-success">{{ __('entries.status.consolidated') }}</span>
                                         @endif

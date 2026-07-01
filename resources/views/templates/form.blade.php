@@ -136,7 +136,7 @@
                             @foreach($futureEvents as $event)
                                 <div class="conflict-event">
                                     <div class="conflict-event__info">
-                                        <span class="conflict-event__date">{{ $event->date->format('M Y') }}</span>
+                                        <span class="conflict-event__date">{{ $event->date->translatedFormat('M Y') }}</span>
                                         @foreach($event->entries as $entry)
                                             <span class="conflict-event__entry">
                                                 <i class="bi bi-wallet2"></i>

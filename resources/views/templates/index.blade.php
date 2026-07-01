@@ -69,9 +69,9 @@
                         </div>
 
                         <div class="template-card__dates">
-                            <span>{{ $header->start_date->format('M Y') }}</span>
+                            <span>{{ $header->start_date->translatedFormat('M Y') }}</span>
                             <i class="bi bi-arrow-right"></i>
-                            <span>{{ $header->end_date ? $header->end_date->format('M Y') : __('templates.schedule.ongoing') }}</span>
+                            <span>{{ $header->end_date ? $header->end_date->translatedFormat('M Y') : __('templates.schedule.ongoing') }}</span>
                         </div>
                     </a>
                 @endforeach

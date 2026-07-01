@@ -4,13 +4,32 @@ namespace App\Helpers;
 
 class Formatter
 {
-    private string $locale;
     private string $currency;
 
-    public function __construct(?string $locale = null, ?string $currency = null)
+    public function __construct(?string $currency = null)
     {
-        $this->locale = $locale ?? config('app.locale', 'en');
         $this->currency = $currency ?? config('app.currency', 'USD');
+    }
+
+    private function locale(): string
+    {
+        return app()->getLocale();
+    }
+
+    private function dateFormat(): string
+    {
+        return match ($this->locale()) {
+            'pt_BR' => 'j M Y',
+            default => 'M j, Y',
+        };
+    }
+
+    private function dateTimeFormat(): string
+    {
+        return match ($this->locale()) {
+            'pt_BR' => 'j M Y H:i',
+            default => 'M j, Y g:i A',
+        };
     }
 
     public function date($date): string
@@ -18,29 +37,33 @@ class Formatter
         if (!$date) return '';
 
         if ($date instanceof \Carbon\Carbon) {
-            return $date->translatedFormat('M j, Y');
+            return $date->translatedFormat($this->dateFormat());
         }
 
         if ($date instanceof \DateTimeInterface) {
-            return $date->format('M j, Y');
+            return $date->format($this->dateFormat());
         }
 
         $timestamp = strtotime($date);
         if ($timestamp === false) return '';
-        return date('M j, Y', $timestamp);
+        return date($this->dateFormat(), $timestamp);
     }
 
     public function dateTime($date): string
     {
         if (!$date) return '';
 
-        if ($date instanceof \Carbon\Carbon || $date instanceof \DateTimeInterface) {
-            return $date->format('M j, Y g:i A');
+        if ($date instanceof \Carbon\Carbon) {
+            return $date->translatedFormat($this->dateTimeFormat());
+        }
+
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format($this->dateTimeFormat());
         }
 
         $timestamp = strtotime($date);
         if ($timestamp === false) return '';
-        return date('M j, Y g:i A', $timestamp);
+        return date($this->dateTimeFormat(), $timestamp);
     }
 
     public function currency($amount): string
@@ -57,7 +80,7 @@ class Formatter
             'en' => '$',
         ];
         
-        return $localeSymbols[$this->locale] ?? $this->currency;
+        return $localeSymbols[$this->locale()] ?? $this->currency;
     }
 
     public function number($value, int $decimals = 2): string
@@ -75,7 +98,7 @@ class Formatter
             'en' => '.',
         ];
         
-        return $separators[$this->locale] ?? '.';
+        return $separators[$this->locale()] ?? '.';
     }
 
     public function thousandsSeparator(): string
@@ -85,7 +108,7 @@ class Formatter
             'en' => ',',
         ];
         
-        return $separators[$this->locale] ?? ',';
+        return $separators[$this->locale()] ?? ',';
     }
 
     public function signal($value): string

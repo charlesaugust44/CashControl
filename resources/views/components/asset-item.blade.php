@@ -13,18 +13,17 @@
     <div class="asset-details">
         <div class="asset-detail-item">
             <i class="bi bi-calendar-check"></i>
-            <span class="detail-label">Closed up to</span>
+            <span class="detail-label">{{ __('assets.fields.closed_up_to') }}</span>
             <span class="detail-value">
                 @if($asset->closed_up_to)
                     {{ $asset->closed_up_to->format('M Y') }}
                 @else
-                    Not closed
+                    {{ __('assets.fields.not_closed') }}
                 @endif
             </span>
         </div>
         <div class="asset-detail-item">
             <i class="bi bi-clock-history"></i>
-            <span class="detail-label">Updated</span>
             <span class="detail-value">{{ $fmt->dateTime($asset->updated_at) }}</span>
         </div>
     </div>
