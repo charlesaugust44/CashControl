@@ -15,8 +15,10 @@
                  data-consolidated-income="{{ $fmt->currency($consolidatedIncome) }}"
                  data-consolidated-expense="{{ $fmt->currency($consolidatedExpense) }}"
                  data-consolidated-balance="{{ $fmt->currency(abs($consolidatedBalance)) }}"
-                 data-consolidated-balance-positive="{{ $consolidatedBalance >= 0 ? '1' : '0' }}">
+                 data-consolidated-balance-positive="{{ $consolidatedBalance >= 0 ? '1' : '0' }}"
+                 data-is-month-closed="{{ $isMonthClosed ? '1' : '0' }}">
                 <div class="summary-toggle">
+                    @if(!$isMonthClosed)
                     <button type="button" class="summary-toggle__option summary-toggle__option--active" data-mode="forecasted">
                         <i class="bi bi-dash-circle"></i>
                         {{ __('entries.forecasted') }}
@@ -25,6 +27,12 @@
                         <i class="bi bi-check-circle"></i>
                         {{ __('entries.consolidated') }}
                     </button>
+                    @else
+                    <button type="button" class="summary-toggle__option summary-toggle__option--active" data-mode="consolidated">
+                        <i class="bi bi-check-circle"></i>
+                        {{ __('entries.consolidated') }}
+                    </button>
+                    @endif
                 </div>
 
                 <div class="entries-summary">
@@ -34,7 +42,7 @@
                                 <i class="bi bi-arrow-down-left"></i>
                                 {{ __('templates.types.income') }}
                             </span>
-                            <span class="summary-card__value">{{ $fmt->currency($totalIncome) }}</span>
+                            <span class="summary-card__value">{{ $fmt->currency($isMonthClosed ? $consolidatedIncome : $totalIncome) }}</span>
                         </div>
                     </div>
                     <div class="summary-card summary-card--expense">
@@ -43,16 +51,16 @@
                                 <i class="bi bi-arrow-up-right"></i>
                                 {{ __('templates.types.expense') }}
                             </span>
-                            <span class="summary-card__value">{{ $fmt->currency($totalExpense) }}</span>
+                            <span class="summary-card__value">{{ $fmt->currency($isMonthClosed ? $consolidatedExpense : $totalExpense) }}</span>
                         </div>
                     </div>
-                    <div class="summary-card summary-card--balance {{ $balance >= 0 ? 'summary-card--positive' : 'summary-card--negative' }}">
+                    <div class="summary-card summary-card--balance {{ ($isMonthClosed ? $consolidatedBalance : $balance) >= 0 ? 'summary-card--positive' : 'summary-card--negative' }}">
                         <div class="summary-card__content">
                             <span class="summary-card__label">
-                                <i class="bi bi-{{ $balance >= 0 ? 'cash' : 'exclamation-circle' }}"></i>
+                                <i class="bi bi-{{ ($isMonthClosed ? $consolidatedBalance : $balance) >= 0 ? 'cash' : 'exclamation-circle' }}"></i>
                                 {{ __('entries.balance') }}
                             </span>
-                            <span class="summary-card__value">{{ $fmt->currency(abs($balance)) }}</span>
+                            <span class="summary-card__value">{{ $fmt->currency(abs($isMonthClosed ? $consolidatedBalance : $balance)) }}</span>
                         </div>
                     </div>
                 </div>
@@ -94,7 +102,11 @@
 
         if (!toggle || !panel) return;
 
+        const isMonthClosed = panel.dataset.isMonthClosed === '1';
+
         toggle.addEventListener('click', function (e) {
+            if (isMonthClosed) return;
+
             const btn = e.target.closest('.summary-toggle__option');
             if (!btn || btn.classList.contains('summary-toggle__option--active')) return;
 

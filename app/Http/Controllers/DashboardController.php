@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Formatter;
 use App\Services\BalanceService;
+use App\Services\MonthClosureService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -11,11 +12,13 @@ use Illuminate\View\View;
 class DashboardController extends Controller
 {
     private BalanceService $balanceService;
+    private MonthClosureService $monthClosureService;
     private Formatter $fmt;
 
     public function __construct()
     {
         $this->balanceService = new BalanceService();
+        $this->monthClosureService = new MonthClosureService();
         $this->fmt = new Formatter();
     }
 
@@ -24,6 +27,8 @@ class DashboardController extends Controller
         $currentMonth = $request->get('month', now()->format('Y-m'));
         $monthDate = \Carbon\Carbon::parse($currentMonth);
         $pendingFilter = $request->get('pending_filter', 'all');
+
+        $isMonthClosed = $this->monthClosureService->isMonthClosed($monthDate->year, $monthDate->month);
 
         $totalBalance = $this->balanceService->getTotalBalance();
         $monthlyTotalsSplit = $this->balanceService->getMonthlyTotalsSplit($monthDate->year, $monthDate->month);
@@ -70,6 +75,7 @@ class DashboardController extends Controller
             'pageTitle' => __('ui.dashboard'),
             'currentMonth' => $currentMonth,
             'monthDate' => $monthDate,
+            'isMonthClosed' => $isMonthClosed,
             'totalBalance' => $totalBalance,
             'consolidatedIncome' => $monthlyTotalsSplit['consolidated']['income'],
             'consolidatedExpense' => $monthlyTotalsSplit['consolidated']['expense'],

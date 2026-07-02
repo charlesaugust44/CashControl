@@ -11,7 +11,7 @@
     @endphp
 
     <div class="dashboard-grid">
-        <x-dashboard-card size="lg">
+        <x-dashboard-card size="{{ $isMonthClosed ? 'full' : 'lg' }}">
             <div class="dashboard-stats">
                 <div class="dashboard-stats__section-label">
                     {{ __('dashboard.consolidated') }}
@@ -44,6 +44,7 @@
             </div>
         </x-dashboard-card>
 
+        @if(!$isMonthClosed)
         <x-dashboard-card size="lg">
             <div class="dashboard-stats">
                 <div class="dashboard-stats__section-label">
@@ -90,6 +91,7 @@
                 </div>
             </div>
         </x-dashboard-card>
+        @endif
 
         <x-dashboard-card size="full" title="{{ __('dashboard.pending_consolidations') }}" icon="bi-clock-history" :scrollable="true">
             @slot('actions')

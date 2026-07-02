@@ -84,6 +84,8 @@ class EventController extends Controller
 
         $consolidatedBalance = $consolidatedIncome - $consolidatedExpense;
 
+        $isMonthClosed = $this->monthClosureService->isMonthClosed($monthDate->year, $monthDate->month);
+
         if ($filter !== 'all') {
             $filterTypes = \App\Enums\EventType::filterTypes($filter);
             $events = $events->filter(fn($e) => in_array($e->type?->value, $filterTypes))->values();
@@ -110,6 +112,7 @@ class EventController extends Controller
             'consolidatedExpense' => $consolidatedExpense,
             'consolidatedBalance' => $consolidatedBalance,
             'currentFilter' => $filter,
+            'isMonthClosed' => $isMonthClosed,
         ]);
     }
 
