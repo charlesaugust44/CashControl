@@ -138,7 +138,7 @@
                                     </span>
                                     <span class="pending-item__date">
                                         @if($event->due_day)
-                                            {{ $fmt->month($event->date) . ' ' . $event->due_day }}
+                                            {{ $event->due_day . ' ' . $fmt->month($event->date)  }}
                                         @else
                                             {{ $fmt->month($event->date) }}
                                         @endif

@@ -1,5 +1,4 @@
 .git
-.gitignore
 .idea
 .vscode
 node_modules
@@ -12,6 +11,5 @@ ssl
 README.md
 tests
 database/*.sqlite
-docker-compose.yml
 public/build
 public/hot

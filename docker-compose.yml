@@ -1,51 +1,12 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: app
-    container_name: cashcontrol-app
-    restart: unless-stopped
-    volumes:
-      - ./storage:/var/www/html/storage
-      - ./database/database.sqlite:/var/www/html/database/database.sqlite
-      - ./.env:/var/www/html/.env:ro
-    networks:
-      - cashcontrol
-
-  nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: nginx
-    container_name: cashcontrol-nginx
+  cashcontrol:
+    build: .
+    container_name: cashcontrol
     restart: unless-stopped
     ports:
       - "8443:443"
     volumes:
       - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - app
-    networks:
-      - cashcontrol
-
-  queue-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: app
-    container_name: cashcontrol-queue
-    restart: unless-stopped
-    command: php artisan queue:work --tries=3 --timeout=90
-    volumes:
       - ./storage:/var/www/html/storage
       - ./database/database.sqlite:/var/www/html/database/database.sqlite
       - ./.env:/var/www/html/.env:ro
-    depends_on:
-      - app
-    networks:
-      - cashcontrol
-
-networks:
-  cashcontrol:
-    driver: bridge

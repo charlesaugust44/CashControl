@@ -9,15 +9,17 @@ COPY vite.config.js ./
 COPY resources ./resources
 RUN npm run build
 
-FROM php:8.4-fpm-alpine AS app
+FROM php:8.4-fpm-alpine
 
 RUN apk add --no-cache \
     curl \
     libpng-dev \
     libxml2-dev \
     libzip-dev \
+    nginx \
     oniguruma-dev \
     sqlite-dev \
+    supervisor \
     zip \
     unzip
 
@@ -51,20 +53,15 @@ RUN mkdir -p storage/app/public \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+COPY docker/nginx/nginx.conf /etc/nginx/http.d/default.conf
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-EXPOSE 9000
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["php-fpm"]
-
-FROM nginx:alpine AS nginx
-
-COPY docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=node /app/public/build /var/www/html/public/build
-COPY public/ /var/www/html/public/
+RUN mkdir -p /var/log/supervisor \
+    && mkdir -p /etc/nginx/ssl
 
 EXPOSE 443
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
