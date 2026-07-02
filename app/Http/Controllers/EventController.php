@@ -34,23 +34,53 @@ class EventController extends Controller
             $monthDate->month
         );
 
-        $totalIncome = $events->filter(fn($e) => $e->type?->value === 'income')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => max(0, (float) $entry->amount));
+        $totalIncome = $events->filter(function($e) {
+                $type = $e->type?->value;
+                return $type === 'income' || $type === 'income_with_transfer';
+            })
+            ->sum(function($e) {
+                if ($e->type?->value === 'income_with_transfer') {
+                    return max(0, (float) $e->entries[0]->amount);
+                }
+                return $e->entries->sum(fn($entry) => max(0, (float) $entry->amount));
+            });
 
-        $totalExpense = $events->filter(fn($e) => $e->type?->value === 'expense')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => abs((float) $entry->amount));
+        $totalExpense = $events->filter(function($e) {
+                $type = $e->type?->value;
+                return $type === 'expense' || $type === 'expense_with_transfer';
+            })
+            ->sum(function($e) {
+                if ($e->type?->value === 'expense_with_transfer') {
+                    return abs((float) $e->entries[2]->amount);
+                }
+                return $e->entries->sum(fn($entry) => abs((float) $entry->amount));
+            });
 
         $balance = $totalIncome - $totalExpense;
 
-        $consolidatedIncome = $events->filter(fn($e) => $e->consolidated && $e->type?->value === 'income')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => max(0, (float) $entry->amount));
+        $consolidatedIncome = $events->filter(function($e) {
+                if (!$e->consolidated) return false;
+                $type = $e->type?->value;
+                return $type === 'income' || $type === 'income_with_transfer';
+            })
+            ->sum(function($e) {
+                if ($e->type?->value === 'income_with_transfer') {
+                    return max(0, (float) $e->entries[0]->amount);
+                }
+                return $e->entries->sum(fn($entry) => max(0, (float) $entry->amount));
+            });
 
-        $consolidatedExpense = $events->filter(fn($e) => $e->consolidated && $e->type?->value === 'expense')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => abs((float) $entry->amount));
+        $consolidatedExpense = $events->filter(function($e) {
+                if (!$e->consolidated) return false;
+                $type = $e->type?->value;
+                return $type === 'expense' || $type === 'expense_with_transfer';
+            })
+            ->sum(function($e) {
+                if ($e->type?->value === 'expense_with_transfer') {
+                    return abs((float) $e->entries[2]->amount);
+                }
+                return $e->entries->sum(fn($entry) => abs((float) $entry->amount));
+            });
 
         $consolidatedBalance = $consolidatedIncome - $consolidatedExpense;
 

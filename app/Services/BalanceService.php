@@ -11,11 +11,13 @@ class BalanceService
 {
     private EntryRepository $entryRepository;
     private EventRepository $eventRepository;
+    private EventService $eventService;
 
     public function __construct()
     {
         $this->entryRepository = new EntryRepository();
         $this->eventRepository = new EventRepository();
+        $this->eventService = new EventService();
     }
 
     public function getActualBalance(Asset $asset): float
@@ -27,37 +29,38 @@ class BalanceService
     {
         $actual = $this->getActualBalance($asset);
 
-        $unconsolidatedEvents = $asset->entries()
-            ->with('event')
-            ->whereHas('event', function ($query) use ($year, $month) {
-                $query->whereYear('date', '<=', $year)
-                    ->whereMonth('date', '<=', $month);
-            })
-            ->get()
-            ->filter(function ($entry) {
-                $event = $entry->event;
-                if (!$event) {
-                    return false;
-                }
+        $events = $this->eventService->listByMonth($year, $month);
 
+        $unconsolidated = $events->filter(function ($event) {
+                if ($event->isComposite()) {
+                    return !$event->consolidated || !$event->transfer_consolidated;
+                }
+                return !$event->consolidated;
+            })
+            ->sum(function ($event) use ($asset) {
                 if ($event->isComposite()) {
                     $transferIndices = $event->getTransferEntryIndices();
                     $incomeExpenseIndices = $event->getIncomeExpenseEntryIndices();
-                    $entryIndex = $event->entries->search($entry);
+                    $entries = $event->entries->values();
 
-                    if (in_array($entryIndex, $transferIndices)) {
-                        return !$event->transfer_consolidated;
-                    }
-                    if (in_array($entryIndex, $incomeExpenseIndices)) {
-                        return !$event->consolidated;
-                    }
-                    return false;
+                    return $entries->reduce(function ($sum, $entry, $index) use ($asset, $event, $transferIndices, $incomeExpenseIndices) {
+                        if ($entry->asset_id !== $asset->id) {
+                            return $sum;
+                        }
+
+                        if (in_array($index, $transferIndices) && !$event->transfer_consolidated) {
+                            return $sum + (float) $entry->amount;
+                        }
+                        if (in_array($index, $incomeExpenseIndices) && !$event->consolidated) {
+                            return $sum + (float) $entry->amount;
+                        }
+                        return $sum;
+                    }, 0);
                 }
 
-                return !$event->consolidated;
+                return $event->entries->filter(fn($entry) => $entry->asset_id === $asset->id)
+                    ->sum(fn($entry) => (float) $entry->amount);
             });
-
-        $unconsolidated = $unconsolidatedEvents->sum('amount');
 
         return $actual + (float) $unconsolidated;
     }
@@ -96,22 +99,36 @@ class BalanceService
 
     public function getMonthlyTotals(int $year, int $month): array
     {
-        $events = $this->eventRepository->listByMonth($year, $month);
+        $events = $this->eventService->listByMonth($year, $month);
 
-        $income = $events->filter(fn($e) => $e->type?->value === 'income')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => max(0, (float) $entry->amount));
+        $income = $events->filter(function($e) {
+                $type = $e->type?->value;
+                return $type === 'income' || $type === 'income_with_transfer';
+            })
+            ->sum(function($e) {
+                if ($e->type?->value === 'income_with_transfer') {
+                    return max(0, (float) $e->entries[0]->amount);
+                }
+                return $e->entries->sum(fn($entry) => max(0, (float) $entry->amount));
+            });
 
-        $expense = $events->filter(fn($e) => $e->type?->value === 'expense')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => abs((float) $entry->amount));
+        $expense = $events->filter(function($e) {
+                $type = $e->type?->value;
+                return $type === 'expense' || $type === 'expense_with_transfer';
+            })
+            ->sum(function($e) {
+                if ($e->type?->value === 'expense_with_transfer') {
+                    return abs((float) $e->entries[2]->amount);
+                }
+                return $e->entries->sum(fn($entry) => abs((float) $entry->amount));
+            });
 
         return ['income' => $income, 'expense' => $expense];
     }
 
     public function getMonthlyTotalsSplit(int $year, int $month): array
     {
-        $events = $this->eventRepository->listByMonth($year, $month);
+        $events = $this->eventService->listByMonth($year, $month);
 
         $consolidatedIncome = 0;
         $consolidatedExpense = 0;
