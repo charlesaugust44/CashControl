@@ -29,40 +29,57 @@ class BalanceService
     {
         $actual = $this->getActualBalance($asset);
 
-        $events = $this->eventService->listByMonth($year, $month);
+        $viewedMonth = \Carbon\Carbon::create($year, $month, 1);
+        $closedUpTo = $asset->closed_up_to ? \Carbon\Carbon::parse($asset->closed_up_to) : null;
+        
+        $startMonth = $closedUpTo ? $closedUpTo->copy()->addMonth() : \Carbon\Carbon::now()->startOfMonth();
+        
+        if ($startMonth->greaterThan($viewedMonth)) {
+            return $actual;
+        }
 
-        $unconsolidated = $events->filter(function ($event) {
-                if ($event->isComposite()) {
-                    return !$event->consolidated || !$event->transfer_consolidated;
-                }
-                return !$event->consolidated;
-            })
-            ->sum(function ($event) use ($asset) {
-                if ($event->isComposite()) {
-                    $transferIndices = $event->getTransferEntryIndices();
-                    $incomeExpenseIndices = $event->getIncomeExpenseEntryIndices();
-                    $entries = $event->entries->values();
+        $totalUnconsolidated = 0;
+        $currentMonth = $startMonth->copy();
+        
+        while ($currentMonth->lessThanOrEqualTo($viewedMonth)) {
+            $events = $this->eventService->listByMonth($currentMonth->year, $currentMonth->month);
+            
+            $unconsolidated = $events->filter(function ($event) {
+                    if ($event->isComposite()) {
+                        return !$event->consolidated || !$event->transfer_consolidated;
+                    }
+                    return !$event->consolidated;
+                })
+                ->sum(function ($event) use ($asset) {
+                    if ($event->isComposite()) {
+                        $transferIndices = $event->getTransferEntryIndices();
+                        $incomeExpenseIndices = $event->getIncomeExpenseEntryIndices();
+                        $entries = $event->entries->values();
 
-                    return $entries->reduce(function ($sum, $entry, $index) use ($asset, $event, $transferIndices, $incomeExpenseIndices) {
-                        if ($entry->asset_id !== $asset->id) {
+                        return $entries->reduce(function ($sum, $entry, $index) use ($asset, $event, $transferIndices, $incomeExpenseIndices) {
+                            if ($entry->asset_id !== $asset->id) {
+                                return $sum;
+                            }
+
+                            if (in_array($index, $transferIndices) && !$event->transfer_consolidated) {
+                                return $sum + (float) $entry->amount;
+                            }
+                            if (in_array($index, $incomeExpenseIndices) && !$event->consolidated) {
+                                return $sum + (float) $entry->amount;
+                            }
                             return $sum;
-                        }
+                        }, 0);
+                    }
 
-                        if (in_array($index, $transferIndices) && !$event->transfer_consolidated) {
-                            return $sum + (float) $entry->amount;
-                        }
-                        if (in_array($index, $incomeExpenseIndices) && !$event->consolidated) {
-                            return $sum + (float) $entry->amount;
-                        }
-                        return $sum;
-                    }, 0);
-                }
+                    return $event->entries->filter(fn($entry) => $entry->asset_id === $asset->id)
+                        ->sum(fn($entry) => (float) $entry->amount);
+                });
+            
+            $totalUnconsolidated += $unconsolidated;
+            $currentMonth->addMonth();
+        }
 
-                return $event->entries->filter(fn($entry) => $entry->asset_id === $asset->id)
-                    ->sum(fn($entry) => (float) $entry->amount);
-            });
-
-        return $actual + (float) $unconsolidated;
+        return $actual + (float) $totalUnconsolidated;
     }
 
     public function getBalanceHistory(Asset $asset): Collection
