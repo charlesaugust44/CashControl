@@ -54,28 +54,30 @@
                         <div class="dashboard-stat__label">
                             <i class="bi bi-arrow-down-left"></i>
                             {{ __('dashboard.income') }}
+
+                            @if($incomeTrend)
+                                <div class="dashboard-stat__trend dashboard-stat__trend--{{ $incomeTrendDir }}">
+                                    <i class="bi {{ $incomeTrendDir === 'down' ? 'bi-arrow-down-short' : 'bi-arrow-up-short' }}"></i>
+                                    {{ $incomeTrend }}
+                                </div>
+                            @endif
                         </div>
                         <div class="dashboard-stat__value dashboard-stat__value--success">{{ $fmt->currency($forecastedIncome) }}</div>
-                        @if($incomeTrend)
-                            <div class="dashboard-stat__trend dashboard-stat__trend--{{ $incomeTrendDir }}">
-                                <i class="bi {{ $incomeTrendDir === 'down' ? 'bi-arrow-down-short' : 'bi-arrow-up-short' }}"></i>
-                                {{ $incomeTrend }}
-                            </div>
-                        @endif
                     </div>
 
                     <div class="dashboard-stat">
                         <div class="dashboard-stat__label">
                             <i class="bi bi-arrow-up-right"></i>
                             {{ __('dashboard.expenses') }}
+
+                            @if($expenseTrend)
+                                <div class="dashboard-stat__trend dashboard-stat__trend--{{ $expenseTrendDir }}">
+                                    <i class="bi {{ $expenseTrendDir === 'down' ? 'bi-arrow-down-short' : 'bi-arrow-up-short' }}"></i>
+                                    {{ $expenseTrend }}
+                                </div>
+                            @endif
                         </div>
                         <div class="dashboard-stat__value dashboard-stat__value--danger">{{ $fmt->currency($forecastedExpense) }}</div>
-                        @if($expenseTrend)
-                            <div class="dashboard-stat__trend dashboard-stat__trend--{{ $expenseTrendDir }}">
-                                <i class="bi {{ $expenseTrendDir === 'down' ? 'bi-arrow-down-short' : 'bi-arrow-up-short' }}"></i>
-                                {{ $expenseTrend }}
-                            </div>
-                        @endif
                     </div>
 
                     <div class="dashboard-stat">
