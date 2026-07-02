@@ -12,14 +12,17 @@ return [
     'status' => [
         'forecast' => 'Previsão',
         'consolidated' => 'Consolidado',
+        'partial' => 'Parcial',
         'pending' => 'Pendente',
         'closed' => 'Fechado',
         'month_closed' => 'Mês Fechado',
     ],
 
     'actions' => [
-        'consolidate' => 'Consolidar',
-        'unconsolidate' => 'Desconsolidar',
+        'paid' => 'Pago',
+        'received' => 'Recebido',
+        'transferred' => 'Transferido',
+        'revert' => 'Reverter',
         'close_month' => 'Fechar Mês',
         'reopen_month' => 'Reabrir Mês',
     ],

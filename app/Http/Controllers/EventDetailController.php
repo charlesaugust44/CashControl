@@ -128,17 +128,21 @@ class EventDetailController extends Controller
             if ($action === 'unconsolidate') {
                 $event = $this->consolidationService->unconsolidateEvent($id);
                 return redirect('/entries/' . $event->id)
-                    ->with('success', __('messages.success.unconsolidated'));
+                    ->with('success', __('messages.success.reverted'));
+            }
+
+            if (in_array($action, ['consolidate', 'consolidate_expense_income', 'consolidate_transfer'])) {
+                $event = match ($action) {
+                    'consolidate' => $this->consolidationService->consolidateEvent($id),
+                    'consolidate_expense_income' => $this->consolidationService->consolidateExpenseIncome($id),
+                    'consolidate_transfer' => $this->consolidationService->consolidateTransfer($id),
+                };
+                return redirect('/entries/' . $event->id)
+                    ->with('success', __('messages.success.consolidated'));
             }
 
             $validated = $this->validateEventData($request);
             $event = $this->eventDetailService->updateEvent($id, $validated);
-
-            if ($action === 'consolidate') {
-                $event = $this->consolidationService->consolidateEvent($event->id);
-                return redirect('/entries/' . $event->id)
-                    ->with('success', __('messages.success.consolidated'));
-            }
 
             if ($action === 'save') {
                 return redirect('/entries/' . $event->id)
@@ -166,6 +170,18 @@ class EventDetailController extends Controller
 
             if ($action === 'consolidate') {
                 $event = $this->consolidationService->consolidateEvent($event->id);
+                return redirect('/entries/' . $event->id)
+                    ->with('success', __('messages.success.consolidated'));
+            }
+
+            if ($action === 'consolidate_expense_income') {
+                $event = $this->consolidationService->consolidateExpenseIncome($event->id);
+                return redirect('/entries/' . $event->id)
+                    ->with('success', __('messages.success.consolidated'));
+            }
+
+            if ($action === 'consolidate_transfer') {
+                $event = $this->consolidationService->consolidateTransfer($event->id);
                 return redirect('/entries/' . $event->id)
                     ->with('success', __('messages.success.consolidated'));
             }
@@ -208,6 +224,8 @@ class EventDetailController extends Controller
             'entries' => 'required|array|min:1',
             'entries.*.asset_id' => 'required|exists:assets,id',
             'entries.*.amount' => 'required|numeric',
+            'positions' => 'nullable|array',
+            'positions.*' => 'integer',
         ]);
 
         return $validated;

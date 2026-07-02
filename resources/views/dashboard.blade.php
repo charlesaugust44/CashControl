@@ -116,6 +116,7 @@
                                 ? abs($event->entries->first(fn($e) => $e->amount > 0)?->amount ?? 0)
                                 : $event->entries->sum('amount');
                             $isVirtual = $event->id === 0 || $event->id === null;
+                            $isPartiallyConsolidated = method_exists($event, 'isPartiallyConsolidated') && $event->isPartiallyConsolidated();
                             if ($isVirtual) {
                                 $detailUrl = url('/entries/virtual/' . $event->header_id . '/' . $event->date->format('Y') . '/' . $event->date->format('m'));
                             } else {
@@ -126,7 +127,15 @@
                             <a href="{{ $detailUrl }}" class="pending-item__info" style="text-decoration: none; color: inherit;">
                                 <i class="bi {{ $typeIcon }} pending-item__icon"></i>
                                 <div class="pending-item__details">
-                                    <span class="pending-item__name">{{ $event->name ?? __('ui.none') }}</span>
+                                    <span class="pending-item__name">
+                                        {{ $event->name ?? __('ui.none') }}
+                                        @if($isPartiallyConsolidated)
+                                            <span class="event-badge event-badge--partial" style="font-size: 0.7em; vertical-align: middle;">
+                                                <span class="event-badge__dot"></span>
+                                                {{ __('entries.status.partial') }}
+                                            </span>
+                                        @endif
+                                    </span>
                                     <span class="pending-item__date">
                                         @if($event->due_day)
                                             {{ $fmt->month($event->date) . ' ' . $event->due_day }}

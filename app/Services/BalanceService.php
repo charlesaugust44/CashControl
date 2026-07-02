@@ -27,15 +27,39 @@ class BalanceService
     {
         $actual = $this->getActualBalance($asset);
 
-        $unconsolidated = (float) $asset->entries()
+        $unconsolidatedEvents = $asset->entries()
+            ->with('event')
             ->whereHas('event', function ($query) use ($year, $month) {
-                $query->where('consolidated', false)
-                    ->whereYear('date', '<=', $year)
+                $query->whereYear('date', '<=', $year)
                     ->whereMonth('date', '<=', $month);
             })
-            ->sum('amount');
+            ->get()
+            ->filter(function ($entry) {
+                $event = $entry->event;
+                if (!$event) {
+                    return false;
+                }
 
-        return $actual + $unconsolidated;
+                if ($event->isComposite()) {
+                    $transferIndices = $event->getTransferEntryIndices();
+                    $incomeExpenseIndices = $event->getIncomeExpenseEntryIndices();
+                    $entryIndex = $event->entries->search($entry);
+
+                    if (in_array($entryIndex, $transferIndices)) {
+                        return !$event->transfer_consolidated;
+                    }
+                    if (in_array($entryIndex, $incomeExpenseIndices)) {
+                        return !$event->consolidated;
+                    }
+                    return false;
+                }
+
+                return !$event->consolidated;
+            });
+
+        $unconsolidated = $unconsolidatedEvents->sum('amount');
+
+        return $actual + (float) $unconsolidated;
     }
 
     public function getBalanceHistory(Asset $asset): Collection
@@ -89,21 +113,44 @@ class BalanceService
     {
         $events = $this->eventRepository->listByMonth($year, $month);
 
-        $consolidatedIncome = $events->filter(fn($e) => $e->consolidated && $e->type?->value === 'income')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => max(0, (float) $entry->amount));
+        $consolidatedIncome = 0;
+        $consolidatedExpense = 0;
+        $unconsolidatedIncome = 0;
+        $unconsolidatedExpense = 0;
 
-        $consolidatedExpense = $events->filter(fn($e) => $e->consolidated && $e->type?->value === 'expense')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => abs((float) $entry->amount));
+        foreach ($events as $event) {
+            if ($event->type?->value === 'income') {
+                if ($event->consolidated) {
+                    $consolidatedIncome += $event->entries->sum(fn($e) => max(0, (float) $e->amount));
+                } else {
+                    $unconsolidatedIncome += $event->entries->sum(fn($e) => max(0, (float) $e->amount));
+                }
+            } elseif ($event->type?->value === 'expense') {
+                if ($event->consolidated) {
+                    $consolidatedExpense += $event->entries->sum(fn($e) => abs((float) $e->amount));
+                } else {
+                    $unconsolidatedExpense += $event->entries->sum(fn($e) => abs((float) $e->amount));
+                }
+            } elseif ($event->isIncomeWithTransfer()) {
+                $entries = $event->entries->values();
+                $incomeAmount = isset($entries[0]) ? max(0, (float) $entries[0]->amount) : 0;
 
-        $unconsolidatedIncome = $events->filter(fn($e) => !$e->consolidated && $e->type?->value === 'income')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => max(0, (float) $entry->amount));
+                if ($event->consolidated) {
+                    $consolidatedIncome += $incomeAmount;
+                } else {
+                    $unconsolidatedIncome += $incomeAmount;
+                }
+            } elseif ($event->isExpenseWithTransfer()) {
+                $entries = $event->entries->values();
+                $expenseAmount = isset($entries[2]) ? abs((float) $entries[2]->amount) : 0;
 
-        $unconsolidatedExpense = $events->filter(fn($e) => !$e->consolidated && $e->type?->value === 'expense')
-            ->flatMap(fn($e) => $e->entries)
-            ->sum(fn($entry) => abs((float) $entry->amount));
+                if ($event->consolidated) {
+                    $consolidatedExpense += $expenseAmount;
+                } else {
+                    $unconsolidatedExpense += $expenseAmount;
+                }
+            }
+        }
 
         return [
             'consolidated' => ['income' => $consolidatedIncome, 'expense' => $consolidatedExpense],
@@ -198,7 +245,10 @@ class BalanceService
         $eventGenerationService = new EventGenerationService();
         $virtualEvents = $eventGenerationService->generateVirtualEvents($year, $month);
         $persistedEvents = \App\Models\Event::with(['header', 'entries.asset'])
-            ->where('consolidated', false)
+            ->where(function ($query) {
+                $query->where('consolidated', false)
+                    ->orWhere('transfer_consolidated', false);
+            })
             ->orderBy('date', 'asc')
             ->get();
 

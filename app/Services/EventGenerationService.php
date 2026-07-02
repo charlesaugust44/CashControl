@@ -83,6 +83,7 @@ class EventGenerationService
             'date' => $eventDate,
             'due_day' => $dueDate?->day,
             'consolidated' => false,
+            'transfer_consolidated' => false,
             'note' => null,
         ]);
         $event->id = 0;
@@ -306,7 +307,8 @@ class EventGenerationService
         }
 
         return $merged->values()->sortBy([
-            fn ($a, $b) => ($a->consolidated ? 1 : 0) <=> ($b->consolidated ? 1 : 0),
+            fn ($a, $b) => ($a->isFullyConsolidated() ? 2 : ($a->isPartiallyConsolidated() ? 1 : 0))
+                <=> ($b->isFullyConsolidated() ? 2 : ($b->isPartiallyConsolidated() ? 1 : 0)),
             fn ($a, $b) => ($a->due_day === null ? 1 : 0) <=> ($b->due_day === null ? 1 : 0),
             fn ($a, $b) => ($a->due_day ?? PHP_INT_MAX) <=> ($b->due_day ?? PHP_INT_MAX),
         ])->values();

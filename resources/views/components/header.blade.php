@@ -55,7 +55,7 @@
                                                             @csrf
                                                             <input type="hidden" name="event_id" value="{{ $alert['event_id'] }}">
                                                             <input type="hidden" name="header_id" value="{{ $alert['header_id'] }}">
-                                                            <button type="submit" class="notification-item__btn" title="{{ __('entries.actions.consolidate') }}">
+                                                            <button type="submit" class="notification-item__btn" title="{{ __('ui.close') }}">
                                                                 <i class="bi bi-check-lg"></i>
                                                             </button>
                                                         </form>

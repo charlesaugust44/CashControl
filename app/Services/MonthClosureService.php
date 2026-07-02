@@ -129,7 +129,18 @@ class MonthClosureService
 
         $unconsolidatedEvents = Event::whereYear('date', $year)
             ->whereMonth('date', $month)
-            ->where('consolidated', false)
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->whereNotIn('type', ['expense_with_transfer', 'income_with_transfer'])
+                      ->where('consolidated', false);
+                })->orWhere(function ($q) {
+                    $q->whereIn('type', ['expense_with_transfer', 'income_with_transfer'])
+                      ->where(function ($sub) {
+                          $sub->where('consolidated', false)
+                              ->orWhere('transfer_consolidated', false);
+                      });
+                });
+            })
             ->count();
 
         return $unconsolidatedEvents === 0;

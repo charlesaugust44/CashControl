@@ -21,6 +21,7 @@ class Event extends Model
         'date',
         'due_day',
         'consolidated',
+        'transfer_consolidated',
         'note',
     ];
 
@@ -29,6 +30,7 @@ class Event extends Model
         'date' => 'date',
         'due_day' => 'integer',
         'consolidated' => 'boolean',
+        'transfer_consolidated' => 'boolean',
     ];
 
     public function entries(): HasMany
@@ -70,5 +72,63 @@ class Event extends Model
     public function isIncomeWithTransfer(): bool
     {
         return $this->type === EventType::IncomeWithTransfer;
+    }
+
+    public function isComposite(): bool
+    {
+        return $this->isExpenseWithTransfer() || $this->isIncomeWithTransfer();
+    }
+
+    public function isPartiallyConsolidated(): bool
+    {
+        if (!$this->isComposite()) {
+            return false;
+        }
+
+        return $this->consolidated !== $this->transfer_consolidated;
+    }
+
+    public function isFullyConsolidated(): bool
+    {
+        if ($this->isComposite()) {
+            return $this->consolidated && $this->transfer_consolidated;
+        }
+
+        return $this->consolidated;
+    }
+
+    public function isPending(): bool
+    {
+        if ($this->isComposite()) {
+            return !$this->consolidated && !$this->transfer_consolidated;
+        }
+
+        return !$this->consolidated;
+    }
+
+    public function getTransferEntryIndices(): array
+    {
+        if ($this->isExpenseWithTransfer()) {
+            return [0, 1];
+        }
+
+        if ($this->isIncomeWithTransfer()) {
+            return [1, 2];
+        }
+
+        return [];
+    }
+
+    public function getIncomeExpenseEntryIndices(): array
+    {
+        if ($this->isExpenseWithTransfer()) {
+            return [2];
+        }
+
+        if ($this->isIncomeWithTransfer()) {
+            return [0];
+        }
+
+        return [];
     }
 }

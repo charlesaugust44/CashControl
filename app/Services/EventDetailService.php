@@ -57,6 +57,7 @@ class EventDetailService
                 'date' => $eventDate,
                 'due_day' => $entriesData['due_day'] ?? $header->due_day,
                 'consolidated' => false,
+                'transfer_consolidated' => false,
                 'note' => $entriesData['note'] ?? null,
             ]);
 
@@ -93,6 +94,7 @@ class EventDetailService
                 'date' => $eventDate,
                 'due_day' => $data['due_day'] ?? null,
                 'consolidated' => false,
+                'transfer_consolidated' => false,
                 'note' => $data['note'] ?? null,
             ]);
 
@@ -116,7 +118,9 @@ class EventDetailService
         $this->validateEventEditable($event);
 
         return DB::transaction(function () use ($event, $data) {
-            if ($event->consolidated) {
+            $needsUnconsolidate = $event->isFullyConsolidated();
+
+            if ($needsUnconsolidate) {
                 $this->consolidationService->unconsolidateEvent($event->id);
                 $event->refresh();
             }
@@ -126,8 +130,35 @@ class EventDetailService
                 'note' => $data['note'] ?? null,
             ]);
 
-            $event->entries()->delete();
+            if ($event->isComposite() && $event->isPartiallyConsolidated()) {
+                $this->updatePartiallyConsolidatedEntries($event, $data);
+            } else {
+                $event->entries()->delete();
 
+                foreach ($data['entries'] as $index => $entryData) {
+                    $amount = $this->adjustAmountSign($event->type, $entryData['amount'], $index);
+                    Entry::create([
+                        'event_id' => $event->id,
+                        'asset_id' => $entryData['asset_id'],
+                        'amount' => $amount,
+                    ]);
+                }
+            }
+
+            return $event->load(['entries.asset', 'header']);
+        });
+    }
+
+    private function updatePartiallyConsolidatedEntries(Event $event, array $data): void
+    {
+        $positions = $data['positions'] ?? [];
+
+        if ($event->consolidated && !$event->transfer_consolidated) {
+            $indicesToUpdate = $event->getTransferEntryIndices();
+        } elseif (!$event->consolidated && $event->transfer_consolidated) {
+            $indicesToUpdate = $event->getIncomeExpenseEntryIndices();
+        } else {
+            $event->entries()->delete();
             foreach ($data['entries'] as $index => $entryData) {
                 $amount = $this->adjustAmountSign($event->type, $entryData['amount'], $index);
                 Entry::create([
@@ -136,9 +167,35 @@ class EventDetailService
                     'amount' => $amount,
                 ]);
             }
+            return;
+        }
 
-            return $event->load(['entries.asset', 'header']);
-        });
+        foreach ($indicesToUpdate as $canonicalIndex) {
+            $formIndex = array_search($canonicalIndex, $positions);
+            if ($formIndex === false || !isset($data['entries'][$formIndex])) {
+                continue;
+            }
+
+            $entryData = $data['entries'][$formIndex];
+            $amount = $this->adjustAmountSign($event->type, $entryData['amount'], $canonicalIndex);
+
+            $existingEntry = $event->entries()
+                ->where('asset_id', $entryData['asset_id'])
+                ->first();
+
+            if ($existingEntry && in_array($canonicalIndex, $indicesToUpdate)) {
+                $existingEntry->update([
+                    'asset_id' => $entryData['asset_id'],
+                    'amount' => $amount,
+                ]);
+            } else {
+                Entry::create([
+                    'event_id' => $event->id,
+                    'asset_id' => $entryData['asset_id'],
+                    'amount' => $amount,
+                ]);
+            }
+        }
     }
 
     public function deleteEvent(int $id): void

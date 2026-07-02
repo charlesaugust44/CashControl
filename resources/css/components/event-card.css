@@ -105,6 +105,15 @@
     background: var(--color-warning);
 }
 
+.event-badge--partial {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.event-badge--partial .event-badge__dot {
+    background: #7c3aed;
+}
+
 [data-theme="dark"] .event-badge--forecast {
     background: var(--color-info-bg);
     color: var(--color-info);
@@ -118,6 +127,11 @@
 [data-theme="dark"] .event-badge--pending {
     background: var(--color-warning-bg);
     color: var(--color-warning);
+}
+
+[data-theme="dark"] .event-badge--partial {
+    background: #2e1065;
+    color: #a78bfa;
 }
 
 .event-type {

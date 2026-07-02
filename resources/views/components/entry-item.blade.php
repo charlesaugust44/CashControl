@@ -4,6 +4,9 @@
     $typeIcon = $typeIcons[$type] ?? 'bi-tag';
     $isVirtual = $event->id === 0 || $event->id === null;
     $isConsolidated = $event->consolidated ?? false;
+    $isTransferConsolidated = $event->transfer_consolidated ?? false;
+    $isFullyConsolidated = $event->isFullyConsolidated();
+    $isPartiallyConsolidated = $event->isPartiallyConsolidated();
 
     if ($isVirtual) {
         $detailUrl = url('/entries/virtual/' . $event->header_id . '/' . $event->date->format('Y') . '/' . $event->date->format('m'));
@@ -13,7 +16,7 @@
 @endphp
 
 <a href="{{ $detailUrl }}" class="event-card-link">
-    <div class="event-card {{ $isVirtual ? 'virtual' : '' }} {{ $isConsolidated ? 'consolidated' : '' }}">
+    <div class="event-card {{ $isVirtual ? 'virtual' : '' }} {{ $isFullyConsolidated ? 'consolidated' : '' }}">
         <div class="event-header">
             <h3 class="event-name">
                 <i class="{{ $typeIcon }}"></i>
@@ -23,10 +26,15 @@
                         <span class="event-badge__dot"></span>
                         {{ __('entries.status.forecast') }}
                     </span>
-                @elseif($isConsolidated)
+                @elseif($isFullyConsolidated)
                     <span class="event-badge event-badge--consolidated">
                         <span class="event-badge__dot"></span>
                         {{ __('entries.status.consolidated') }}
+                    </span>
+                @elseif($isPartiallyConsolidated)
+                    <span class="event-badge event-badge--partial">
+                        <span class="event-badge__dot"></span>
+                        {{ __('entries.status.partial') }}
                     </span>
                 @else
                     <span class="event-badge event-badge--pending">

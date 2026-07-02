@@ -10,9 +10,15 @@
         $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus', 'income_with_transfer' => 'bi-cash-coin'];
         $typeIcon = $typeIcons[$type] ?? 'bi-tag';
         $isConsolidated = $event->consolidated ?? false;
+        $isTransferConsolidated = $event->transfer_consolidated ?? false;
         $isTransfer = $event->isTransfer();
         $isExpenseWithTransfer = $event->isExpenseWithTransfer();
         $isIncomeWithTransfer = $event->isIncomeWithTransfer();
+        $isComposite = $event->isComposite();
+        $isPartiallyConsolidated = $event->isPartiallyConsolidated();
+        $isFullyConsolidated = $event->isFullyConsolidated();
+        $isExpenseIncomeConsolidated = $isComposite && $isConsolidated;
+        $isTransferPartConsolidated = $isComposite && $isTransferConsolidated;
 
         $formAction = $isVirtual
             ? url('/entries/virtual/' . $headerId . '/' . $year . '/' . $month)
@@ -30,8 +36,10 @@
                 <div class="event-detail-badges">
                     @if($isVirtual)
                         <span class="badge bg-info">Forecast</span>
-                    @elseif($isConsolidated)
+                    @elseif($isFullyConsolidated)
                         <span class="badge bg-success">Consolidated</span>
+                    @elseif($isPartiallyConsolidated)
+                        <span class="badge bg-info">{{ __('entries.status.partial') }}</span>
                     @else
                         <span class="badge bg-warning">Pending</span>
                     @endif
@@ -50,7 +58,7 @@
                     @method($formMethod)
                 @endif
 
-                @if(!$isConsolidated)
+                @if(!$isFullyConsolidated)
                     @php
                         $eventMonth = \Carbon\Carbon::parse($event->date);
                         $daysInMonth = $eventMonth->daysInMonth;
@@ -78,7 +86,7 @@
                                 $destEntry = $event->entries->first(fn($e) => $e->amount > 0);
                                 $transferAmount = abs($sourceEntry->amount ?? 0);
                             @endphp
-                            
+
                             <div class="transfer-amount-section">
                                 <div class="form-group">
                                     <label class="form-label">{{ __('entries.fields.transfer_amount') }}</label>
@@ -130,7 +138,13 @@
                                 $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0);
                                 $destTransferEntry = $event->entries->first(fn($e) => $e->amount > 0);
                                 $amount = abs($destTransferEntry->amount ?? 0);
+                                $transferDisabled = $isExpenseIncomeConsolidated && !$isTransferPartConsolidated ? false : ($isTransferPartConsolidated || $isFullyConsolidated);
+                                $expenseDisabled = $isExpenseIncomeConsolidated || $isFullyConsolidated;
                             @endphp
+
+                            <input type="hidden" name="positions[0]" value="0">
+                            <input type="hidden" name="positions[1]" value="1">
+                            <input type="hidden" name="positions[2]" value="2">
 
                             <div class="transfer-amount-section">
                                 <div class="form-group">
@@ -145,7 +159,7 @@
                                             id="expenseTransferAmount"
                                             class="form-control money-input"
                                             value="{{ $amount }}"
-                                            {{ $isConsolidated ? 'disabled' : 'required' }}
+                                            {{ $transferDisabled && $expenseDisabled ? 'disabled' : 'required' }}
                                         >
                                     </div>
                                 </div>
@@ -154,7 +168,7 @@
                             <div class="transfer-assets-row">
                                 <div class="form-group">
                                     <label class="form-label">{{ __('entries.fields.from_source') }}</label>
-                                    <select name="entries[0][asset_id]" id="ewtSourceAsset" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                    <select name="entries[0][asset_id]" id="ewtSourceAsset" class="form-control" {{ $transferDisabled ? 'disabled' : 'required' }}>
                                         <option value="">{{ __('entries.select_source_asset') }}</option>
                                         @foreach($assets as $asset)
                                             <option value="{{ $asset->id }}" {{ $sourceEntry && $sourceEntry->asset_id == $asset->id ? 'selected' : '' }}>
@@ -167,7 +181,7 @@
 
                                 <div class="form-group">
                                     <label class="form-label">{{ __('entries.fields.to_expense_asset') }}</label>
-                                    <select name="entries[1][asset_id]" id="ewtDestAsset" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                    <select name="entries[1][asset_id]" id="ewtDestAsset" class="form-control" {{ $transferDisabled ? 'disabled' : 'required' }}>
                                         <option value="">{{ __('entries.select_destination_asset') }}</option>
                                         @foreach($assets as $asset)
                                             <option value="{{ $asset->id }}" {{ $destTransferEntry && $destTransferEntry->asset_id == $asset->id ? 'selected' : '' }}>
@@ -186,7 +200,13 @@
                                 $sourceTransferEntry = $event->entries->first(fn($e) => $e->amount < 0);
                                 $destTransferEntry = $event->entries->last(fn($e) => $e->amount > 0);
                                 $amount = abs($incomeEntry->amount ?? 0);
+                                $incomeDisabled = $isExpenseIncomeConsolidated || $isFullyConsolidated;
+                                $transferDisabled = $isTransferPartConsolidated || $isFullyConsolidated;
                             @endphp
+
+                            <input type="hidden" name="positions[0]" value="0">
+                            <input type="hidden" name="positions[1]" value="1">
+                            <input type="hidden" name="positions[2]" value="2">
 
                             <div class="transfer-amount-section">
                                 <div class="form-group">
@@ -201,7 +221,7 @@
                                             id="incomeTransferAmount"
                                             class="form-control money-input"
                                             value="{{ $amount }}"
-                                            {{ $isConsolidated ? 'disabled' : 'required' }}
+                                            {{ $incomeDisabled && $transferDisabled ? 'disabled' : 'required' }}
                                         >
                                     </div>
                                 </div>
@@ -210,7 +230,7 @@
                             <div class="transfer-assets-row">
                                 <div class="form-group">
                                     <label class="form-label">{{ __('entries.fields.from_source') }} / {{ __('entries.fields.asset') }}</label>
-                                    <select name="entries[0][asset_id]" id="iwtSourceAsset" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                    <select name="entries[0][asset_id]" id="iwtSourceAsset" class="form-control" {{ $incomeDisabled ? 'disabled' : 'required' }}>
                                         <option value="">{{ __('entries.select_source_asset') }}</option>
                                         @foreach($assets as $asset)
                                             <option value="{{ $asset->id }}" {{ $incomeEntry && $incomeEntry->asset_id == $asset->id ? 'selected' : '' }}>
@@ -225,7 +245,7 @@
 
                                 <div class="form-group">
                                     <label class="form-label">{{ __('entries.fields.to') }}</label>
-                                    <select name="entries[2][asset_id]" id="iwtDestAsset" class="form-control" {{ $isConsolidated ? 'disabled' : 'required' }}>
+                                    <select name="entries[2][asset_id]" id="iwtDestAsset" class="form-control" {{ $transferDisabled ? 'disabled' : 'required' }}>
                                         <option value="">{{ __('entries.select_destination_asset') }}</option>
                                         @foreach($assets as $asset)
                                             <option value="{{ $asset->id }}" {{ $destTransferEntry && $destTransferEntry->asset_id == $asset->id ? 'selected' : '' }}>
@@ -300,12 +320,12 @@
                         class="form-control"
                         rows="3"
                         placeholder="{{ __('entries.fields.note_placeholder') }}"
-                        {{ $isConsolidated ? 'disabled' : '' }}
+                        {{ $isFullyConsolidated ? 'disabled' : '' }}
                     >{{ old('note', $event->note ?? '') }}</textarea>
                 </div>
 
                 <div class="form-actions">
-                    @if(!$isVirtual && !$isConsolidated)
+                    @if(!$isVirtual && !$isFullyConsolidated)
                         <div class="form-actions__danger">
                             <a href="{{ url('/entries/' . $event->id . '/delete') }}" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}">
                                 <i class="bi bi-trash"></i>
@@ -314,19 +334,42 @@
                     @endif
 
                     <div class="form-actions__group">
-                        @if(!$isVirtual && $isConsolidated)
+                        @if(!$isVirtual && ($isPartiallyConsolidated || $isFullyConsolidated))
                             <button type="submit" name="action" value="unconsolidate" class="btn btn-warning">
-                                <i class="bi bi-arrow-counterclockwise"></i> {{ __('entries.actions.unconsolidate') }}
+                                <i class="bi bi-arrow-counterclockwise"></i> {{ __('entries.actions.revert') }}
                             </button>
                         @endif
 
-                        @if(!$isConsolidated)
-                            <button type="submit" name="action" value="consolidate" class="btn btn-success">
-                                <i class="bi bi-check-all"></i> {{ __('entries.actions.consolidate') }}
-                            </button>
-                        @endif
+                        @if(!$isFullyConsolidated)
+                            @if($isComposite && !$isExpenseIncomeConsolidated && !$isTransferPartConsolidated)
+                                <button type="submit" name="action" value="consolidate_expense_income" class="btn btn-success">
+                                    <i class="bi bi-check-all"></i> {{ __('entries.actions.' . ($isExpenseWithTransfer ? 'paid' : 'received')) }}
+                                </button>
+                                <button type="submit" name="action" value="consolidate_transfer" class="btn btn-success">
+                                    <i class="bi bi-check-all"></i> {{ __('entries.actions.transferred') }}
+                                </button>
+                            @elseif($isComposite && $isExpenseIncomeConsolidated && !$isTransferPartConsolidated)
+                                <button type="submit" name="action" value="consolidate_transfer" class="btn btn-success">
+                                    <i class="bi bi-check-all"></i> {{ __('entries.actions.transferred') }}
+                                </button>
+                            @elseif($isComposite && !$isExpenseIncomeConsolidated && $isTransferPartConsolidated)
+                                <button type="submit" name="action" value="consolidate_expense_income" class="btn btn-success">
+                                    <i class="bi bi-check-all"></i> {{ __('entries.actions.' . ($isExpenseWithTransfer ? 'paid' : 'received')) }}
+                                </button>
+                            @elseif(!$isComposite && !$isConsolidated)
+                                @php
+                                    $consolidateLabel = match($type) {
+                                        'expense' => 'paid',
+                                        'income' => 'received',
+                                        'transfer' => 'transferred',
+                                        default => 'paid',
+                                    };
+                                @endphp
+                                <button type="submit" name="action" value="consolidate" class="btn btn-success">
+                                    <i class="bi bi-check-all"></i> {{ __('entries.actions.' . $consolidateLabel) }}
+                                </button>
+                            @endif
 
-                        @if(!$isConsolidated)
                             <div class="btn-split">
                                 <button type="submit" name="action" value="save" class="btn btn-primary">
                                     <i class="bi bi-save"></i> {{ __('ui.save') }}
@@ -347,7 +390,7 @@
         </div>
     </div>
 
-    @if(!$isConsolidated)
+    @if(!$isFullyConsolidated)
         <template id="entryTemplate">
             <div class="entry-row" data-index="__INDEX__">
                 <div class="entry-row-header">
@@ -424,7 +467,7 @@
                     const amount = parseFloat(this.value) || 0;
                     const sourceAmountInput = document.querySelector('input[name="entries[0][amount]"]');
                     const destAmountInput = document.querySelector('input[name="entries[1][amount]"]');
-                    
+
                     if (sourceAmountInput) {
                         sourceAmountInput.value = -amount;
                     }

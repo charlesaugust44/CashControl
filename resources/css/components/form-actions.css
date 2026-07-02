@@ -72,9 +72,10 @@
 
 @media (max-width: 768px) {
     .form-actions {
-        bottom: var(--space-3);
-        left: var(--space-3);
-        right: var(--space-3);
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 0;
         transform: none;
         min-width: auto;
         padding: var(--space-2) var(--space-3);

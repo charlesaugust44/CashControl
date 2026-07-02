@@ -6,7 +6,7 @@ return [
         'updated' => ':item atualizado com sucesso',
         'deleted' => ':item excluído com sucesso',
         'consolidated' => 'Evento consolidado com sucesso',
-        'unconsolidated' => 'Evento desconsolidado com sucesso',
+        'reverted' => 'Evento revertido com sucesso',
         'saved' => ':item salvo com sucesso',
         'month_closed' => 'Mês :month fechado com sucesso',
         'month_reopened' => 'Mês anterior reaberto com sucesso',
