@@ -6,7 +6,12 @@
 
 @section('content')
     <div class="asset-detail-container">
-        @component('components.asset-header', ['total' => $asset->balance ?? 0])
+        @component('components.asset-header', [
+            'total' => $asset->balance ?? 0,
+            'forecastedTotal' => $forecastedBalance,
+            'currentMonthLabel' => $monthDate->translatedFormat('M Y'),
+            'fmt' => $fmt,
+        ])
         @endcomponent
         <div class="entries-section">
             @if($events->isEmpty())

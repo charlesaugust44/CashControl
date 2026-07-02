@@ -39,6 +39,13 @@ class AssetService
         return $this->entryRepository->history($asset);
     }
 
+    public function entriesByMonth(string $id, int $year, int $month): Collection
+    {
+        /** @var Asset $asset */
+        $asset = $this->assetRepository->findOrFail(intval($id));
+        return $this->entryRepository->historyByMonth($asset, $year, $month);
+    }
+
     public function create(array $data): Asset
     {
         return $this->assetRepository->create($data);

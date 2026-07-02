@@ -6,12 +6,17 @@
 
 @section('content')
     <div class="assets-container">
-        @component('components.asset-header', ['total' => $total])
+        @component('components.asset-header', [
+            'total' => $total,
+            'forecastedTotal' => $forecastedTotal,
+            'currentMonthLabel' => $currentMonthLabel,
+            'fmt' => $fmt,
+        ])
         @endcomponent
         <div class="list-wrapper">
             @foreach($assets as $asset)
                 <div class="list-item">
-                    @include('components.asset-item', ['asset' => $asset])
+                    @include('components.asset-item', ['asset' => $asset, 'fmt' => $fmt])
                 </div>
             @endforeach
         </div>

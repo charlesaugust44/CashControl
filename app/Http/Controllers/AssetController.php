@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Formatter;
 use App\Models\Asset;
 use App\Services\AssetService;
+use App\Services\BalanceService;
+use App\Services\EventService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -11,10 +14,16 @@ use Illuminate\View\View;
 class AssetController extends Controller
 {
     private AssetService $assetService;
+    private BalanceService $balanceService;
+    private EventService $eventService;
+    private Formatter $fmt;
 
     public function __construct()
     {
         $this->assetService = new AssetService();
+        $this->balanceService = new BalanceService();
+        $this->eventService = new EventService();
+        $this->fmt = new Formatter();
     }
 
     public function index(): View
@@ -22,10 +31,25 @@ class AssetController extends Controller
         $assets = $this->assetService->list();
         $total = $assets->sum('balance');
 
+        $currentMonth = now()->format('Y-m');
+        $monthDate = now();
+        $currentMonthLabel = $monthDate->translatedFormat('M Y');
+
+        $forecastedTotal = 0;
+        $assetsWithForecast = $assets->map(function ($asset) use ($monthDate, &$forecastedTotal) {
+            $forecasted = $this->balanceService->getForecastBalance($asset, $monthDate->year, $monthDate->month);
+            $forecastedTotal += $forecasted;
+            $asset->forecasted_balance = $forecasted;
+            return $asset;
+        });
+
         return view('assets.index', [
-            'assets' => $assets,
+            'assets' => $assetsWithForecast,
             'total' => $total,
+            'forecastedTotal' => $forecastedTotal,
+            'currentMonthLabel' => $currentMonthLabel,
             'pageTitle' => __('assets.title'),
+            'fmt' => $this->fmt,
             'headerOptions' => [
                 [
                     'type' => 'link',
@@ -52,13 +76,31 @@ class AssetController extends Controller
     {
         $asset = $this->assetService->get($id);
         $currentMonth = $request->get('month', now()->format('Y-m'));
-        $events = $this->assetService->entries($id);
+        $monthDate = \Carbon\Carbon::parse($currentMonth . '-01');
+        
+        $allEvents = $this->eventService->listByMonth(
+            $monthDate->year,
+            $monthDate->month
+        );
+
+        $events = $allEvents->filter(function ($event) use ($asset) {
+            return $event->entries->contains('asset_id', $asset->id);
+        })->values();
+
+        $forecastedBalance = $this->balanceService->getForecastBalance(
+            $asset,
+            $monthDate->year,
+            $monthDate->month
+        );
 
         return view('assets.show', [
             'asset' => $asset,
             'events' => $events,
             'currentMonth' => $currentMonth,
+            'monthDate' => $monthDate,
+            'forecastedBalance' => $forecastedBalance,
             'pageTitle' => $asset->name,
+            'fmt' => $this->fmt,
             'headerOptions' => [
                 [
                     'type' => 'link',

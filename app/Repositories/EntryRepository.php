@@ -25,4 +25,17 @@ class EntryRepository extends BaseRepository
             ->orderBy('date', 'desc')
             ->get();
     }
+
+    public function historyByMonth(Asset $asset, int $year, int $month): Collection
+    {
+        return Event::query()
+            ->with(['header', 'entries.asset'])
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->whereHas('entries', function ($query) use ($asset) {
+                $query->where('asset_id', $asset->id);
+            })
+            ->orderBy('date', 'desc')
+            ->get();
+    }
 }

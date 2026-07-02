@@ -23,6 +23,13 @@
             </span>
         </div>
         <div class="asset-detail-item">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span class="detail-label">{{ __('dashboard.forecasted') }}</span>
+            <span class="detail-value balance-{{ $fmt->signal($asset->forecasted_balance ?? $asset->balance) }}">
+                {{ $fmt->currency($asset->forecasted_balance ?? $asset->balance) }}
+            </span>
+        </div>
+        <div class="asset-detail-item">
             <i class="bi bi-clock-history"></i>
             <span class="detail-value">{{ $fmt->dateTime($asset->updated_at) }}</span>
         </div>
