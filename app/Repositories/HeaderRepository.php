@@ -23,10 +23,6 @@ class HeaderRepository extends BaseRepository
         );
 
         return Header::with(['asset', 'destinationAsset'])
-            ->where(function (Builder $q) {
-                $q->whereNull('end_date')
-                    ->orWhereColumn('start_date', '<>', 'end_date');
-            })
             ->where('start_date', '<=', $referenceDate)
             ->where(function (Builder $query) use ($referenceDate) {
                 $query->whereNull('end_date')
