@@ -278,17 +278,34 @@ class BalanceService
     {
         $eventGenerationService = new EventGenerationService();
         $virtualEvents = $eventGenerationService->generateVirtualEvents($year, $month);
-        $persistedEvents = \App\Models\Event::with(['header', 'entries.asset'])
+
+        $persistedEventKeys = \App\Models\Event::forMonth($year, $month)
+            ->get()
+            ->keyBy(fn ($e) => 'v_' . $e->header_id . '_' . $e->date->format('Y-m-d'));
+
+        $virtualEvents = $virtualEvents->reject(fn ($event) =>
+            $persistedEventKeys->has('v_' . $event->header_id . '_' . $event->date->format('Y-m-d'))
+        );
+
+        $unconsolidatedEvents = \App\Models\Event::with(['header', 'entries.asset'])
             ->where(function ($query) {
-                $query->where('consolidated', false)
-                    ->orWhere('transfer_consolidated', false);
+                $query->where(function ($q) {
+                    $q->whereIn('type', ['income', 'expense', 'transfer'])
+                      ->where('consolidated', false);
+                })->orWhere(function ($q) {
+                    $q->whereIn('type', ['expense_with_transfer', 'income_with_transfer'])
+                      ->where(function ($inner) {
+                          $inner->where('consolidated', false)
+                                ->orWhere('transfer_consolidated', false);
+                      });
+                });
             })
             ->orderBy('date', 'asc')
             ->get();
 
         $merged = $virtualEvents->keyBy(fn ($event) => 'v_' . $event->header_id . '_' . $event->date->format('Y-m-d'));
 
-        foreach ($persistedEvents as $persistedEvent) {
+        foreach ($unconsolidatedEvents as $persistedEvent) {
             $virtualKey = 'v_' . $persistedEvent->header_id . '_' . $persistedEvent->date->format('Y-m-d');
             unset($merged[$virtualKey]);
 
