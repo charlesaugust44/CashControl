@@ -359,6 +359,8 @@
             incomeWithTransferEntries.querySelectorAll('input, select').forEach(el => {
                 el.disabled = !isIncomeWithTransfer;
             });
+
+            MoneyInput.init();
         }
 
         function updateDate() {

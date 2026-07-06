@@ -97,6 +97,8 @@ class MoneyInput {
     }
 }
 
+window.MoneyInput = MoneyInput;
+
 document.addEventListener('DOMContentLoaded', MoneyInput.init);
 
 const observer = new MutationObserver(() => MoneyInput.init());
