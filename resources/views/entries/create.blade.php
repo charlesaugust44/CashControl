@@ -333,21 +333,7 @@
         const dateMonthInput = document.getElementById('dateMonth');
         const dateValueInput = document.getElementById('dateValue');
         const dueDaySelect = document.getElementById('dueDay');
-        const transferAmountInput = document.getElementById('transferAmount');
-        const sourceAmountInput = document.getElementById('sourceAmount');
-        const destAmountInput = document.getElementById('destAmount');
-        const expenseTransferAmountInput = document.getElementById('expenseTransferAmount');
-        const ewtSourceAmountInput = document.getElementById('ewtSourceAmount');
-        const ewtDestTransferAmountInput = document.getElementById('ewtDestTransferAmount');
-        const ewtExpenseAmountInput = document.getElementById('ewtExpenseAmount');
-        const ewtSourceAsset = document.getElementById('ewtSourceAsset');
-        const ewtDestAsset = document.getElementById('ewtDestAsset');
-        const incomeTransferAmountInput = document.getElementById('incomeTransferAmount');
-        const iwtIncomeAmountInput = document.getElementById('iwtIncomeAmount');
-        const iwtSourceAmountInput = document.getElementById('iwtSourceAmount');
-        const iwtDestTransferAmountInput = document.getElementById('iwtDestTransferAmount');
-        const iwtSourceAsset = document.getElementById('iwtSourceAsset');
-        const iwtDestAsset = document.getElementById('iwtDestAsset');
+        const entryStructures = @json($entryStructures);
 
         function toggleTypeUI() {
             const isTransfer = typeSelect.value === 'transfer';
@@ -409,24 +395,20 @@
             }
         }
 
-        function updateTransferAmounts() {
-            const amount = parseFloat(transferAmountInput.value) || 0;
-            sourceAmountInput.value = -amount;
-            destAmountInput.value = amount;
-        }
+        function syncAmounts(type, amountInput) {
+            const amount = parseFloat(amountInput.value) || 0;
+            const structure = entryStructures[type];
+            const section = type === 'transfer' ? transferEntries :
+                           type === 'expense_with_transfer' ? expenseWithTransferEntries :
+                           incomeWithTransferEntries;
 
-        function updateExpenseWithTransferAmounts() {
-            const amount = parseFloat(expenseTransferAmountInput.value) || 0;
-            ewtSourceAmountInput.value = -amount;
-            ewtDestTransferAmountInput.value = amount;
-            ewtExpenseAmountInput.value = -amount;
-        }
-
-        function updateIncomeWithTransferAmounts() {
-            const amount = parseFloat(incomeTransferAmountInput.value) || 0;
-            iwtIncomeAmountInput.value = amount;
-            iwtSourceAmountInput.value = -amount;
-            iwtDestTransferAmountInput.value = amount;
+            structure.forEach((entry, i) => {
+                const hiddenInput = section.querySelector(`input[name*="entries[${i}][amount]"]`) ||
+                                   section.querySelector(`input[id*="Amount"]`);
+                if (hiddenInput && hiddenInput.type === 'hidden') {
+                    hiddenInput.value = entry.sign * amount;
+                }
+            });
         }
 
         function addEntry() {
@@ -445,58 +427,75 @@
 
         typeSelect.addEventListener('change', toggleTypeUI);
         dateMonthInput.addEventListener('change', updateDate);
-        if (transferAmountInput) {
-            transferAmountInput.addEventListener('input', updateTransferAmounts);
-        }
-        if (expenseTransferAmountInput) {
-            expenseTransferAmountInput.addEventListener('input', updateExpenseWithTransferAmounts);
-        }
-        if (incomeTransferAmountInput) {
-            incomeTransferAmountInput.addEventListener('input', updateIncomeWithTransferAmounts);
-        }
+
+        document.querySelectorAll('.money-input').forEach(input => {
+            input.addEventListener('input', function() {
+                const type = typeSelect.value;
+                if (type === 'transfer' || type === 'expense_with_transfer' || type === 'income_with_transfer') {
+                    syncAmounts(type, this);
+                }
+            });
+        });
 
         document.getElementById('eventForm').addEventListener('submit', function(e) {
-            if (typeSelect.value === 'transfer') {
-                updateTransferAmounts();
-            } else if (typeSelect.value === 'expense_with_transfer') {
-                updateExpenseWithTransferAmounts();
-                const destAssetId = ewtDestAsset.value;
-                for (let i = 0; i < 3; i++) {
-                    const existingInput = document.querySelector(`input[name="entries[${i}][asset_id]"]`);
+            const type = typeSelect.value;
+
+            if (type === 'expense_with_transfer') {
+                const sourceAsset = document.getElementById('ewtSourceAsset').value;
+                const destAsset = document.getElementById('ewtDestAsset').value;
+                const structure = entryStructures[type];
+
+                structure.forEach((entry, i) => {
+                    const assetId = entry.slot === 'source' ? sourceAsset : destAsset;
+                    let existingInput = this.querySelector(`input[name="entries[${i}][asset_id]"]`);
                     if (!existingInput) {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = `entries[${i}][asset_id]`;
-                        input.value = i === 0 ? ewtSourceAsset.value : destAssetId;
-                        this.appendChild(input);
+                        existingInput = document.createElement('input');
+                        existingInput.type = 'hidden';
+                        existingInput.name = `entries[${i}][asset_id]`;
+                        this.appendChild(existingInput);
                     }
-                    const amountInput = document.createElement('input');
-                    amountInput.type = 'hidden';
-                    amountInput.name = `entries[${i}][amount]`;
-                    amountInput.value = i === 0 ? ewtSourceAmountInput.value : (i === 1 ? ewtDestTransferAmountInput.value : ewtExpenseAmountInput.value);
-                    this.appendChild(amountInput);
-                }
-                document.querySelectorAll('input[name^="ewt_entries"]').forEach(el => el.disabled = true);
-            } else if (typeSelect.value === 'income_with_transfer') {
-                updateIncomeWithTransferAmounts();
-                const sourceAssetId = iwtSourceAsset.value;
-                const destAssetId = iwtDestAsset.value;
-                for (let i = 0; i < 3; i++) {
-                    const existingInput = document.querySelector(`input[name="entries[${i}][asset_id]"]`);
+                    existingInput.value = assetId;
+
+                    let amountInput = this.querySelector(`input[name="entries[${i}][amount]"]`);
+                    if (!amountInput) {
+                        amountInput = document.createElement('input');
+                        amountInput.type = 'hidden';
+                        amountInput.name = `entries[${i}][amount]`;
+                        this.appendChild(amountInput);
+                    }
+                    const amount = parseFloat(document.getElementById('expenseTransferAmount').value) || 0;
+                    amountInput.value = entry.sign * amount;
+                });
+
+                this.querySelectorAll('input[name^="ewt_entries"]').forEach(el => el.disabled = true);
+            } else if (type === 'income_with_transfer') {
+                const sourceAsset = document.getElementById('iwtSourceAsset').value;
+                const destAsset = document.getElementById('iwtDestAsset').value;
+                const structure = entryStructures[type];
+
+                structure.forEach((entry, i) => {
+                    const assetId = entry.slot === 'source' ? sourceAsset : destAsset;
+                    let existingInput = this.querySelector(`input[name="entries[${i}][asset_id]"]`);
                     if (!existingInput) {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = `entries[${i}][asset_id]`;
-                        input.value = i < 2 ? sourceAssetId : destAssetId;
-                        this.appendChild(input);
+                        existingInput = document.createElement('input');
+                        existingInput.type = 'hidden';
+                        existingInput.name = `entries[${i}][asset_id]`;
+                        this.appendChild(existingInput);
                     }
-                    const amountInput = document.createElement('input');
-                    amountInput.type = 'hidden';
-                    amountInput.name = `entries[${i}][amount]`;
-                    amountInput.value = i === 0 ? iwtIncomeAmountInput.value : (i === 1 ? iwtSourceAmountInput.value : iwtDestTransferAmountInput.value);
-                    this.appendChild(amountInput);
-                }
-                document.querySelectorAll('input[name^="iwt_entries"]').forEach(el => el.disabled = true);
+                    existingInput.value = assetId;
+
+                    let amountInput = this.querySelector(`input[name="entries[${i}][amount]"]`);
+                    if (!amountInput) {
+                        amountInput = document.createElement('input');
+                        amountInput.type = 'hidden';
+                        amountInput.name = `entries[${i}][amount]`;
+                        this.appendChild(amountInput);
+                    }
+                    const amount = parseFloat(document.getElementById('incomeTransferAmount').value) || 0;
+                    amountInput.value = entry.sign * amount;
+                });
+
+                this.querySelectorAll('input[name^="iwt_entries"]').forEach(el => el.disabled = true);
             }
         });
 

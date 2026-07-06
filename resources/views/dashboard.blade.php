@@ -113,19 +113,11 @@
                     @foreach($pendingConsolidations as $event)
                         @php
                             $type = $event->type?->value ?? 'event';
-                            $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus', 'income_with_transfer' => 'bi-cash-coin'];
-                            $typeIcon = $typeIcons[$type] ?? 'bi-tag';
-                            $isTransfer = $type === 'transfer';
-                            $total = $isTransfer
-                                ? abs($event->entries->first(fn($e) => $e->amount > 0)?->amount ?? 0)
-                                : $event->entries->sum('amount');
-                            $isVirtual = $event->id === 0 || $event->id === null;
+                            $typeIcon = $event->type?->icon() ?? 'bi-tag';
+                            $isTransfer = $event->isTransfer();
+                            $total = $event->getDisplayAmount();
                             $isPartiallyConsolidated = method_exists($event, 'isPartiallyConsolidated') && $event->isPartiallyConsolidated();
-                            if ($isVirtual) {
-                                $detailUrl = url('/entries/virtual/' . $event->header_id . '/' . $event->date->format('Y') . '/' . $event->date->format('m'));
-                            } else {
-                                $detailUrl = url('/entries/' . $event->id);
-                            }
+                            $detailUrl = $event->detailUrl();
                         @endphp
                         <li class="pending-item">
                             <a href="{{ $detailUrl }}" class="pending-item__info" style="text-decoration: none; color: inherit;">

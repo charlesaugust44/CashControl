@@ -55,7 +55,7 @@ class Header extends Model
 
     public function isTransfer(): bool
     {
-        return $this->type === EventType::Transfer;
+        return $this->type->isTransfer();
     }
 
     public function isExpenseWithTransfer(): bool

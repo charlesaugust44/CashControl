@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\EventRule;
-use App\Enums\EventType;
 use App\Models\Asset;
 use App\Models\Entry;
 use App\Models\Event;
@@ -97,7 +96,7 @@ class EventGenerationService
 
     private function calculateDueDateForMonth(?int $dueDay, int $year, int $month): ?Carbon
     {
-        if (!$dueDay) {
+        if (! $dueDay) {
             return null;
         }
 
@@ -112,94 +111,24 @@ class EventGenerationService
     private function createVirtualEntries(Header $header, float $amount): Collection
     {
         $entries = collect();
+        $type = $header->type;
 
-        if ($header->isTransfer()) {
-            if ($header->asset_id) {
-                $debitEntry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->asset_id,
-                    'amount' => -$amount,
-                ]);
-                $debitEntry->asset = Asset::find($header->asset_id);
-                $entries->push($debitEntry);
+        for ($i = 0; $i < $type->entryCount(); $i++) {
+            $assetId = $type->entryAssetSlot($i) === 'source' ? $header->asset_id : $header->destination_asset_id;
+
+            if (! $assetId) {
+                continue;
             }
 
-            if ($header->destination_asset_id) {
-                $creditEntry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->destination_asset_id,
-                    'amount' => $amount,
-                ]);
-                $creditEntry->asset = Asset::find($header->destination_asset_id);
-                $entries->push($creditEntry);
-            }
-        } elseif ($header->isExpenseWithTransfer()) {
-            if ($header->asset_id) {
-                $transferOutEntry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->asset_id,
-                    'amount' => -$amount,
-                ]);
-                $transferOutEntry->asset = Asset::find($header->asset_id);
-                $entries->push($transferOutEntry);
-            }
+            $entryAmount = $type->entrySign($i) * $amount;
 
-            if ($header->destination_asset_id) {
-                $transferInEntry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->destination_asset_id,
-                    'amount' => $amount,
-                ]);
-                $transferInEntry->asset = Asset::find($header->destination_asset_id);
-                $entries->push($transferInEntry);
-
-                $expenseEntry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->destination_asset_id,
-                    'amount' => -$amount,
-                ]);
-                $expenseEntry->asset = Asset::find($header->destination_asset_id);
-                $entries->push($expenseEntry);
-            }
-        } elseif ($header->isIncomeWithTransfer()) {
-            if ($header->asset_id) {
-                $incomeEntry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->asset_id,
-                    'amount' => $amount,
-                ]);
-                $incomeEntry->asset = Asset::find($header->asset_id);
-                $entries->push($incomeEntry);
-
-                $transferOutEntry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->asset_id,
-                    'amount' => -$amount,
-                ]);
-                $transferOutEntry->asset = Asset::find($header->asset_id);
-                $entries->push($transferOutEntry);
-            }
-
-            if ($header->destination_asset_id) {
-                $transferInEntry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->destination_asset_id,
-                    'amount' => $amount,
-                ]);
-                $transferInEntry->asset = Asset::find($header->destination_asset_id);
-                $entries->push($transferInEntry);
-            }
-        } else {
-            if ($header->asset_id) {
-                $entryAmount = $header->type === EventType::Expense ? -$amount : $amount;
-                $entry = new Entry([
-                    'event_id' => 0,
-                    'asset_id' => $header->asset_id,
-                    'amount' => $entryAmount,
-                ]);
-                $entry->asset = Asset::find($header->asset_id);
-                $entries->push($entry);
-            }
+            $entry = new Entry([
+                'event_id' => 0,
+                'asset_id' => $assetId,
+                'amount' => $entryAmount,
+            ]);
+            $entry->asset = Asset::find($assetId);
+            $entries->push($entry);
         }
 
         return $entries;

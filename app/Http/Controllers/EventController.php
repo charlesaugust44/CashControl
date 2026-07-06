@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventType;
 use App\Services\ConsolidationService;
 use App\Services\EventService;
 use App\Services\MonthClosureService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class EventController extends Controller
 {
-
     protected EventService $eventService;
+
     protected ConsolidationService $consolidationService;
+
     protected MonthClosureService $monthClosureService;
 
     public function __construct()
@@ -26,7 +29,7 @@ class EventController extends Controller
     public function index(Request $request): View
     {
         $currentMonth = $request->get('month', now()->format('Y-m'));
-        $monthDate = \Carbon\Carbon::parse($currentMonth);
+        $monthDate = Carbon::parse($currentMonth);
         $filter = $request->get('filter', 'all');
 
         $events = $this->eventService->listByMonth(
@@ -34,68 +37,56 @@ class EventController extends Controller
             $monthDate->month
         );
 
-        $totalIncome = $events->filter(function($e) {
-                $type = $e->type?->value;
-                return $type === 'income' || $type === 'income_with_transfer';
-            })
-            ->sum(function($e) {
-                if ($e->type?->value === 'income_with_transfer') {
-                    return max(0, (float) $e->entries[0]->amount);
-                }
-                return $e->entries->sum(fn($entry) => max(0, (float) $entry->amount));
-            });
+        $totalIncome = $events->filter(function ($e) {
+            $type = $e->type?->value;
 
-        $totalExpense = $events->filter(function($e) {
-                $type = $e->type?->value;
-                return $type === 'expense' || $type === 'expense_with_transfer';
-            })
-            ->sum(function($e) {
-                if ($e->type?->value === 'expense_with_transfer') {
-                    return abs((float) $e->entries[2]->amount);
-                }
-                return $e->entries->sum(fn($entry) => abs((float) $entry->amount));
-            });
+            return $type === 'income' || $type === 'income_with_transfer';
+        })
+            ->sum(fn ($e) => $e->getIncomeAmount());
+
+        $totalExpense = $events->filter(function ($e) {
+            $type = $e->type?->value;
+
+            return $type === 'expense' || $type === 'expense_with_transfer';
+        })
+            ->sum(fn ($e) => $e->getExpenseAmount());
 
         $balance = $totalIncome - $totalExpense;
 
-        $consolidatedIncome = $events->filter(function($e) {
-                if (!$e->consolidated) return false;
-                $type = $e->type?->value;
-                return $type === 'income' || $type === 'income_with_transfer';
-            })
-            ->sum(function($e) {
-                if ($e->type?->value === 'income_with_transfer') {
-                    return max(0, (float) $e->entries[0]->amount);
-                }
-                return $e->entries->sum(fn($entry) => max(0, (float) $entry->amount));
-            });
+        $consolidatedIncome = $events->filter(function ($e) {
+            if (! $e->consolidated) {
+                return false;
+            }
+            $type = $e->type?->value;
 
-        $consolidatedExpense = $events->filter(function($e) {
-                if (!$e->consolidated) return false;
-                $type = $e->type?->value;
-                return $type === 'expense' || $type === 'expense_with_transfer';
-            })
-            ->sum(function($e) {
-                if ($e->type?->value === 'expense_with_transfer') {
-                    return abs((float) $e->entries[2]->amount);
-                }
-                return $e->entries->sum(fn($entry) => abs((float) $entry->amount));
-            });
+            return $type === 'income' || $type === 'income_with_transfer';
+        })
+            ->sum(fn ($e) => $e->getIncomeAmount());
+
+        $consolidatedExpense = $events->filter(function ($e) {
+            if (! $e->consolidated) {
+                return false;
+            }
+            $type = $e->type?->value;
+
+            return $type === 'expense' || $type === 'expense_with_transfer';
+        })
+            ->sum(fn ($e) => $e->getExpenseAmount());
 
         $consolidatedBalance = $consolidatedIncome - $consolidatedExpense;
 
         $isMonthClosed = $this->monthClosureService->isMonthClosed($monthDate->year, $monthDate->month);
 
         if ($filter !== 'all') {
-            $filterTypes = \App\Enums\EventType::filterTypes($filter);
-            $events = $events->filter(fn($e) => in_array($e->type?->value, $filterTypes))->values();
+            $filterTypes = EventType::filterTypes($filter);
+            $events = $events->filter(fn ($e) => in_array($e->type?->value, $filterTypes))->values();
         }
 
         $headerOptions = $this->buildHeaderOptions($monthDate);
 
         array_unshift($headerOptions, [
             'type' => 'link',
-            'url' => url('/entries/create?month=' . $currentMonth),
+            'url' => url('/entries/create?month='.$currentMonth),
             'label' => __('entries.create'),
             'icon' => 'bi bi-plus-circle',
         ]);
@@ -145,7 +136,7 @@ class EventController extends Controller
         return response()->json($events);
     }
 
-    private function buildHeaderOptions(\Carbon\Carbon $monthDate): array
+    private function buildHeaderOptions(Carbon $monthDate): array
     {
         $options = [];
 
@@ -153,10 +144,10 @@ class EventController extends Controller
         $canClose = $this->monthClosureService->canCloseMonth($monthDate->year, $monthDate->month);
         $lastClosedMonth = $this->monthClosureService->getLastClosedMonth();
 
-        if ($canClose && !$isMonthClosed) {
+        if ($canClose && ! $isMonthClosed) {
             $options[] = [
                 'type' => 'form',
-                'action' => url('/months/' . $monthDate->year . '/' . $monthDate->month . '/close'),
+                'action' => url('/months/'.$monthDate->year.'/'.$monthDate->month.'/close'),
                 'method' => 'POST',
                 'label' => __('entries.actions.close_month'),
                 'icon' => 'bi bi-lock',

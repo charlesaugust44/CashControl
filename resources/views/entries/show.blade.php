@@ -7,8 +7,7 @@
 @section('content')
     @php
         $type = $event->type?->value ?? 'event';
-        $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus', 'income_with_transfer' => 'bi-cash-coin'];
-        $typeIcon = $typeIcons[$type] ?? 'bi-tag';
+        $typeIcon = $event->type?->icon() ?? 'bi-tag';
         $isConsolidated = $event->consolidated ?? false;
         $isTransferConsolidated = $event->transfer_consolidated ?? false;
         $isTransfer = $event->isTransfer();
@@ -82,9 +81,9 @@
                     <div class="entries-list" id="entriesList">
                         @if($isTransfer)
                             @php
-                                $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0);
-                                $destEntry = $event->entries->first(fn($e) => $e->amount > 0);
-                                $transferAmount = abs($sourceEntry->amount ?? 0);
+                                $sourceEntry = $event->getSourceEntry();
+                                $destEntry = $event->getDestEntry();
+                                $transferAmount = $event->getTransferAmount();
                             @endphp
 
                             <div class="transfer-amount-section">
@@ -135,11 +134,12 @@
                             </div>
                         @elseif($isExpenseWithTransfer)
                             @php
-                                $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0);
-                                $destTransferEntry = $event->entries->first(fn($e) => $e->amount > 0);
-                                $amount = abs($destTransferEntry->amount ?? 0);
+                                $sourceEntry = $event->getSourceEntry();
+                                $destTransferEntry = $event->getDestEntry();
+                                $amount = $event->getTransferAmount();
                                 $transferDisabled = $isExpenseIncomeConsolidated && !$isTransferPartConsolidated ? false : ($isTransferPartConsolidated || $isFullyConsolidated);
                                 $expenseDisabled = $isExpenseIncomeConsolidated || $isFullyConsolidated;
+                                $amountDisabled = $isExpenseIncomeConsolidated || $isTransferPartConsolidated || $isFullyConsolidated;
                             @endphp
 
                             <input type="hidden" name="positions[0]" value="0">
@@ -159,7 +159,7 @@
                                             id="expenseTransferAmount"
                                             class="form-control money-input"
                                             value="{{ $amount }}"
-                                            {{ $transferDisabled && $expenseDisabled ? 'disabled' : 'required' }}
+                                            {{ $amountDisabled ? 'disabled' : 'required' }}
                                         >
                                     </div>
                                 </div>
@@ -196,12 +196,13 @@
                             </div>
                         @elseif($isIncomeWithTransfer)
                             @php
-                                $incomeEntry = $event->entries->first(fn($e) => $e->amount > 0 && $e->asset_id === $event->header?->asset_id);
-                                $sourceTransferEntry = $event->entries->first(fn($e) => $e->amount < 0);
-                                $destTransferEntry = $event->entries->last(fn($e) => $e->amount > 0);
-                                $amount = abs($incomeEntry->amount ?? 0);
+                                $incomeEntry = $event->getIncomeEntry();
+                                $sourceTransferEntry = $event->getSourceEntry();
+                                $destTransferEntry = $event->getLastPositiveEntry();
+                                $amount = abs($incomeEntry?->amount ?? 0);
                                 $incomeDisabled = $isExpenseIncomeConsolidated || $isFullyConsolidated;
                                 $transferDisabled = $isTransferPartConsolidated || $isFullyConsolidated;
+                                $amountDisabled = $isExpenseIncomeConsolidated || $isTransferPartConsolidated || $isFullyConsolidated;
                             @endphp
 
                             <input type="hidden" name="positions[0]" value="0">
@@ -221,7 +222,7 @@
                                             id="incomeTransferAmount"
                                             class="form-control money-input"
                                             value="{{ $amount }}"
-                                            {{ $incomeDisabled && $transferDisabled ? 'disabled' : 'required' }}
+                                            {{ $amountDisabled ? 'disabled' : 'required' }}
                                         >
                                     </div>
                                 </div>
@@ -427,9 +428,11 @@
     @endif
 @endsection
 
-@push('scripts')
+    @push('scripts')
     <script>
         let entryIndex = {{ $event->entries->count() }};
+        const entryStructures = @json($entryStructures);
+        const eventType = @json($event->type?->value ?? 'event');
 
         function addEntry() {
             const template = document.getElementById('entryTemplate');
@@ -443,6 +446,18 @@
             if (row) {
                 row.remove();
             }
+        }
+
+        function syncEntryAmounts(type, amount) {
+            const structure = entryStructures[type];
+            if (!structure) return;
+
+            structure.forEach((entry, i) => {
+                const input = document.querySelector(`input[name="entries[${i}][amount]"]`);
+                if (input && input.type === 'hidden') {
+                    input.value = entry.sign * amount;
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -460,68 +475,36 @@
                 });
             });
 
-            // Handle transfer amount sync
-            const transferAmountInput = document.getElementById('transferAmount');
-            if (transferAmountInput) {
-                transferAmountInput.addEventListener('input', function() {
-                    const amount = parseFloat(this.value) || 0;
-                    const sourceAmountInput = document.querySelector('input[name="entries[0][amount]"]');
-                    const destAmountInput = document.querySelector('input[name="entries[1][amount]"]');
+            const amountInputIds = {
+                'transfer': 'transferAmount',
+                'expense_with_transfer': 'expenseTransferAmount',
+                'income_with_transfer': 'incomeTransferAmount',
+            };
 
-                    if (sourceAmountInput) {
-                        sourceAmountInput.value = -amount;
-                    }
-                    if (destAmountInput) {
-                        destAmountInput.value = amount;
-                    }
-                });
-            }
-
-            // Handle expense with transfer amount sync
-            const expenseTransferAmountInput = document.getElementById('expenseTransferAmount');
-            if (expenseTransferAmountInput) {
-                const ewtSourceAmount = document.getElementById('ewtSourceAmount');
-                const ewtDestTransferAmount = document.getElementById('ewtDestTransferAmount');
-                const ewtExpenseAmount = document.getElementById('ewtExpenseAmount');
-                const ewtDestAsset = document.getElementById('ewtDestAsset');
-                const ewtExpenseAssetId = document.getElementById('ewtExpenseAssetId');
-
-                expenseTransferAmountInput.addEventListener('input', function() {
-                    const amount = parseFloat(this.value) || 0;
-                    if (ewtSourceAmount) ewtSourceAmount.value = -amount;
-                    if (ewtDestTransferAmount) ewtDestTransferAmount.value = amount;
-                    if (ewtExpenseAmount) ewtExpenseAmount.value = -amount;
-                });
-
-                if (ewtDestAsset) {
-                    ewtDestAsset.addEventListener('change', function() {
-                        if (ewtExpenseAssetId) {
-                            ewtExpenseAssetId.value = this.value;
-                        }
+            const amountInputId = amountInputIds[eventType];
+            if (amountInputId) {
+                const amountInput = document.getElementById(amountInputId);
+                if (amountInput) {
+                    amountInput.addEventListener('input', function() {
+                        syncEntryAmounts(eventType, parseFloat(this.value) || 0);
                     });
                 }
             }
 
-            const incomeTransferAmountInput = document.getElementById('incomeTransferAmount');
-            if (incomeTransferAmountInput) {
-                const iwtIncomeAmount = document.getElementById('iwtIncomeAmount');
-                const iwtSourceAmount = document.getElementById('iwtSourceAmount');
-                const iwtDestTransferAmount = document.getElementById('iwtDestTransferAmount');
-
-                incomeTransferAmountInput.addEventListener('input', function() {
-                    const amount = parseFloat(this.value) || 0;
-                    if (iwtIncomeAmount) iwtIncomeAmount.value = amount;
-                    if (iwtSourceAmount) iwtSourceAmount.value = -amount;
-                    if (iwtDestTransferAmount) iwtDestTransferAmount.value = amount;
+            const ewtDestAsset = document.getElementById('ewtDestAsset');
+            const ewtExpenseAssetId = document.getElementById('ewtExpenseAssetId');
+            if (ewtDestAsset && ewtExpenseAssetId) {
+                ewtDestAsset.addEventListener('change', function() {
+                    ewtExpenseAssetId.value = this.value;
                 });
+            }
 
-                const iwtSourceAsset = document.getElementById('iwtSourceAsset');
-                const iwtTransferAssetId = document.getElementById('iwtTransferAssetId');
-                if (iwtSourceAsset && iwtTransferAssetId) {
-                    iwtSourceAsset.addEventListener('change', function() {
-                        iwtTransferAssetId.value = this.value;
-                    });
-                }
+            const iwtSourceAsset = document.getElementById('iwtSourceAsset');
+            const iwtTransferAssetId = document.getElementById('iwtTransferAssetId');
+            if (iwtSourceAsset && iwtTransferAssetId) {
+                iwtSourceAsset.addEventListener('change', function() {
+                    iwtTransferAssetId.value = this.value;
+                });
             }
         });
     </script>

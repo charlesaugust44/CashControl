@@ -61,7 +61,7 @@ class Event extends Model
 
     public function isTransfer(): bool
     {
-        return $this->type === EventType::Transfer;
+        return $this->type->isTransfer();
     }
 
     public function isExpenseWithTransfer(): bool
@@ -76,12 +76,12 @@ class Event extends Model
 
     public function isComposite(): bool
     {
-        return $this->isExpenseWithTransfer() || $this->isIncomeWithTransfer();
+        return $this->type->isComposite();
     }
 
     public function isPartiallyConsolidated(): bool
     {
-        if (!$this->isComposite()) {
+        if (! $this->isComposite()) {
             return false;
         }
 
@@ -100,10 +100,10 @@ class Event extends Model
     public function isPending(): bool
     {
         if ($this->isComposite()) {
-            return !$this->consolidated && !$this->transfer_consolidated;
+            return ! $this->consolidated && ! $this->transfer_consolidated;
         }
 
-        return !$this->consolidated;
+        return ! $this->consolidated;
     }
 
     public function getTransferEntryIndices(): array
@@ -130,5 +130,94 @@ class Event extends Model
         }
 
         return [];
+    }
+
+    public function getSourceEntry(): ?Entry
+    {
+        return $this->entries->first(fn ($e) => $e->amount < 0);
+    }
+
+    public function getDestEntry(): ?Entry
+    {
+        return $this->entries->first(fn ($e) => $e->amount > 0);
+    }
+
+    public function getLastPositiveEntry(): ?Entry
+    {
+        return $this->entries->last(fn ($e) => $e->amount > 0);
+    }
+
+    public function getExpenseEntry(): ?Entry
+    {
+        if (! $this->isExpenseWithTransfer()) {
+            return null;
+        }
+
+        return $this->entries->last();
+    }
+
+    public function getIncomeEntry(): ?Entry
+    {
+        if (! $this->isIncomeWithTransfer()) {
+            return null;
+        }
+
+        return $this->entries->first(fn ($e) => $e->amount > 0);
+    }
+
+    public function getTransferAmount(): float
+    {
+        $destEntry = $this->getDestEntry();
+
+        return $destEntry ? abs($destEntry->amount) : 0;
+    }
+
+    public function getDisplayAmount(): float
+    {
+        return match (true) {
+            $this->isTransfer() => $this->getTransferAmount(),
+            $this->isExpenseWithTransfer() => abs($this->getExpenseEntry()?->amount ?? 0),
+            $this->isIncomeWithTransfer() => abs($this->getIncomeEntry()?->amount ?? 0),
+            $this->type === EventType::Expense => abs($this->entries->sum('amount')),
+            $this->type === EventType::Income => $this->entries->where('amount', '>', 0)->sum('amount'),
+            default => 0,
+        };
+    }
+
+    public function getIncomeAmount(): float
+    {
+        if ($this->isIncomeWithTransfer()) {
+            return abs($this->getIncomeEntry()?->amount ?? 0);
+        }
+
+        if ($this->type === EventType::Income) {
+            return $this->entries->where('amount', '>', 0)->sum('amount');
+        }
+
+        return 0;
+    }
+
+    public function getExpenseAmount(): float
+    {
+        if ($this->isExpenseWithTransfer()) {
+            return abs($this->getExpenseEntry()?->amount ?? 0);
+        }
+
+        if ($this->type === EventType::Expense) {
+            return abs($this->entries->sum('amount'));
+        }
+
+        return 0;
+    }
+
+    public function detailUrl(): string
+    {
+        $isVirtual = $this->id === 0 || $this->id === null;
+
+        if ($isVirtual) {
+            return url('/entries/virtual/'.$this->header_id.'/'.$this->date->format('Y').'/'.$this->date->format('m'));
+        }
+
+        return url('/entries/'.$this->id);
     }
 }

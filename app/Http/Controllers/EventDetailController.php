@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventType;
+use App\Models\Event;
 use App\Services\ConsolidationService;
 use App\Services\EventDetailService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -11,27 +14,29 @@ use Illuminate\View\View;
 class EventDetailController extends Controller
 {
     protected EventDetailService $eventDetailService;
+
     protected ConsolidationService $consolidationService;
 
     public function __construct()
     {
-        $this->eventDetailService = new EventDetailService();
-        $this->consolidationService = new ConsolidationService();
+        $this->eventDetailService = new EventDetailService;
+        $this->consolidationService = new ConsolidationService;
     }
 
     public function create(Request $request): View
     {
         $assets = $this->eventDetailService->getAssets();
         $currentMonth = $request->get('month', now()->format('Y-m'));
-        $defaultDate = \Carbon\Carbon::parse($currentMonth)->startOfMonth();
+        $defaultDate = Carbon::parse($currentMonth)->startOfMonth();
 
         return view('entries.create', [
             'assets' => $assets,
             'defaultDate' => $defaultDate,
             'currentMonth' => $currentMonth,
             'pageTitle' => __('entries.create'),
+            'entryStructures' => $this->buildEntryStructures(),
             'breadcrumbs' => [
-                ['label' => __('entries.title'), 'url' => '/entries?month=' . $currentMonth],
+                ['label' => __('entries.title'), 'url' => '/entries?month='.$currentMonth],
                 ['label' => __('entries.create'), 'url' => null],
             ],
         ]);
@@ -46,13 +51,13 @@ class EventDetailController extends Controller
             $action = $request->input('action', 'submit');
 
             if ($action === 'save') {
-                return redirect('/entries/' . $event->id)
+                return redirect('/entries/'.$event->id)
                     ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
             }
 
-            $eventDate = \Carbon\Carbon::parse($event->date);
+            $eventDate = Carbon::parse($event->date);
 
-            return redirect('/entries?month=' . $eventDate->format('Y-m'))
+            return redirect('/entries?month='.$eventDate->format('Y-m'))
                 ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
         } catch (\Exception $e) {
             return redirect()->back()
@@ -65,15 +70,16 @@ class EventDetailController extends Controller
     {
         $event = $this->eventDetailService->getEvent($id);
         $assets = $this->eventDetailService->getAssets();
-        $eventDate = \Carbon\Carbon::parse($event->date);
+        $eventDate = Carbon::parse($event->date);
 
         return view('entries.show', [
             'event' => $event,
             'assets' => $assets,
             'isVirtual' => false,
             'pageTitle' => $event->name ?? __('entries.title'),
+            'entryStructures' => $this->buildEntryStructures(),
             'breadcrumbs' => [
-                ['label' => __('entries.title'), 'url' => '/entries?month=' . $eventDate->format('Y-m')],
+                ['label' => __('entries.title'), 'url' => '/entries?month='.$eventDate->format('Y-m')],
                 ['label' => $event->name ?? __('entries.title'), 'url' => null],
             ],
         ]);
@@ -82,14 +88,14 @@ class EventDetailController extends Controller
     public function delete(int $id): View
     {
         $event = $this->eventDetailService->getEvent($id);
-        $eventDate = \Carbon\Carbon::parse($event->date);
+        $eventDate = Carbon::parse($event->date);
 
         return view('entries.delete', [
             'event' => $event,
             'pageTitle' => __('entries.delete_confirmation.title'),
             'breadcrumbs' => [
-                ['label' => __('entries.title'), 'url' => '/entries?month=' . $eventDate->format('Y-m')],
-                ['label' => $event->name ?? __('entries.title'), 'url' => '/entries/' . $id],
+                ['label' => __('entries.title'), 'url' => '/entries?month='.$eventDate->format('Y-m')],
+                ['label' => $event->name ?? __('entries.title'), 'url' => '/entries/'.$id],
                 ['label' => __('ui.delete'), 'url' => null],
             ],
         ]);
@@ -99,7 +105,7 @@ class EventDetailController extends Controller
     {
         $event = $this->eventDetailService->getVirtualEvent($headerId, $year, $month);
 
-        if (!$event) {
+        if (! $event) {
             abort(404, 'Event not found');
         }
 
@@ -113,8 +119,9 @@ class EventDetailController extends Controller
             'year' => $year,
             'month' => $month,
             'pageTitle' => $event->name ?? __('entries.title'),
+            'entryStructures' => $this->buildEntryStructures(),
             'breadcrumbs' => [
-                ['label' => __('entries.title'), 'url' => '/entries?month=' . \Carbon\Carbon::create($year, $month, 1)->format('Y-m')],
+                ['label' => __('entries.title'), 'url' => '/entries?month='.Carbon::create($year, $month, 1)->format('Y-m')],
                 ['label' => $event->name ?? __('entries.title'), 'url' => null],
             ],
         ]);
@@ -126,49 +133,35 @@ class EventDetailController extends Controller
             $action = $request->input('action', 'submit');
 
             if ($action === 'unconsolidate') {
-                $event = $this->consolidationService->unconsolidateEvent($id);
-                return redirect('/entries/' . $event->id)
+                $this->consolidationService->unconsolidateEvent($id);
+
+                return redirect('/entries/'.$id)
                     ->with('success', __('messages.success.reverted'));
             }
 
-            if (in_array($action, ['consolidate', 'consolidate_expense_income', 'consolidate_transfer'])) {
-                $existingEvent = $this->eventDetailService->getEvent($id);
-                $formEntries = $request->input('entries', []);
-
-                foreach ($existingEvent->entries as $index => $entry) {
-                    if (!isset($formEntries[$index]['asset_id'])) {
-                        $formEntries[$index]['asset_id'] = $entry->asset_id;
-                    }
-                    if (!isset($formEntries[$index]['amount'])) {
-                        $formEntries[$index]['amount'] = abs($entry->amount);
-                    }
-                }
-
-                ksort($formEntries);
-                $request->merge(['entries' => $formEntries]);
-            }
-
-            $validated = $this->validateEventData($request);
+            $event = $this->eventDetailService->getEvent($id);
+            $validated = $this->validateEventData($request, $action, $event);
             $event = $this->eventDetailService->updateEvent($id, $validated);
 
             if (in_array($action, ['consolidate', 'consolidate_expense_income', 'consolidate_transfer'])) {
-                $event = match ($action) {
-                    'consolidate' => $this->consolidationService->consolidateEvent($event->id),
-                    'consolidate_expense_income' => $this->consolidationService->consolidateExpenseIncome($event->id),
-                    'consolidate_transfer' => $this->consolidationService->consolidateTransfer($event->id),
+                match ($action) {
+                    'consolidate' => $this->consolidationService->consolidateEvent($id),
+                    'consolidate_expense_income' => $this->consolidationService->consolidateExpenseIncome($id),
+                    'consolidate_transfer' => $this->consolidationService->consolidateTransfer($id),
                 };
-                return redirect('/entries/' . $event->id)
+
+                return redirect('/entries/'.$id)
                     ->with('success', __('messages.success.consolidated'));
             }
 
             if ($action === 'save') {
-                return redirect('/entries/' . $event->id)
+                return redirect('/entries/'.$id)
                     ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
             }
 
-            $eventDate = \Carbon\Carbon::parse($event->date);
+            $eventDate = Carbon::parse($event->date);
 
-            return redirect('/entries?month=' . $eventDate->format('Y-m'))
+            return redirect('/entries?month='.$eventDate->format('Y-m'))
                 ->with('success', __('messages.success.updated', ['item' => __('entries.singular')]));
         } catch (\Exception $e) {
             return redirect()->back()
@@ -187,28 +180,31 @@ class EventDetailController extends Controller
 
             if ($action === 'consolidate') {
                 $event = $this->consolidationService->consolidateEvent($event->id);
-                return redirect('/entries/' . $event->id)
+
+                return redirect('/entries/'.$event->id)
                     ->with('success', __('messages.success.consolidated'));
             }
 
             if ($action === 'consolidate_expense_income') {
                 $event = $this->consolidationService->consolidateExpenseIncome($event->id);
-                return redirect('/entries/' . $event->id)
+
+                return redirect('/entries/'.$event->id)
                     ->with('success', __('messages.success.consolidated'));
             }
 
             if ($action === 'consolidate_transfer') {
                 $event = $this->consolidationService->consolidateTransfer($event->id);
-                return redirect('/entries/' . $event->id)
+
+                return redirect('/entries/'.$event->id)
                     ->with('success', __('messages.success.consolidated'));
             }
 
             if ($action === 'save') {
-                return redirect('/entries/' . $event->id)
+                return redirect('/entries/'.$event->id)
                     ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
             }
 
-            return redirect('/entries?month=' . \Carbon\Carbon::create($year, $month, 1)->format('Y-m'))
+            return redirect('/entries?month='.Carbon::create($year, $month, 1)->format('Y-m'))
                 ->with('success', __('messages.success.saved', ['item' => __('entries.singular')]));
         } catch (\Exception $e) {
             return redirect()->back()
@@ -221,11 +217,11 @@ class EventDetailController extends Controller
     {
         try {
             $event = $this->eventDetailService->getEvent($id);
-            $eventDate = \Carbon\Carbon::parse($event->date);
+            $eventDate = Carbon::parse($event->date);
 
             $this->eventDetailService->deleteEvent($id);
 
-            return redirect('/entries?month=' . $eventDate->format('Y-m'))
+            return redirect('/entries?month='.$eventDate->format('Y-m'))
                 ->with('success', __('messages.success.deleted', ['item' => __('entries.singular')]));
         } catch (\Exception $e) {
             return redirect()->back()
@@ -233,19 +229,40 @@ class EventDetailController extends Controller
         }
     }
 
-    private function validateEventData(Request $request): array
+    private function validateEventData(Request $request, string $action = 'submit', ?Event $event = null): array
     {
-        $validated = $request->validate([
+        $rules = [
             'note' => 'nullable|string|max:300',
             'due_day' => 'nullable|integer|min:1|max:31',
-            'entries' => 'required|array|min:1',
-            'entries.*.asset_id' => 'required|exists:assets,id',
-            'entries.*.amount' => 'required|numeric',
             'positions' => 'nullable|array',
             'positions.*' => 'integer',
-        ]);
+        ];
 
-        return $validated;
+        if ($event && $event->isComposite() && $event->isPartiallyConsolidated()) {
+            if ($action === 'consolidate_transfer') {
+                $indices = $event->getTransferEntryIndices();
+                foreach ($indices as $index) {
+                    $rules["entries.{$index}.asset_id"] = 'required|exists:assets,id';
+                    $rules["entries.{$index}.amount"] = 'required|numeric';
+                }
+            } elseif ($action === 'consolidate_expense_income') {
+                $indices = $event->getIncomeExpenseEntryIndices();
+                foreach ($indices as $index) {
+                    $rules["entries.{$index}.asset_id"] = 'required|exists:assets,id';
+                    $rules["entries.{$index}.amount"] = 'required|numeric';
+                }
+            } else {
+                $rules['entries'] = 'required|array|min:1';
+                $rules['entries.*.asset_id'] = 'required|exists:assets,id';
+                $rules['entries.*.amount'] = 'required|numeric';
+            }
+        } else {
+            $rules['entries'] = 'required|array|min:1';
+            $rules['entries.*.asset_id'] = 'required|exists:assets,id';
+            $rules['entries.*.amount'] = 'required|numeric';
+        }
+
+        return $request->validate($rules);
     }
 
     private function validateStandaloneEventData(Request $request): array
@@ -262,5 +279,22 @@ class EventDetailController extends Controller
         ]);
 
         return $validated;
+    }
+
+    private function buildEntryStructures(): array
+    {
+        $entryStructures = [];
+        foreach (EventType::cases() as $type) {
+            $structure = [];
+            for ($i = 0; $i < $type->entryCount(); $i++) {
+                $structure[] = [
+                    'sign' => $type->entrySign($i),
+                    'slot' => $type->entryAssetSlot($i),
+                ];
+            }
+            $entryStructures[$type->value] = $structure;
+        }
+
+        return $entryStructures;
     }
 }

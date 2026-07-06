@@ -1,18 +1,12 @@
 @php
     $type = $event->type?->value ?? 'event';
-    $typeIcons = ['income' => 'bi-arrow-down-left', 'expense' => 'bi-arrow-up-right', 'transfer' => 'bi-arrow-left-right', 'expense_with_transfer' => 'bi-cart-plus', 'income_with_transfer' => 'bi-cash-coin'];
-    $typeIcon = $typeIcons[$type] ?? 'bi-tag';
+    $typeIcon = $event->type?->icon() ?? 'bi-tag';
     $isVirtual = $event->id === 0 || $event->id === null;
     $isConsolidated = $event->consolidated ?? false;
     $isTransferConsolidated = $event->transfer_consolidated ?? false;
     $isFullyConsolidated = $event->isFullyConsolidated();
     $isPartiallyConsolidated = $event->isPartiallyConsolidated();
-
-    if ($isVirtual) {
-        $detailUrl = url('/entries/virtual/' . $event->header_id . '/' . $event->date->format('Y') . '/' . $event->date->format('m'));
-    } else {
-        $detailUrl = url('/entries/' . $event->id);
-    }
+    $detailUrl = $event->detailUrl();
 @endphp
 
 <a href="{{ $detailUrl }}" class="event-card-link">
@@ -60,8 +54,8 @@
         <div class="event-entries">
             @if($event->isTransfer())
                 @php
-                    $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0);
-                    $destEntry = $event->entries->first(fn($e) => $e->amount > 0);
+                    $sourceEntry = $event->getSourceEntry();
+                    $destEntry = $event->getDestEntry();
                 @endphp
                 <div class="entry-item transfer-item">
                     <span class="entry-asset">
@@ -74,10 +68,10 @@
                 </div>
             @elseif($event->isExpenseWithTransfer())
                 @php
-                    $sourceEntry = $event->entries->first(fn($e) => $e->amount < 0 && $e->asset_id === $event->header?->asset_id);
-                    $destTransferEntry = $event->entries->first(fn($e) => $e->amount > 0);
-                    $expenseEntry = $event->entries->last();
-                    $amount = abs($destTransferEntry->amount ?? 0);
+                    $sourceEntry = $event->getSourceEntry();
+                    $destTransferEntry = $event->getDestEntry();
+                    $expenseEntry = $event->getExpenseEntry();
+                    $amount = $event->getTransferAmount();
                 @endphp
                 <div class="entry-item transfer-item">
                     <span class="entry-asset">
@@ -99,9 +93,9 @@
                 </div>
             @elseif($event->isIncomeWithTransfer())
                 @php
-                    $incomeEntry = $event->entries->first(fn($e) => $e->amount > 0 && $e->asset_id === $event->header?->asset_id);
-                    $destTransferEntry = $event->entries->last(fn($e) => $e->amount > 0);
-                    $amount = abs($incomeEntry->amount ?? 0);
+                    $incomeEntry = $event->getIncomeEntry();
+                    $destTransferEntry = $event->getLastPositiveEntry();
+                    $amount = abs($incomeEntry?->amount ?? 0);
                 @endphp
                 <div class="entry-item">
                     <span class="entry-asset">

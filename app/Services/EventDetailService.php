@@ -6,29 +6,33 @@ use App\Enums\EventType;
 use App\Models\Asset;
 use App\Models\Entry;
 use App\Models\Event;
-use App\Models\Header;
 use App\Repositories\AssetRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\HeaderRepository;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class EventDetailService
 {
     private EventRepository $eventRepository;
+
     private HeaderRepository $headerRepository;
+
     private AssetRepository $assetRepository;
+
     private MonthClosureService $monthClosureService;
+
     private ConsolidationService $consolidationService;
 
     public function __construct()
     {
-        $this->eventRepository = new EventRepository();
-        $this->headerRepository = new HeaderRepository();
-        $this->assetRepository = new AssetRepository();
-        $this->monthClosureService = new MonthClosureService();
-        $this->consolidationService = new ConsolidationService();
+        $this->eventRepository = new EventRepository;
+        $this->headerRepository = new HeaderRepository;
+        $this->assetRepository = new AssetRepository;
+        $this->monthClosureService = new MonthClosureService;
+        $this->consolidationService = new ConsolidationService;
     }
 
     public function getEvent(int $id): ?Event
@@ -38,10 +42,10 @@ class EventDetailService
 
     public function getVirtualEvent(int $headerId, int $year, int $month): ?object
     {
-        $eventGenerationService = new EventGenerationService();
+        $eventGenerationService = new EventGenerationService;
         $virtualEvents = $eventGenerationService->generateVirtualEvents($year, $month);
 
-        return $virtualEvents->first(fn($e) => $e->header_id === $headerId);
+        return $virtualEvents->first(fn ($e) => $e->header_id === $headerId);
     }
 
     public function persistVirtualEvent(int $headerId, int $year, int $month, array $entriesData): Event
@@ -153,9 +157,9 @@ class EventDetailService
     {
         $positions = $data['positions'] ?? [];
 
-        if ($event->consolidated && !$event->transfer_consolidated) {
+        if ($event->consolidated && ! $event->transfer_consolidated) {
             $indicesToUpdate = $event->getTransferEntryIndices();
-        } elseif (!$event->consolidated && $event->transfer_consolidated) {
+        } elseif (! $event->consolidated && $event->transfer_consolidated) {
             $indicesToUpdate = $event->getIncomeExpenseEntryIndices();
         } else {
             $event->entries()->delete();
@@ -167,12 +171,13 @@ class EventDetailService
                     'amount' => $amount,
                 ]);
             }
+
             return;
         }
 
         foreach ($indicesToUpdate as $canonicalIndex) {
             $formIndex = array_search($canonicalIndex, $positions);
-            if ($formIndex === false || !isset($data['entries'][$formIndex])) {
+            if ($formIndex === false || ! isset($data['entries'][$formIndex])) {
                 continue;
             }
 
@@ -225,46 +230,13 @@ class EventDetailService
         }
     }
 
-    public function getAssets(): \Illuminate\Database\Eloquent\Collection
+    public function getAssets(): Collection
     {
         return Asset::orderBy('name')->get();
     }
 
     private function adjustAmountSign(EventType $type, float $amount, int $entryIndex): float
     {
-        $absoluteAmount = abs($amount);
-
-        if ($type === EventType::Expense) {
-            return -$absoluteAmount;
-        }
-
-        if ($type === EventType::Transfer) {
-            if ($entryIndex === 0) {
-                return -$absoluteAmount;
-            }
-            return $absoluteAmount;
-        }
-
-        if ($type === EventType::ExpenseWithTransfer) {
-            if ($entryIndex === 0) {
-                return -$absoluteAmount;
-            }
-            if ($entryIndex === 1) {
-                return $absoluteAmount;
-            }
-            return -$absoluteAmount;
-        }
-
-        if ($type === EventType::IncomeWithTransfer) {
-            if ($entryIndex === 0) {
-                return $absoluteAmount;
-            }
-            if ($entryIndex === 1) {
-                return -$absoluteAmount;
-            }
-            return $absoluteAmount;
-        }
-
-        return $absoluteAmount;
+        return $type->entrySign($entryIndex) * abs($amount);
     }
 }
