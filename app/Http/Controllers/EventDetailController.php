@@ -132,17 +132,34 @@ class EventDetailController extends Controller
             }
 
             if (in_array($action, ['consolidate', 'consolidate_expense_income', 'consolidate_transfer'])) {
-                $event = match ($action) {
-                    'consolidate' => $this->consolidationService->consolidateEvent($id),
-                    'consolidate_expense_income' => $this->consolidationService->consolidateExpenseIncome($id),
-                    'consolidate_transfer' => $this->consolidationService->consolidateTransfer($id),
-                };
-                return redirect('/entries/' . $event->id)
-                    ->with('success', __('messages.success.consolidated'));
+                $existingEvent = $this->eventDetailService->getEvent($id);
+                $formEntries = $request->input('entries', []);
+
+                foreach ($existingEvent->entries as $index => $entry) {
+                    if (!isset($formEntries[$index]['asset_id'])) {
+                        $formEntries[$index]['asset_id'] = $entry->asset_id;
+                    }
+                    if (!isset($formEntries[$index]['amount'])) {
+                        $formEntries[$index]['amount'] = abs($entry->amount);
+                    }
+                }
+
+                ksort($formEntries);
+                $request->merge(['entries' => $formEntries]);
             }
 
             $validated = $this->validateEventData($request);
             $event = $this->eventDetailService->updateEvent($id, $validated);
+
+            if (in_array($action, ['consolidate', 'consolidate_expense_income', 'consolidate_transfer'])) {
+                $event = match ($action) {
+                    'consolidate' => $this->consolidationService->consolidateEvent($event->id),
+                    'consolidate_expense_income' => $this->consolidationService->consolidateExpenseIncome($event->id),
+                    'consolidate_transfer' => $this->consolidationService->consolidateTransfer($event->id),
+                };
+                return redirect('/entries/' . $event->id)
+                    ->with('success', __('messages.success.consolidated'));
+            }
 
             if ($action === 'save') {
                 return redirect('/entries/' . $event->id)
