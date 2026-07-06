@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EventType;
+use App\Models\Asset;
 use App\Services\ConsolidationService;
 use App\Services\EventService;
 use App\Services\MonthClosureService;
@@ -30,7 +31,9 @@ class EventController extends Controller
     {
         $currentMonth = $request->get('month', now()->format('Y-m'));
         $monthDate = Carbon::parse($currentMonth);
-        $filter = $request->get('filter', 'all');
+        $typeFilter = $request->get('type', '');
+        $consolidatedFilter = $request->get('consolidated', '');
+        $assetFilter = $request->get('asset', '');
 
         $events = $this->eventService->listByMonth(
             $monthDate->year,
@@ -77,10 +80,37 @@ class EventController extends Controller
 
         $isMonthClosed = $this->monthClosureService->isMonthClosed($monthDate->year, $monthDate->month);
 
-        if ($filter !== 'all') {
-            $filterTypes = EventType::filterTypes($filter);
-            $events = $events->filter(fn ($e) => in_array($e->type?->value, $filterTypes))->values();
+        if (!empty($typeFilter)) {
+            $filterTypes = EventType::filterTypes($typeFilter);
+            $events = $events->filter(fn ($e) => in_array($e->type?->value, $filterTypes));
         }
+
+        if (!empty($consolidatedFilter)) {
+            $filterConfig = EventType::consolidatedFilter($consolidatedFilter);
+            if (!empty($filterConfig)) {
+                $events = $events->filter(function ($e) use ($filterConfig) {
+                    $type = $e->type?->value;
+                    if (!in_array($type, $filterConfig['types'])) {
+                        return false;
+                    }
+                    if ($filterConfig['consolidated'] !== null && $e->consolidated !== $filterConfig['consolidated']) {
+                        return false;
+                    }
+                    if ($filterConfig['transfer_consolidated'] !== null && $e->transfer_consolidated !== $filterConfig['transfer_consolidated']) {
+                        return false;
+                    }
+                    return true;
+                });
+            }
+        }
+
+        if (!empty($assetFilter)) {
+            $events = $events->filter(function ($e) use ($assetFilter) {
+                return $e->entries->contains('asset_id', (int) $assetFilter);
+            });
+        }
+
+        $events = $events->values();
 
         $headerOptions = $this->buildHeaderOptions($monthDate);
 
@@ -90,6 +120,8 @@ class EventController extends Controller
             'label' => __('entries.create'),
             'icon' => 'bi bi-plus-circle',
         ]);
+
+        $assets = Asset::orderBy('name')->get();
 
         return view('entries.index', [
             'events' => $events,
@@ -102,7 +134,10 @@ class EventController extends Controller
             'consolidatedIncome' => $consolidatedIncome,
             'consolidatedExpense' => $consolidatedExpense,
             'consolidatedBalance' => $consolidatedBalance,
-            'currentFilter' => $filter,
+            'typeFilter' => $typeFilter,
+            'consolidatedFilter' => $consolidatedFilter,
+            'assetFilter' => $assetFilter,
+            'assets' => $assets,
             'isMonthClosed' => $isMonthClosed,
         ]);
     }

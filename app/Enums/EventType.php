@@ -22,6 +22,18 @@ enum EventType: string
         };
     }
 
+    public static function consolidatedFilter(string $filter): array
+    {
+        return match ($filter) {
+            'received' => ['types' => [self::Income->value, self::IncomeWithTransfer->value], 'consolidated' => true, 'transfer_consolidated' => null],
+            'paid' => ['types' => [self::Expense->value, self::ExpenseWithTransfer->value], 'consolidated' => true, 'transfer_consolidated' => null],
+            'transferred' => ['types' => [self::Transfer->value, self::IncomeWithTransfer->value, self::ExpenseWithTransfer->value], 'consolidated' => null, 'transfer_consolidated' => true],
+            'received_and_transferred' => ['types' => [self::IncomeWithTransfer->value], 'consolidated' => true, 'transfer_consolidated' => true],
+            'paid_and_transferred' => ['types' => [self::ExpenseWithTransfer->value], 'consolidated' => true, 'transfer_consolidated' => true],
+            default => [],
+        };
+    }
+
     public function icon(): string
     {
         return match ($this) {

@@ -70,6 +70,17 @@ return [
         'income_with_transfer' => 'income + transfer',
     ],
 
+    'filters' => [
+        'event_type' => 'Event Type',
+        'consolidated' => 'Consolidated',
+        'asset' => 'Asset',
+        'received' => 'Received',
+        'paid' => 'Paid',
+        'transferred' => 'Transferred',
+        'received_and_transferred' => 'Received & Transferred',
+        'paid_and_transferred' => 'Paid & Transferred',
+    ],
+
     'delete_confirmation' => [
         'title' => 'Delete Entry',
         'message' => 'Are you sure you want to delete <strong>:name</strong>? This action cannot be undone.',

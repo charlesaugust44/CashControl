@@ -26,7 +26,8 @@ class DashboardController extends Controller
     {
         $currentMonth = $request->get('month', now()->format('Y-m'));
         $monthDate = \Carbon\Carbon::parse($currentMonth);
-        $pendingFilter = $request->get('pending_filter', 'all');
+        $pendingTypeFilter = $request->get('pending_type', '');
+        $pendingAssetFilter = $request->get('pending_asset', '');
 
         $isMonthClosed = $this->monthClosureService->isMonthClosed($monthDate->year, $monthDate->month);
 
@@ -42,10 +43,18 @@ class DashboardController extends Controller
         $monthlyBreakdown = $this->balanceService->getMonthlyBreakdown(6, $monthDate);
         $pendingConsolidations = $this->balanceService->getPendingConsolidations($monthDate->year, $monthDate->month);
 
-        if ($pendingFilter !== 'all') {
-            $filterTypes = \App\Enums\EventType::filterTypes($pendingFilter);
-            $pendingConsolidations = $pendingConsolidations->filter(fn($e) => in_array($e->type?->value, $filterTypes))->values();
+        if (!empty($pendingTypeFilter)) {
+            $filterTypes = \App\Enums\EventType::filterTypes($pendingTypeFilter);
+            $pendingConsolidations = $pendingConsolidations->filter(fn($e) => in_array($e->type?->value, $filterTypes));
         }
+
+        if (!empty($pendingAssetFilter)) {
+            $pendingConsolidations = $pendingConsolidations->filter(function ($e) use ($pendingAssetFilter) {
+                return $e->entries->contains('asset_id', (int) $pendingAssetFilter);
+            });
+        }
+
+        $pendingConsolidations = $pendingConsolidations->values();
 
         $prevMonthTotals = $this->balanceService->getMonthlyTotals(
             $monthDate->copy()->subMonth()->year,
@@ -71,6 +80,8 @@ class DashboardController extends Controller
             $expenseTrendDir = $diff >= 0 ? 'up' : 'down';
         }
 
+        $assets = \App\Models\Asset::orderBy('name')->get();
+
         return view('dashboard', [
             'pageTitle' => __('ui.dashboard'),
             'currentMonth' => $currentMonth,
@@ -85,7 +96,9 @@ class DashboardController extends Controller
             'balanceHistory' => $balanceHistory,
             'monthlyBreakdown' => $monthlyBreakdown,
             'pendingConsolidations' => $pendingConsolidations,
-            'pendingFilter' => $pendingFilter,
+            'pendingTypeFilter' => $pendingTypeFilter,
+            'pendingAssetFilter' => $pendingAssetFilter,
+            'assets' => $assets,
             'incomeTrend' => $incomeTrend,
             'incomeTrendDir' => $incomeTrendDir,
             'expenseTrend' => $expenseTrend,

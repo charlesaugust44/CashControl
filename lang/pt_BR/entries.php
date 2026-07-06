@@ -70,6 +70,17 @@ return [
         'income_with_transfer' => 'receita + transferência',
     ],
 
+    'filters' => [
+        'event_type' => 'Tipo',
+        'consolidated' => 'Consolidado',
+        'asset' => 'Ativo',
+        'received' => 'Recebido',
+        'paid' => 'Pago',
+        'transferred' => 'Transferido',
+        'received_and_transferred' => 'Recebido e Transferido',
+        'paid_and_transferred' => 'Pago e Transferido',
+    ],
+
     'delete_confirmation' => [
         'title' => 'Excluir Lançamento',
         'message' => 'Tem certeza que deseja excluir <strong>:name</strong>? Esta ação não pode ser desfeita.',

@@ -96,16 +96,18 @@
         <x-dashboard-card size="full" title="{{ __('dashboard.pending_consolidations') }}" icon="bi-clock-history" :scrollable="true">
             @slot('actions')
                 @include('components.filter-tabs', [
-                    'filters' => [
-                        'all'                   => ['label' => __('ui.all'),                          'icon' => 'bi-grid-3x3-gap'],
+                    'typeFilter' => $pendingTypeFilter,
+                    'assetFilter' => $pendingAssetFilter,
+                    'typeOptions' => [
                         'income'                => ['label' => __('templates.types.income'),           'icon' => 'bi-arrow-down-left'],
                         'expense'               => ['label' => __('templates.types.expense'),          'icon' => 'bi-arrow-up-right'],
                         'transfer'              => ['label' => __('templates.types.transfer'),         'icon' => 'bi-arrow-left-right'],
                         'expense_with_transfer' => ['label' => __('templates.types.expense_with_transfer'), 'icon' => 'bi-cart-plus'],
                         'income_with_transfer'  => ['label' => __('templates.types.income_with_transfer'),  'icon' => 'bi-cash-coin'],
                     ],
-                    'currentFilter' => $pendingFilter,
-                    'queryParam' => 'pending_filter',
+                    'assetOptions' => $assets->mapWithKeys(fn ($a) => [$a->id => ['label' => $a->name]])->toArray(),
+                    'showConsolidated' => false,
+                    'queryParams' => ['type' => 'pending_type', 'consolidated' => 'pending_consolidated', 'asset' => 'pending_asset'],
                 ])
             @endslot
             @if($pendingConsolidations->count() > 0)

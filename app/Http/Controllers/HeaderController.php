@@ -21,17 +21,30 @@ class HeaderController extends Controller
 
     public function index(Request $request): View
     {
-        $filter = $request->get('filter', 'all');
+        $typeFilter = $request->get('type', '');
+        $assetFilter = $request->get('asset', '');
         $headers = $this->headerService->list();
 
-        if ($filter !== 'all') {
-            $filterTypes = \App\Enums\EventType::filterTypes($filter);
-            $headers = $headers->filter(fn ($h) => in_array($h->type?->value, $filterTypes))->values();
+        if (!empty($typeFilter)) {
+            $filterTypes = \App\Enums\EventType::filterTypes($typeFilter);
+            $headers = $headers->filter(fn ($h) => in_array($h->type?->value, $filterTypes));
         }
+
+        if (!empty($assetFilter)) {
+            $headers = $headers->filter(function ($h) use ($assetFilter) {
+                return $h->asset_id === (int) $assetFilter || $h->destination_asset_id === (int) $assetFilter;
+            });
+        }
+
+        $headers = $headers->values();
+
+        $assets = Asset::orderBy('name')->get();
 
         return view('templates.index', [
             'headers' => $headers,
-            'currentFilter' => $filter,
+            'typeFilter' => $typeFilter,
+            'assetFilter' => $assetFilter,
+            'assets' => $assets,
             'pageTitle' => __('templates.title'),
             'headerOptions' => [
                 [
