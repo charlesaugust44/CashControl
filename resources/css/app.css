@@ -17,6 +17,7 @@
 @import './components/buttons.css';
 @import './components/form-actions.css';
 @import './components/type-selector.css';
+@import './components/delete-modal.css';
 @import './pages/dashboard.css';
 
 :root {

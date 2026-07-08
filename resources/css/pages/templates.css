@@ -458,48 +458,6 @@
     color: var(--color-text-primary);
 }
 
-/* Template Delete */
-.template-delete-wrapper {
-    display: flex;
-    justify-content: center;
-    padding: var(--space-6);
-    padding-bottom: calc(var(--space-12) + 80px);
-}
-
-.template-delete-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-8);
-    width: 100%;
-    max-width: 600px;
-}
-
-.template-delete-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-4);
-}
-
-.template-delete-icon {
-    font-size: 2rem;
-    color: var(--color-danger);
-}
-
-.template-delete-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.template-delete-message {
-    font-size: 0.9375rem;
-    color: var(--color-text-secondary);
-    margin: 0 0 var(--space-6) 0;
-    line-height: 1.6;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .templates-list {

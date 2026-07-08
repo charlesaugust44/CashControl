@@ -4,6 +4,10 @@
     @vite(['resources/css/pages/event-detail.css'])
 @endpush
 
+@push('scripts')
+    @vite(['resources/js/delete-modal.js'])
+@endpush
+
 @section('content')
     @php
         $type = $event->type?->value ?? 'event';
@@ -328,9 +332,9 @@
                 <div class="form-actions">
                     @if(!$isVirtual && !$isFullyConsolidated)
                         <div class="form-actions__danger">
-                            <a href="{{ url('/entries/' . $event->id . '/delete') }}" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}">
+                            <button type="button" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}" data-delete-modal-trigger>
                                 <i class="bi bi-trash"></i>
-                            </a>
+                            </button>
                         </div>
                     @endif
 
@@ -390,6 +394,14 @@
             </form>
         </div>
     </div>
+
+    @if(!$isVirtual && !$isFullyConsolidated)
+        <x-delete-modal
+            :action="url('/entries/' . $event->id)"
+            :title="__('entries.delete_confirmation.title')"
+            :message="__('entries.delete_confirmation.message', ['name' => e($event->name)])"
+        />
+    @endif
 
     @if(!$isFullyConsolidated)
         <template id="entryTemplate">

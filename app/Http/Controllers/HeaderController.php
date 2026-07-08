@@ -108,9 +108,11 @@ class HeaderController extends Controller
     public function show(int $id): View
     {
         $header = $this->headerService->get($id);
+        $futureEvents = $this->headerService->futurePersistedEvents($id);
 
         return view('templates.show', [
             'header' => $header,
+            'futureEvents' => $futureEvents,
             'pageTitle' => $header->name,
             'breadcrumbs' => [
                 ['label' => __('templates.title'), 'url' => '/templates'],
@@ -183,23 +185,6 @@ class HeaderController extends Controller
         }
 
         return redirect("/templates/{$id}")->with('success', __('messages.success.updated', ['item' => __('templates.singular')]));
-    }
-
-    public function delete(int $id): View
-    {
-        $header = $this->headerService->get($id);
-        $futureEvents = $this->headerService->futurePersistedEvents($id);
-
-        return view('templates.delete', [
-            'header' => $header,
-            'futureEvents' => $futureEvents,
-            'pageTitle' => __('templates.delete')." {$header->name}",
-            'breadcrumbs' => [
-                ['label' => __('templates.title'), 'url' => '/templates'],
-                ['label' => $header->name, 'url' => "/templates/{$id}"],
-                ['label' => __('ui.delete'), 'url' => null],
-            ],
-        ]);
     }
 
     public function destroy(Request $request, int $id): RedirectResponse

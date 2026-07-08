@@ -85,22 +85,6 @@ class EventDetailController extends Controller
         ]);
     }
 
-    public function delete(int $id): View
-    {
-        $event = $this->eventDetailService->getEvent($id);
-        $eventDate = Carbon::parse($event->date);
-
-        return view('entries.delete', [
-            'event' => $event,
-            'pageTitle' => __('entries.delete_confirmation.title'),
-            'breadcrumbs' => [
-                ['label' => __('entries.title'), 'url' => '/entries?month='.$eventDate->format('Y-m')],
-                ['label' => $event->name ?? __('entries.title'), 'url' => '/entries/'.$id],
-                ['label' => __('ui.delete'), 'url' => null],
-            ],
-        ]);
-    }
-
     public function showVirtual(int $headerId, int $year, int $month): View
     {
         $event = $this->eventDetailService->getVirtualEvent($headerId, $year, $month);
