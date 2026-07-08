@@ -22,7 +22,6 @@ Route::put('/assets/{id}', [AssetController::class, 'update']);
 Route::get('/templates', [HeaderController::class, 'index']);
 Route::get('/templates/create', [HeaderController::class, 'create']);
 Route::post('/templates', [HeaderController::class, 'store']);
-Route::get('/templates/{id}', [HeaderController::class, 'show']);
 Route::get('/templates/{id}/edit', [HeaderController::class, 'edit']);
 Route::put('/templates/{id}', [HeaderController::class, 'update']);
 Route::delete('/templates/{id}', [HeaderController::class, 'destroy']);

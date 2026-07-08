@@ -105,22 +105,6 @@ class HeaderController extends Controller
         return redirect('/templates')->with('success', __('messages.success.created', ['item' => __('templates.singular')]));
     }
 
-    public function show(int $id): View
-    {
-        $header = $this->headerService->get($id);
-        $futureEvents = $this->headerService->futurePersistedEvents($id);
-
-        return view('templates.show', [
-            'header' => $header,
-            'futureEvents' => $futureEvents,
-            'pageTitle' => $header->name,
-            'breadcrumbs' => [
-                ['label' => __('templates.title'), 'url' => '/templates'],
-                ['label' => $header->name, 'url' => null],
-            ],
-        ]);
-    }
-
     public function edit(int $id): View
     {
         $header = $this->headerService->get($id);
@@ -134,8 +118,7 @@ class HeaderController extends Controller
             'pageTitle' => __('templates.edit')." {$header->name}",
             'breadcrumbs' => [
                 ['label' => __('templates.title'), 'url' => '/templates'],
-                ['label' => $header->name, 'url' => "/templates/{$id}"],
-                ['label' => __('ui.edit'), 'url' => null],
+                ['label' => $header->name, 'url' => null],
             ],
         ]);
     }
@@ -184,7 +167,7 @@ class HeaderController extends Controller
             }
         }
 
-        return redirect("/templates/{$id}")->with('success', __('messages.success.updated', ['item' => __('templates.singular')]));
+        return redirect('/templates')->with('success', __('messages.success.updated', ['item' => __('templates.singular')]));
     }
 
     public function destroy(Request $request, int $id): RedirectResponse

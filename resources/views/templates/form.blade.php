@@ -4,6 +4,12 @@
     @vite(['resources/css/pages/templates.css'])
 @endpush
 
+@if(isset($header))
+    @push('scripts')
+        @vite(['resources/js/delete-modal.js'])
+    @endpush
+@endif
+
 @section('content')
     <div class="template-form-wrapper">
         <div class="template-form-card">
@@ -165,6 +171,13 @@
                 @endif
 
                 <div class="form-actions">
+                    <div class="form-actions__danger">
+                        @if(isset($header))
+                            <button type="button" class="btn btn-danger btn-icon" title="{{ __('ui.delete') }}" data-delete-modal-trigger>
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        @endif
+                    </div>
                     <div class="form-actions__group">
                         <div class="btn-split">
                             <button type="submit" name="action" value="save" class="btn btn-primary">
@@ -184,6 +197,49 @@
             </form>
         </div>
     </div>
+
+    @if(isset($header))
+        <x-delete-modal
+            :action="url('/templates/' . $header->id)"
+            :title="__('templates.delete_confirmation.title')"
+            :message="__('templates.delete_confirmation.message', ['name' => e($header->name)])"
+        >
+            @if(isset($futureEvents) && $futureEvents->isNotEmpty())
+                <div class="conflict-section">
+                    <h3 class="conflict-section__title">{{ __('templates.affected_events.title') }}</h3>
+                    <p class="conflict-section__description">{{ __('templates.affected_events.delete_description') }}</p>
+
+                    <div class="conflict-events-list">
+                        @foreach($futureEvents as $event)
+                            <div class="conflict-event">
+                                <div class="conflict-event__info">
+                                    <span class="conflict-event__date">{{ $event->date->translatedFormat('M Y') }}</span>
+                                    @if($event->consolidated)
+                                        <span class="badge bg-success">{{ __('entries.status.consolidated') }}</span>
+                                    @endif
+                                    @foreach($event->entries as $entry)
+                                        <span class="conflict-event__entry">
+                                            <i class="bi bi-wallet2"></i>
+                                            {{ $entry->asset->name ?? __('ui.none') }}:
+                                            <span class="amount-{{ $entry->amount >= 0 ? 'positive' : 'negative' }}">
+                                                {{ $fmt->currency(abs($entry->amount)) }}
+                                            </span>
+                                        </span>
+                                    @endforeach
+                                </div>
+                                <div class="conflict-event__actions">
+                                    <label class="conflict-toggle">
+                                        <input type="checkbox" name="delete_events[]" value="{{ $event->id }}" checked>
+                                        <span class="conflict-toggle__label">{{ __('templates.affected_events.delete') }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </x-delete-modal>
+    @endif
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

@@ -33,7 +33,7 @@
         @else
             <div class="templates-list">
                 @foreach($headers as $header)
-                    <a href="{{ url('/templates/' . $header->id) }}" class="template-card">
+                    <a href="{{ url('/templates/' . $header->id . '/edit') }}" class="template-card">
                         <div class="template-card__header">
                             <div class="template-card__title-row">
                                 @php
