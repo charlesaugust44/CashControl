@@ -437,13 +437,17 @@
             const type = typeInput.value;
 
             if (type === 'expense_with_transfer') {
+                normalEntries.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                transferEntries.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                incomeWithTransferEntries.querySelectorAll('input, select').forEach(el => el.disabled = true);
+
                 const sourceAsset = document.getElementById('ewtSourceAsset').value;
                 const destAsset = document.getElementById('ewtDestAsset').value;
                 const structure = entryStructures[type];
 
                 structure.forEach((entry, i) => {
                     const assetId = entry.slot === 'source' ? sourceAsset : destAsset;
-                    let existingInput = this.querySelector(`input[name="entries[${i}][asset_id]"]`);
+                    let existingInput = this.querySelector(`input[name="entries[${i}][asset_id]"]:not(:disabled)`);
                     if (!existingInput) {
                         existingInput = document.createElement('input');
                         existingInput.type = 'hidden';
@@ -452,7 +456,7 @@
                     }
                     existingInput.value = assetId;
 
-                    let amountInput = this.querySelector(`input[name="entries[${i}][amount]"]`);
+                    let amountInput = this.querySelector(`input[name="entries[${i}][amount]"]:not(:disabled)`);
                     if (!amountInput) {
                         amountInput = document.createElement('input');
                         amountInput.type = 'hidden';
@@ -465,13 +469,17 @@
 
                 this.querySelectorAll('input[name^="ewt_entries"]').forEach(el => el.disabled = true);
             } else if (type === 'income_with_transfer') {
+                normalEntries.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                transferEntries.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                expenseWithTransferEntries.querySelectorAll('input, select').forEach(el => el.disabled = true);
+
                 const sourceAsset = document.getElementById('iwtSourceAsset').value;
                 const destAsset = document.getElementById('iwtDestAsset').value;
                 const structure = entryStructures[type];
 
                 structure.forEach((entry, i) => {
                     const assetId = entry.slot === 'source' ? sourceAsset : destAsset;
-                    let existingInput = this.querySelector(`input[name="entries[${i}][asset_id]"]`);
+                    let existingInput = this.querySelector(`input[name="entries[${i}][asset_id]"]:not(:disabled)`);
                     if (!existingInput) {
                         existingInput = document.createElement('input');
                         existingInput.type = 'hidden';
@@ -480,7 +488,7 @@
                     }
                     existingInput.value = assetId;
 
-                    let amountInput = this.querySelector(`input[name="entries[${i}][amount]"]`);
+                    let amountInput = this.querySelector(`input[name="entries[${i}][amount]"]:not(:disabled)`);
                     if (!amountInput) {
                         amountInput = document.createElement('input');
                         amountInput.type = 'hidden';
