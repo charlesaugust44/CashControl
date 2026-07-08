@@ -143,7 +143,7 @@
                                     </span>
                                 </div>
                             </a>
-                            <span class="pending-item__amount amount-{{ $isTransfer ? 'transfer' : $fmt->signal($total) }}">
+                            <span class="pending-item__amount amount-{{ $event->type->amountSignal() }}">
                                 {{ $fmt->currency($total) }}
                             </span>
                         </li>

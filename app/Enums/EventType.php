@@ -60,6 +60,15 @@ enum EventType: string
         return $this === self::Transfer || $this->isComposite();
     }
 
+    public function amountSignal(): string
+    {
+        return match ($this) {
+            self::Income, self::IncomeWithTransfer => 'positive',
+            self::Expense, self::ExpenseWithTransfer => 'negative',
+            self::Transfer => 'transfer',
+        };
+    }
+
     public function entryCount(): int
     {
         return match ($this) {
