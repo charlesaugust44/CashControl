@@ -36,18 +36,8 @@
 
                     <div class="form-row">
                         <div class="form-col">
-                            <label for="type" class="form-label">{{ __('templates.fields.type') }}</label>
-                            <select class="form-control @error('type') is-invalid @enderror" id="type" name="type" required>
-                                <option value="">{{ __('ui.select') }} {{ __('templates.fields.type') }}</option>
-                                <option value="income" {{ old('type', $header->type->value ?? '') === 'income' ? 'selected' : '' }}>{{ __('templates.types.income') }}</option>
-                                <option value="expense" {{ old('type', $header->type->value ?? '') === 'expense' ? 'selected' : '' }}>{{ __('templates.types.expense') }}</option>
-                                <option value="transfer" {{ old('type', $header->type->value ?? '') === 'transfer' ? 'selected' : '' }}>{{ __('templates.types.transfer') }}</option>
-                                <option value="expense_with_transfer" {{ old('type', $header->type->value ?? '') === 'expense_with_transfer' ? 'selected' : '' }}>{{ __('templates.types.expense_with_transfer') }}</option>
-                                <option value="income_with_transfer" {{ old('type', $header->type->value ?? '') === 'income_with_transfer' ? 'selected' : '' }}>{{ __('templates.types.income_with_transfer') }}</option>
-                            </select>
-                            @error('type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <label class="form-label">{{ __('templates.fields.type') }}</label>
+                            <x-type-selector name="type" value="{{ old('type', $header->type->value ?? '') }}" :error="$errors->first('type')" />
                         </div>
                         <div class="form-col">
                             <label for="rule" class="form-label">{{ __('templates.fields.rule') }}</label>
@@ -197,7 +187,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const typeSelect = document.getElementById('type');
+            const typeInput = document.querySelector('[data-type-selector] [data-type-input]');
             const destinationField = document.getElementById('destinationAssetField');
             const assetLabel = document.getElementById('assetLabel');
             const ruleSelect = document.getElementById('rule');
@@ -209,9 +199,9 @@
             };
 
             function updateTypeFields() {
-                const isTransfer = typeSelect.value === 'transfer';
-                const isExpenseWithTransfer = typeSelect.value === 'expense_with_transfer';
-                const isIncomeWithTransfer = typeSelect.value === 'income_with_transfer';
+                const isTransfer = typeInput.value === 'transfer';
+                const isExpenseWithTransfer = typeInput.value === 'expense_with_transfer';
+                const isIncomeWithTransfer = typeInput.value === 'income_with_transfer';
                 const showDestination = isTransfer || isExpenseWithTransfer || isIncomeWithTransfer;
                 destinationField.style.display = showDestination ? 'block' : 'none';
                 assetLabel.textContent = showDestination ? translations.sourceAsset : translations.asset;
@@ -230,7 +220,7 @@
                 }
             }
 
-            typeSelect.addEventListener('change', updateTypeFields);
+            typeInput.addEventListener('change', updateTypeFields);
             ruleSelect.addEventListener('change', updateRuleFields);
 
             updateTypeFields();

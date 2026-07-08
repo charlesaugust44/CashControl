@@ -1,0 +1,84 @@
+.type-selector {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.type-selector__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    user-select: none;
+}
+
+.type-selector__pill:hover {
+    border-color: var(--color-text-muted);
+    background: var(--color-background);
+}
+
+.type-selector__pill i {
+    font-size: 1rem;
+}
+
+.type-selector__pill--income.is-active {
+    background: var(--color-success-bg);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.type-selector__pill--expense.is-active {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.type-selector__pill--transfer.is-active {
+    background: var(--color-info-bg);
+    border-color: var(--color-info);
+    color: var(--color-info);
+}
+
+.type-selector__error {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: 0.75rem;
+    color: var(--color-danger);
+}
+
+[data-theme="dark"] .type-selector__pill {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .type-selector__pill:hover {
+    background: var(--color-background);
+    border-color: var(--color-text-muted);
+}
+
+[data-theme="dark"] .type-selector__pill--income.is-active {
+    background: var(--color-success-bg);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+[data-theme="dark"] .type-selector__pill--expense.is-active {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+[data-theme="dark"] .type-selector__pill--transfer.is-active {
+    background: var(--color-info-bg);
+    border-color: var(--color-info);
+    color: var(--color-info);
+}

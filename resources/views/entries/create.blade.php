@@ -32,14 +32,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="type" class="form-label">{{ __('entries.fields.type') }}</label>
-                        <select name="type" id="type" class="form-control" required>
-                            <option value="income" {{ old('type') === 'income' ? 'selected' : '' }}>{{ __('templates.types.income') }}</option>
-                            <option value="expense" {{ old('type') === 'expense' ? 'selected' : '' }}>{{ __('templates.types.expense') }}</option>
-                            <option value="transfer" {{ old('type') === 'transfer' ? 'selected' : '' }}>{{ __('templates.types.transfer') }}</option>
-                            <option value="expense_with_transfer" {{ old('type') === 'expense_with_transfer' ? 'selected' : '' }}>{{ __('templates.types.expense_with_transfer') }}</option>
-                            <option value="income_with_transfer" {{ old('type') === 'income_with_transfer' ? 'selected' : '' }}>{{ __('templates.types.income_with_transfer') }}</option>
-                        </select>
+                        <label class="form-label">{{ __('entries.fields.type') }}</label>
+                        <x-type-selector name="type" value="{{ old('type') }}" />
                     </div>
 
                     <div class="form-group">
@@ -324,7 +318,7 @@
 @push('scripts')
     <script>
         let entryIndex = 1;
-        const typeSelect = document.getElementById('type');
+        const typeInput = document.querySelector('[data-type-selector] [data-type-input]');
         const normalEntries = document.getElementById('normalEntries');
         const transferEntries = document.getElementById('transferEntries');
         const expenseWithTransferEntries = document.getElementById('expenseWithTransferEntries');
@@ -336,9 +330,9 @@
         const entryStructures = @json($entryStructures);
 
         function toggleTypeUI() {
-            const isTransfer = typeSelect.value === 'transfer';
-            const isExpenseWithTransfer = typeSelect.value === 'expense_with_transfer';
-            const isIncomeWithTransfer = typeSelect.value === 'income_with_transfer';
+            const isTransfer = typeInput.value === 'transfer';
+            const isExpenseWithTransfer = typeInput.value === 'expense_with_transfer';
+            const isIncomeWithTransfer = typeInput.value === 'income_with_transfer';
             const isNormal = !isTransfer && !isExpenseWithTransfer && !isIncomeWithTransfer;
 
             normalEntries.style.display = isNormal ? '' : 'none';
@@ -427,12 +421,12 @@
             }
         }
 
-        typeSelect.addEventListener('change', toggleTypeUI);
+        typeInput.addEventListener('change', toggleTypeUI);
         dateMonthInput.addEventListener('change', updateDate);
 
         document.querySelectorAll('.money-input').forEach(input => {
             input.addEventListener('input', function() {
-                const type = typeSelect.value;
+                const type = typeInput.value;
                 if (type === 'transfer' || type === 'expense_with_transfer' || type === 'income_with_transfer') {
                     syncAmounts(type, this);
                 }
@@ -440,7 +434,7 @@
         });
 
         document.getElementById('eventForm').addEventListener('submit', function(e) {
-            const type = typeSelect.value;
+            const type = typeInput.value;
 
             if (type === 'expense_with_transfer') {
                 const sourceAsset = document.getElementById('ewtSourceAsset').value;
