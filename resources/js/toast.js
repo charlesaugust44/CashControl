@@ -54,13 +54,9 @@ class ToastManager {
                 ${title ? `<div class="cc-toast__title">${title}</div>` : ''}
                 ${message ? `<div class="cc-toast__message">${message}</div>` : ''}
             </div>
-            <button class="cc-toast__close" aria-label="Close">
-                <i class="bi bi-x"></i>
-            </button>
         `;
 
-        const closeBtn = toast.querySelector('.cc-toast__close');
-        closeBtn.addEventListener('click', () => this.dismiss(id));
+        toast.addEventListener('click', () => this.dismiss(id));
 
         return toast;
     }
