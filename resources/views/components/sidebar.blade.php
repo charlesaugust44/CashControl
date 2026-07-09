@@ -24,6 +24,20 @@
                 <i class="bi bi-journal-text nav-item__icon"></i>
                 <span class="nav-item__label">{{ __('ui.entries') }}</span>
             </a>
+            @auth
+                @if(auth()->user()->isAdmin())
+                    <div class="nav-divider"></div>
+                    <span class="nav-section-title">{{ __('ui.admin') }}</span>
+                    <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->is('admin/users*') ? 'active' : '' }}">
+                        <i class="bi bi-people nav-item__icon"></i>
+                        <span class="nav-item__label">{{ __('ui.users') }}</span>
+                    </a>
+                    <a href="{{ route('admin.unities.index') }}" class="nav-item {{ request()->is('admin/unities*') ? 'active' : '' }}">
+                        <i class="bi bi-building nav-item__icon"></i>
+                        <span class="nav-item__label">{{ __('ui.unities') }}</span>
+                    </a>
+                @endif
+            @endauth
         </nav>
     </aside>
     <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>

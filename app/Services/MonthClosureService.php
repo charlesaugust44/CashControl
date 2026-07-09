@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\Event;
 use App\Repositories\AssetRepository;
 use App\Repositories\EventRepository;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
@@ -15,17 +16,19 @@ class MonthClosureService
     private EventRepository $eventRepository;
     private AssetRepository $assetRepository;
     private ?ConsolidationService $consolidationService = null;
+    private UnityContext $unityContext;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->eventRepository = new EventRepository();
-        $this->assetRepository = new AssetRepository();
+        $this->unityContext = $unityContext;
+        $this->eventRepository = new EventRepository($unityContext);
+        $this->assetRepository = new AssetRepository($unityContext);
     }
 
     private function getConsolidationService(): ConsolidationService
     {
         if ($this->consolidationService === null) {
-            $this->consolidationService = new ConsolidationService();
+            $this->consolidationService = new ConsolidationService($this->unityContext);
         }
         return $this->consolidationService;
     }
@@ -36,7 +39,7 @@ class MonthClosureService
 
         $closeDate = Carbon::create($year, $month, 1);
 
-        $assets = Asset::all();
+        $assets = $this->getScopedAssets();
         foreach ($assets as $asset) {
             $asset->closed_up_to = $closeDate;
             $asset->save();
@@ -51,21 +54,23 @@ class MonthClosureService
             throw new Exception('No month is closed');
         }
 
-        // Calculate the previous month (what should remain closed)
         $previousMonth = $lastClosedMonth->copy()->subMonth();
 
-        // Update closed_up_to to the previous month
-        $assets = Asset::all();
+        $assets = $this->getScopedAssets();
         foreach ($assets as $asset) {
             $asset->closed_up_to = $previousMonth;
             $asset->save();
         }
 
-        // Then unconsolidate the events
-        $events = Event::whereYear('date', $lastClosedMonth->year)
+        $eventsQuery = Event::whereYear('date', $lastClosedMonth->year)
             ->whereMonth('date', $lastClosedMonth->month)
-            ->where('consolidated', true)
-            ->get();
+            ->where('consolidated', true);
+
+        if ($this->unityContext->has()) {
+            $eventsQuery->where('unity_id', $this->unityContext->id());
+        }
+
+        $events = $eventsQuery->get();
 
         foreach ($events as $event) {
             $this->getConsolidationService()->unconsolidateEvent($event->id);
@@ -91,7 +96,7 @@ class MonthClosureService
 
     public function getLastClosedMonth(): ?Carbon
     {
-        $assets = Asset::all();
+        $assets = $this->getScopedAssets();
 
         if ($assets->isEmpty()) {
             return null;
@@ -127,7 +132,7 @@ class MonthClosureService
             }
         }
 
-        $unconsolidatedEvents = Event::whereYear('date', $year)
+        $query = Event::whereYear('date', $year)
             ->whereMonth('date', $month)
             ->where(function ($query) {
                 $query->where(function ($q) {
@@ -140,8 +145,13 @@ class MonthClosureService
                               ->orWhere('transfer_consolidated', false);
                       });
                 });
-            })
-            ->count();
+            });
+
+        if ($this->unityContext->has()) {
+            $query->where('unity_id', $this->unityContext->id());
+        }
+
+        $unconsolidatedEvents = $query->count();
 
         return $unconsolidatedEvents === 0;
     }
@@ -153,12 +163,14 @@ class MonthClosureService
         }
     }
 
-    private function resetAllClosedUpTo(?Carbon $date): void
+    private function getScopedAssets(): Collection
     {
-        $assets = Asset::all();
-        foreach ($assets as $asset) {
-            $asset->closed_up_to = $date;
-            $asset->save();
+        $query = Asset::query();
+
+        if ($this->unityContext->has()) {
+            $query->where('unity_id', $this->unityContext->id());
         }
+
+        return $query->get();
     }
 }

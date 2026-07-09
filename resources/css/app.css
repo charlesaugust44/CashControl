@@ -19,6 +19,8 @@
 @import './components/type-selector.css';
 @import './components/delete-modal.css';
 @import './pages/dashboard.css';
+@import './pages/auth.css';
+@import './pages/admin.css';
 
 :root {
     --bs-primary: var(--color-primary);

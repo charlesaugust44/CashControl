@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\Asset;
+use App\Models\Header;
 use App\Repositories\EntryRepository;
 use App\Repositories\EventRepository;
+use App\Support\UnityContext;
 use Illuminate\Support\Collection;
 
 class BalanceService
@@ -12,12 +14,14 @@ class BalanceService
     private EntryRepository $entryRepository;
     private EventRepository $eventRepository;
     private EventService $eventService;
+    private UnityContext $unityContext;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->entryRepository = new EntryRepository();
-        $this->eventRepository = new EventRepository();
-        $this->eventService = new EventService();
+        $this->unityContext = $unityContext;
+        $this->entryRepository = new EntryRepository($unityContext);
+        $this->eventRepository = new EventRepository($unityContext);
+        $this->eventService = new EventService($unityContext);
     }
 
     public function getActualBalance(Asset $asset): float
@@ -98,7 +102,7 @@ class BalanceService
 
     public function getMonthSummary(int $year, int $month): Collection
     {
-        $assets = Asset::all();
+        $assets = $this->getScopedAssets();
 
         return $assets->map(function ($asset) use ($year, $month) {
             return [
@@ -111,7 +115,7 @@ class BalanceService
 
     public function getTotalBalance(): float
     {
-        return Asset::all()->sum(fn($asset) => $this->getActualBalance($asset));
+        return $this->getScopedAssets()->sum(fn($asset) => $this->getActualBalance($asset));
     }
 
     public function getMonthlyTotals(int $year, int $month): array
@@ -219,7 +223,7 @@ class BalanceService
             $data['labels'][] = $label;
 
             $total = 0;
-            foreach (Asset::all() as $asset) {
+            foreach ($this->getScopedAssets() as $asset) {
                 $history = $this->getBalanceHistory($asset);
                 $key = $date->format('Y-m');
                 $total += (float) ($history[$key] ?? 0);
@@ -232,7 +236,11 @@ class BalanceService
 
     public function getUnusualIncreases(float $threshold = 10.0): Collection
     {
-        $headers = \App\Models\Header::with('events.entries')->get();
+        $headersQuery = Header::with('events.entries');
+        if ($this->unityContext->has()) {
+            $headersQuery->where('unity_id', $this->unityContext->id());
+        }
+        $headers = $headersQuery->get();
         $alerts = collect();
 
         foreach ($headers as $header) {
@@ -276,18 +284,21 @@ class BalanceService
 
     public function getPendingConsolidations(int $year, int $month): Collection
     {
-        $eventGenerationService = new EventGenerationService();
+        $eventGenerationService = new EventGenerationService($this->unityContext);
         $virtualEvents = $eventGenerationService->generateVirtualEvents($year, $month);
 
-        $persistedEventKeys = \App\Models\Event::forMonth($year, $month)
-            ->get()
+        $persistedQuery = \App\Models\Event::forMonth($year, $month);
+        if ($this->unityContext->has()) {
+            $persistedQuery->where('unity_id', $this->unityContext->id());
+        }
+        $persistedEventKeys = $persistedQuery->get()
             ->keyBy(fn ($e) => 'v_' . $e->header_id . '_' . $e->date->format('Y-m-d'));
 
         $virtualEvents = $virtualEvents->reject(fn ($event) =>
             $persistedEventKeys->has('v_' . $event->header_id . '_' . $event->date->format('Y-m-d'))
         );
 
-        $unconsolidatedEvents = \App\Models\Event::with(['header', 'entries.asset'])
+        $unconsolidatedQuery = \App\Models\Event::with(['header', 'entries.asset'])
             ->where(function ($query) {
                 $query->where(function ($q) {
                     $q->whereIn('type', ['income', 'expense', 'transfer'])
@@ -300,8 +311,13 @@ class BalanceService
                       });
                 });
             })
-            ->orderBy('date', 'asc')
-            ->get();
+            ->orderBy('date', 'asc');
+
+        if ($this->unityContext->has()) {
+            $unconsolidatedQuery->where('unity_id', $this->unityContext->id());
+        }
+
+        $unconsolidatedEvents = $unconsolidatedQuery->get();
 
         $merged = $virtualEvents->keyBy(fn ($event) => 'v_' . $event->header_id . '_' . $event->date->format('Y-m-d'));
 
@@ -317,5 +333,16 @@ class BalanceService
             fn ($a, $b) => ($a->due_day === null ? 1 : 0) <=> ($b->due_day === null ? 1 : 0),
             fn ($a, $b) => ($a->due_day ?? PHP_INT_MAX) <=> ($b->due_day ?? PHP_INT_MAX),
         ])->values();
+    }
+
+    private function getScopedAssets(): \Illuminate\Support\Collection
+    {
+        $query = Asset::query();
+
+        if ($this->unityContext->has()) {
+            $query->where('unity_id', $this->unityContext->id());
+        }
+
+        return $query->get();
     }
 }

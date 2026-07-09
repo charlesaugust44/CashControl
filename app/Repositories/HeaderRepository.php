@@ -3,15 +3,16 @@
 namespace App\Repositories;
 
 use App\Models\Header;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class HeaderRepository extends BaseRepository
 {
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        parent::__construct(Header::class);
+        parent::__construct(Header::class, $unityContext);
     }
 
     public function active(?int $year = null, ?int $month = null): Collection
@@ -22,12 +23,13 @@ class HeaderRepository extends BaseRepository
             1
         );
 
-        return Header::with(['asset', 'destinationAsset'])
+        $query = Header::with(['asset', 'destinationAsset'])
             ->where('start_date', '<=', $referenceDate)
             ->where(function (Builder $query) use ($referenceDate) {
                 $query->whereNull('end_date')
                     ->orWhere('end_date', '>=', $referenceDate);
-            })
-            ->get();
+            });
+
+        return $this->scopeToUnity($query)->get();
     }
 }

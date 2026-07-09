@@ -6,7 +6,7 @@
     $nextMonth = $monthDate->copy()->addMonth()->format('Y-m');
     $currentMonthParam = $monthDate->format('Y-m');
     
-    $monthClosureService = new \App\Services\MonthClosureService();
+    $monthClosureService = app(\App\Services\MonthClosureService::class);
     $isMonthClosed = $monthClosureService->isMonthClosed($monthDate->year, $monthDate->month);
 
     $baseQueryParams = collect(request()->query())->except('month')->toArray();

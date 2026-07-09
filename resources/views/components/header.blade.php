@@ -186,6 +186,22 @@
                         @endforeach
                         <div class="options-divider"></div>
                     @endif
+                    @auth
+                        <div class="options-user">
+                            <i class="bi bi-person-circle options-item__icon"></i>
+                            <span class="options-item__label">{{ auth()->user()->name }}</span>
+                        </div>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="options-item options-item--danger" role="menuitem">
+                                <span class="options-item__icon">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                </span>
+                                <span class="options-item__label">{{ __('auth.logout') }}</span>
+                            </button>
+                        </form>
+                        <div class="options-divider"></div>
+                    @endauth
                     <a href="{{ request()->fullUrlWithQuery(['lang' => 'toggle']) }}" class="options-item" role="menuitem">
                         <span class="options-item__icon">
                             <i class="bi bi-translate"></i>

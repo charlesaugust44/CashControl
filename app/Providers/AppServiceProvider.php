@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Helpers\Formatter;
 use App\Http\ViewComposers\NotificationsComposer;
+use App\Support\UnityContext;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(UnityContext::class);
     }
 
     /**

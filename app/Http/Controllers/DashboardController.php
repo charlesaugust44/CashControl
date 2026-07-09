@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Formatter;
+use App\Models\Asset;
 use App\Services\BalanceService;
 use App\Services\MonthClosureService;
+use App\Support\UnityContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,11 +16,13 @@ class DashboardController extends Controller
     private BalanceService $balanceService;
     private MonthClosureService $monthClosureService;
     private Formatter $fmt;
+    private UnityContext $unityContext;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->balanceService = new BalanceService();
-        $this->monthClosureService = new MonthClosureService();
+        $this->unityContext = $unityContext;
+        $this->balanceService = new BalanceService($unityContext);
+        $this->monthClosureService = new MonthClosureService($unityContext);
         $this->fmt = new Formatter();
     }
 
@@ -35,7 +39,7 @@ class DashboardController extends Controller
         $monthlyTotalsSplit = $this->balanceService->getMonthlyTotalsSplit($monthDate->year, $monthDate->month);
 
         $forecastBalance = 0;
-        foreach (\App\Models\Asset::all() as $asset) {
+        foreach ($this->getScopedAssets() as $asset) {
             $forecastBalance += $this->balanceService->getForecastBalance($asset, $monthDate->year, $monthDate->month);
         }
 
@@ -80,7 +84,11 @@ class DashboardController extends Controller
             $expenseTrendDir = $diff >= 0 ? 'up' : 'down';
         }
 
-        $assets = \App\Models\Asset::orderBy('name')->get();
+        $assetsQuery = Asset::orderBy('name');
+        if ($this->unityContext->has()) {
+            $assetsQuery->where('unity_id', $this->unityContext->id());
+        }
+        $assets = $assetsQuery->get();
 
         return view('dashboard', [
             'pageTitle' => __('ui.dashboard'),
@@ -135,5 +143,16 @@ class DashboardController extends Controller
         $request->session()->put('read_alerts', $readAlerts);
 
         return redirect()->back();
+    }
+
+    private function getScopedAssets(): \Illuminate\Support\Collection
+    {
+        $query = Asset::query();
+
+        if ($this->unityContext->has()) {
+            $query->where('unity_id', $this->unityContext->id());
+        }
+
+        return $query->get();
     }
 }

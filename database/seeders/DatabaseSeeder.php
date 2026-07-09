@@ -6,6 +6,7 @@ use App\Enums\EventRule;
 use App\Enums\EventType;
 use App\Models\Asset;
 use App\Models\Header;
+use App\Models\Unity;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -18,18 +19,28 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::firstOrCreate([
+        $user = User::firstOrCreate([
             'email' => 'test@example.com',
         ], [
             'name' => 'Test User',
             'password' => Hash::make('password'),
+            'role' => 'admin',
+            'approved_at' => now(),
         ]);
 
-        $checking = Asset::factory()->create(['name' => 'Checking Account', 'balance' => 2500.00]);
-        $savings = Asset::factory()->create(['name' => 'Savings Account', 'balance' => 8000.00]);
-        $cash = Asset::factory()->create(['name' => 'Cash', 'balance' => 150.00]);
-        $creditCard = Asset::factory()->create(['name' => 'Credit Card', 'balance' => -450.00]);
-        $investment = Asset::factory()->create(['name' => 'Investment Account', 'balance' => 15000.00]);
+        $unity = Unity::firstOrCreate([
+            'name' => 'Default',
+        ], [
+            'description' => 'Default unity for existing data',
+        ]);
+
+        $user->unities()->syncWithoutDetaching([$unity->id]);
+
+        $checking = Asset::factory()->create(['name' => 'Checking Account', 'balance' => 2500.00, 'unity_id' => $unity->id]);
+        $savings = Asset::factory()->create(['name' => 'Savings Account', 'balance' => 8000.00, 'unity_id' => $unity->id]);
+        $cash = Asset::factory()->create(['name' => 'Cash', 'balance' => 150.00, 'unity_id' => $unity->id]);
+        $creditCard = Asset::factory()->create(['name' => 'Credit Card', 'balance' => -450.00, 'unity_id' => $unity->id]);
+        $investment = Asset::factory()->create(['name' => 'Investment Account', 'balance' => 15000.00, 'unity_id' => $unity->id]);
 
         Header::factory()->withEventEntries($checking)->create([
             'name' => 'Monthly Salary',
@@ -40,6 +51,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subYear(),
             'end_date' => null,
             'asset_id' => $checking->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($checking)->create([
@@ -51,6 +63,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subMonths(8),
             'end_date' => null,
             'asset_id' => $checking->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($checking)->create([
@@ -62,6 +75,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subYear(),
             'end_date' => null,
             'asset_id' => $checking->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($checking)->create([
@@ -73,6 +87,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subMonths(10),
             'end_date' => null,
             'asset_id' => $checking->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($checking)->create([
@@ -84,6 +99,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subYear(),
             'end_date' => null,
             'asset_id' => $checking->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($checking)->create([
@@ -95,6 +111,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subMonths(9),
             'end_date' => null,
             'asset_id' => $checking->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($creditCard)->create([
@@ -106,6 +123,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subMonths(6),
             'end_date' => null,
             'asset_id' => $creditCard->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($creditCard)->create([
@@ -117,6 +135,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subMonths(11),
             'end_date' => null,
             'asset_id' => $creditCard->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($creditCard)->create([
@@ -128,6 +147,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subMonths(7),
             'end_date' => null,
             'asset_id' => $creditCard->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($creditCard)->create([
@@ -139,6 +159,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subMonths(10),
             'end_date' => null,
             'asset_id' => $creditCard->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($cash)->create([
@@ -150,6 +171,7 @@ class DatabaseSeeder extends Seeder
             'start_date' => Carbon::now()->subMonths(8),
             'end_date' => null,
             'asset_id' => $cash->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($checking)->create([
@@ -162,6 +184,7 @@ class DatabaseSeeder extends Seeder
             'end_date' => null,
             'asset_id' => $checking->id,
             'destination_asset_id' => $savings->id,
+            'unity_id' => $unity->id,
         ]);
 
         Header::factory()->withEventEntries($checking)->create([
@@ -174,6 +197,7 @@ class DatabaseSeeder extends Seeder
             'end_date' => null,
             'asset_id' => $checking->id,
             'destination_asset_id' => $cash->id,
+            'unity_id' => $unity->id,
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Event;
 use App\Repositories\AssetRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\HeaderRepository;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,13 +27,16 @@ class EventDetailService
 
     private ConsolidationService $consolidationService;
 
-    public function __construct()
+    private UnityContext $unityContext;
+
+    public function __construct(UnityContext $unityContext)
     {
-        $this->eventRepository = new EventRepository;
-        $this->headerRepository = new HeaderRepository;
-        $this->assetRepository = new AssetRepository;
-        $this->monthClosureService = new MonthClosureService;
-        $this->consolidationService = new ConsolidationService;
+        $this->unityContext = $unityContext;
+        $this->eventRepository = new EventRepository($unityContext);
+        $this->headerRepository = new HeaderRepository($unityContext);
+        $this->assetRepository = new AssetRepository($unityContext);
+        $this->monthClosureService = new MonthClosureService($unityContext);
+        $this->consolidationService = new ConsolidationService($unityContext);
     }
 
     public function getEvent(int $id): ?Event
@@ -42,7 +46,7 @@ class EventDetailService
 
     public function getVirtualEvent(int $headerId, int $year, int $month): ?object
     {
-        $eventGenerationService = new EventGenerationService;
+        $eventGenerationService = new EventGenerationService($this->unityContext);
         $virtualEvents = $eventGenerationService->generateVirtualEvents($year, $month);
 
         return $virtualEvents->first(fn ($e) => $e->header_id === $headerId);
@@ -54,7 +58,7 @@ class EventDetailService
         $eventDate = Carbon::create($year, $month, 1);
 
         return DB::transaction(function () use ($header, $eventDate, $entriesData) {
-            $event = Event::create([
+            $eventData = [
                 'header_id' => $header->id,
                 'type' => $header->type,
                 'name' => $header->name,
@@ -63,7 +67,13 @@ class EventDetailService
                 'consolidated' => false,
                 'transfer_consolidated' => false,
                 'note' => $entriesData['note'] ?? null,
-            ]);
+            ];
+
+            if ($this->unityContext->has()) {
+                $eventData['unity_id'] = $this->unityContext->id();
+            }
+
+            $event = Event::create($eventData);
 
             foreach ($entriesData['entries'] as $index => $entryData) {
                 $amount = $this->adjustAmountSign($header->type, $entryData['amount'], $index);
@@ -91,7 +101,7 @@ class EventDetailService
         }
 
         return DB::transaction(function () use ($data, $eventDate) {
-            $event = Event::create([
+            $eventData = [
                 'header_id' => null,
                 'type' => EventType::from($data['type']),
                 'name' => $data['name'],
@@ -100,7 +110,13 @@ class EventDetailService
                 'consolidated' => false,
                 'transfer_consolidated' => false,
                 'note' => $data['note'] ?? null,
-            ]);
+            ];
+
+            if ($this->unityContext->has()) {
+                $eventData['unity_id'] = $this->unityContext->id();
+            }
+
+            $event = Event::create($eventData);
 
             foreach ($data['entries'] as $index => $entryData) {
                 $amount = $this->adjustAmountSign($event->type, $entryData['amount'], $index);
@@ -232,7 +248,13 @@ class EventDetailService
 
     public function getAssets(): Collection
     {
-        return Asset::orderBy('name')->get();
+        $query = Asset::orderBy('name');
+
+        if ($this->unityContext->has()) {
+            $query->where('unity_id', $this->unityContext->id());
+        }
+
+        return $query->get();
     }
 
     private function adjustAmountSign(EventType $type, float $amount, int $entryIndex): float

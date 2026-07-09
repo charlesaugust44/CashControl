@@ -6,6 +6,7 @@ use App\Enums\EventType;
 use App\Models\Event;
 use App\Services\ConsolidationService;
 use App\Services\EventDetailService;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,10 +18,10 @@ class EventDetailController extends Controller
 
     protected ConsolidationService $consolidationService;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->eventDetailService = new EventDetailService;
-        $this->consolidationService = new ConsolidationService;
+        $this->eventDetailService = new EventDetailService($unityContext);
+        $this->consolidationService = new ConsolidationService($unityContext);
     }
 
     public function create(Request $request): View

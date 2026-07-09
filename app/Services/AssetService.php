@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Asset;
 use App\Repositories\AssetRepository;
 use App\Repositories\EntryRepository;
+use App\Support\UnityContext;
 use Illuminate\Support\Collection;
 
 class AssetService
@@ -13,10 +14,10 @@ class AssetService
     private AssetRepository $assetRepository;
     private EntryRepository $entryRepository;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->assetRepository = new AssetRepository();
-        $this->entryRepository = new EntryRepository();
+        $this->assetRepository = new AssetRepository($unityContext);
+        $this->entryRepository = new EntryRepository($unityContext);
     }
 
     /**

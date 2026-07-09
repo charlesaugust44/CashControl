@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Asset;
 use App\Models\Event;
 use App\Services\HeaderService;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,10 +14,12 @@ use Illuminate\View\View;
 class HeaderController extends Controller
 {
     private HeaderService $headerService;
+    private UnityContext $unityContext;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->headerService = new HeaderService;
+        $this->unityContext = $unityContext;
+        $this->headerService = new HeaderService($unityContext);
     }
 
     public function index(Request $request): View
@@ -38,7 +41,11 @@ class HeaderController extends Controller
 
         $headers = $headers->values();
 
-        $assets = Asset::orderBy('name')->get();
+        $assetsQuery = Asset::orderBy('name');
+        if ($this->unityContext->has()) {
+            $assetsQuery->where('unity_id', $this->unityContext->id());
+        }
+        $assets = $assetsQuery->get();
 
         return view('templates.index', [
             'headers' => $headers,
@@ -59,7 +66,11 @@ class HeaderController extends Controller
 
     public function create(): View
     {
-        $assets = Asset::orderBy('name')->get();
+        $assetsQuery = Asset::orderBy('name');
+        if ($this->unityContext->has()) {
+            $assetsQuery->where('unity_id', $this->unityContext->id());
+        }
+        $assets = $assetsQuery->get();
 
         return view('templates.form', [
             'assets' => $assets,
@@ -108,7 +119,13 @@ class HeaderController extends Controller
     public function edit(int $id): View
     {
         $header = $this->headerService->get($id);
-        $assets = Asset::orderBy('name')->get();
+
+        $assetsQuery = Asset::orderBy('name');
+        if ($this->unityContext->has()) {
+            $assetsQuery->where('unity_id', $this->unityContext->id());
+        }
+        $assets = $assetsQuery->get();
+
         $futureEvents = $this->headerService->futurePersistedEvents($id);
 
         return view('templates.form', [

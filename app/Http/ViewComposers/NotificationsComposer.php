@@ -4,6 +4,7 @@ namespace App\Http\ViewComposers;
 
 use App\Helpers\Formatter;
 use App\Services\BalanceService;
+use App\Support\UnityContext;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
@@ -12,9 +13,9 @@ class NotificationsComposer
     private BalanceService $balanceService;
     private Formatter $fmt;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->balanceService = new BalanceService();
+        $this->balanceService = new BalanceService($unityContext);
         $this->fmt = new Formatter();
     }
 

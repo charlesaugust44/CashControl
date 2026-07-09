@@ -10,6 +10,7 @@ use App\Models\Header;
 use App\Repositories\EntryRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\HeaderRepository;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Enumerable;
@@ -24,12 +25,15 @@ class EventGenerationService
 
     private MonthClosureService $monthClosureService;
 
-    public function __construct()
+    private UnityContext $unityContext;
+
+    public function __construct(UnityContext $unityContext)
     {
-        $this->headerRepository = new HeaderRepository;
-        $this->eventRepository = new EventRepository;
-        $this->entryRepository = new EntryRepository;
-        $this->monthClosureService = new MonthClosureService;
+        $this->unityContext = $unityContext;
+        $this->headerRepository = new HeaderRepository($unityContext);
+        $this->eventRepository = new EventRepository($unityContext);
+        $this->entryRepository = new EntryRepository($unityContext);
+        $this->monthClosureService = new MonthClosureService($unityContext);
     }
 
     public function getMonthEvents(int $year, int $month): Enumerable
@@ -174,11 +178,16 @@ class EventGenerationService
         for ($i = 1; $i <= 5; $i++) {
             $checkDate->subMonth();
 
-            $persistedEvent = Event::where('header_id', $header->id)
+            $query = Event::where('header_id', $header->id)
                 ->whereYear('date', $checkDate->year)
                 ->whereMonth('date', $checkDate->month)
-                ->with('entries')
-                ->first();
+                ->with('entries');
+
+            if ($this->unityContext->has()) {
+                $query->where('unity_id', $this->unityContext->id());
+            }
+
+            $persistedEvent = $query->first();
 
             if ($persistedEvent) {
                 $totalAmount = $persistedEvent->entries->sum('amount');

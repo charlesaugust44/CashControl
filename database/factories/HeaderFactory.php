@@ -58,7 +58,7 @@ class HeaderFactory extends Factory
                 $event = Event::factory()
                     ->forHeader($header)
                     ->withDate($date)
-                    ->create();
+                    ->create(['unity_id' => $header->unity_id]);
 
                 if ($header->isTransfer() && $header->destination_asset_id) {
                     $amount = $header->default_amount ?? $this->faker->randomFloat(2, 50, 500);

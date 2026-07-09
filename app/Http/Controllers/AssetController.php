@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Services\AssetService;
 use App\Services\BalanceService;
 use App\Services\EventService;
+use App\Support\UnityContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,11 +19,11 @@ class AssetController extends Controller
     private EventService $eventService;
     private Formatter $fmt;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->assetService = new AssetService();
-        $this->balanceService = new BalanceService();
-        $this->eventService = new EventService();
+        $this->assetService = new AssetService($unityContext);
+        $this->balanceService = new BalanceService($unityContext);
+        $this->eventService = new EventService($unityContext);
         $this->fmt = new Formatter();
     }
 

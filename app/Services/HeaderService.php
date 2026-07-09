@@ -4,16 +4,19 @@ namespace App\Services;
 
 use App\Models\Header;
 use App\Repositories\HeaderRepository;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 class HeaderService
 {
     private HeaderRepository $headerRepository;
+    private UnityContext $unityContext;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->headerRepository = new HeaderRepository();
+        $this->unityContext = $unityContext;
+        $this->headerRepository = new HeaderRepository($unityContext);
     }
 
     public function active(): Collection
@@ -62,10 +65,15 @@ class HeaderService
     {
         $currentMonth = Carbon::now()->startOfMonth();
 
-        return \App\Models\Event::with(['entries.asset'])
+        $query = \App\Models\Event::with(['entries.asset'])
             ->where('header_id', $headerId)
             ->where('date', '>=', $currentMonth)
-            ->orderBy('date')
-            ->get();
+            ->orderBy('date');
+
+        if ($this->unityContext->has()) {
+            $query->where('unity_id', $this->unityContext->id());
+        }
+
+        return $query->get();
     }
 }

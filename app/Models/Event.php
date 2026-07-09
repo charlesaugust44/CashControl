@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EventType;
+use App\Models\Traits\Auditable;
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Event extends Model
 {
     /** @use HasFactory<EventFactory> */
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'header_id',
@@ -23,6 +24,9 @@ class Event extends Model
         'consolidated',
         'transfer_consolidated',
         'note',
+        'unity_id',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -41,6 +45,26 @@ class Event extends Model
     public function header(): BelongsTo
     {
         return $this->belongsTo(Header::class);
+    }
+
+    public function unity(): BelongsTo
+    {
+        return $this->belongsTo(Unity::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function scopeForUnity($query, int $unityId)
+    {
+        return $query->where('unity_id', $unityId);
     }
 
     public function scopeConsolidated($query)

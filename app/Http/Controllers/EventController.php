@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Services\ConsolidationService;
 use App\Services\EventService;
 use App\Services\MonthClosureService;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,11 +21,14 @@ class EventController extends Controller
 
     protected MonthClosureService $monthClosureService;
 
-    public function __construct()
+    protected UnityContext $unityContext;
+
+    public function __construct(UnityContext $unityContext)
     {
-        $this->eventService = new EventService;
-        $this->consolidationService = new ConsolidationService;
-        $this->monthClosureService = new MonthClosureService;
+        $this->unityContext = $unityContext;
+        $this->eventService = new EventService($unityContext);
+        $this->consolidationService = new ConsolidationService($unityContext);
+        $this->monthClosureService = new MonthClosureService($unityContext);
     }
 
     public function index(Request $request): View
@@ -121,7 +125,11 @@ class EventController extends Controller
             'icon' => 'bi bi-plus-circle',
         ]);
 
-        $assets = Asset::orderBy('name')->get();
+        $assetsQuery = Asset::orderBy('name');
+        if ($this->unityContext->has()) {
+            $assetsQuery->where('unity_id', $this->unityContext->id());
+        }
+        $assets = $assetsQuery->get();
 
         return view('entries.index', [
             'events' => $events,

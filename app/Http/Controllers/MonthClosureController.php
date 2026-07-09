@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\MonthClosureService;
+use App\Support\UnityContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
@@ -10,9 +11,9 @@ class MonthClosureController extends Controller
 {
     protected MonthClosureService $monthClosureService;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->monthClosureService = new MonthClosureService();
+        $this->monthClosureService = new MonthClosureService($unityContext);
     }
 
     public function close(int $year, int $month): RedirectResponse

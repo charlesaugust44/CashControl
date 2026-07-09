@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\Event;
 use App\Repositories\AssetRepository;
 use App\Repositories\EventRepository;
+use App\Support\UnityContext;
 use Carbon\Carbon;
 use Exception;
 
@@ -15,11 +16,11 @@ class ConsolidationService
     private AssetRepository $assetRepository;
     private MonthClosureService $monthClosureService;
 
-    public function __construct()
+    public function __construct(UnityContext $unityContext)
     {
-        $this->eventRepository = new EventRepository();
-        $this->assetRepository = new AssetRepository();
-        $this->monthClosureService = new MonthClosureService();
+        $this->eventRepository = new EventRepository($unityContext);
+        $this->assetRepository = new AssetRepository($unityContext);
+        $this->monthClosureService = new MonthClosureService($unityContext);
     }
 
     public function consolidateEvent(int $eventId): Event
