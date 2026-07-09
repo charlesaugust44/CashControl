@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/money-input.js',
                 'resources/js/form-submit.js',
                 'resources/js/bootstrap-dropdown.js',
+                'resources/js/delete-modal.js',
                 'resources/js/register-sw.js',
                 'resources/css/pages/assets.css',
                 'resources/css/pages/asset-detail.css',
@@ -26,7 +27,7 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         hmr: {
-            host: '192.168.2.129',
+            host: '192.168.2.106',
         },
         cors: true,
         watch: {
