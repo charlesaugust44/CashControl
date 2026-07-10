@@ -36,6 +36,10 @@
                         <i class="bi bi-building nav-item__icon"></i>
                         <span class="nav-item__label">{{ __('ui.unities') }}</span>
                     </a>
+                    <a href="{{ route('admin.backups.index') }}" class="nav-item {{ request()->is('admin/backups*') ? 'active' : '' }}">
+                        <i class="bi bi-archive nav-item__icon"></i>
+                        <span class="nav-item__label">{{ __('ui.backups') }}</span>
+                    </a>
                 @endif
             @endauth
         </nav>

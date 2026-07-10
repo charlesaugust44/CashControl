@@ -9,6 +9,7 @@ return [
     'admin' => 'Admin',
     'users' => 'Users',
     'unities' => 'Unities',
+    'backups' => 'Backups',
     'back' => 'Back',
     'back_to_list' => 'Back to :item',
     'cancel' => 'Cancel',

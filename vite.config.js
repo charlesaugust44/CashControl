@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/money-input.js',
                 'resources/js/form-submit.js',
                 'resources/js/bootstrap-dropdown.js',
+                'resources/js/restore-confirm.js',
                 'resources/js/delete-modal.js',
                 'resources/js/register-sw.js',
                 'resources/css/pages/assets.css',
@@ -25,10 +26,8 @@ export default defineConfig({
         }),
     ],
     server: {
-        host: '0.0.0.0',
-        hmr: {
-            host: '192.168.2.106',
-        },
+        host: "0.0.0.0",
+        hmr: { host: "orion.sole-likert.ts.net" },
         cors: true,
         watch: {
             ignored: ['**/storage/framework/views/**'],

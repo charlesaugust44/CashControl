@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\Admin\GoogleDriveAuthController;
 use App\Http\Controllers\Admin\UnityController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AssetController;
@@ -27,6 +28,7 @@ Route::get('/pending-approval', function () {
     if (auth()->check() && auth()->user()->isApproved()) {
         return redirect('/');
     }
+
     return view('auth.pending-approval');
 })->middleware('auth')->name('pending-approval');
 
@@ -37,6 +39,7 @@ Route::get('/no-unity', function () {
     if (auth()->user()->unities->count() > 0) {
         return redirect('/');
     }
+
     return view('auth.no-unity');
 })->middleware('auth')->name('no-unity');
 
@@ -88,4 +91,12 @@ Route::middleware(['auth', 'approved', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/unities/{id}/unassign/{userId}', [UnityController::class, 'unassign'])->name('unities.unassign');
     Route::get('/unities/{id}', [UnityController::class, 'show'])->name('unities.show');
     Route::get('/unities', [UnityController::class, 'index'])->name('unities.index');
+
+    Route::get('/backups', [BackupController::class, 'index'])->name('backups.index');
+    Route::post('/backups', [BackupController::class, 'create'])->name('backups.store');
+    Route::get('/backups/connect', [GoogleDriveAuthController::class, 'connect'])->name('backups.connect');
+    Route::get('/backups/callback', [GoogleDriveAuthController::class, 'callback'])->name('backups.callback');
+    Route::delete('/backups/disconnect', [GoogleDriveAuthController::class, 'disconnect'])->name('backups.disconnect');
+    Route::post('/backups/{id}/restore', [BackupController::class, 'restore'])->name('backups.restore');
+    Route::delete('/backups/{id}', [BackupController::class, 'destroy'])->name('backups.destroy');
 });

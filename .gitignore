@@ -19,6 +19,7 @@
 /ssl
 /storage/*.key
 /storage/pail
+/storage/app/google-drive-credentials.json
 /vendor
 _ide_helper.php
 Homestead.json

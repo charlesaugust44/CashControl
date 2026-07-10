@@ -9,6 +9,7 @@ return [
     'admin' => 'Administração',
     'users' => 'Usuários',
     'unities' => 'Unidades',
+    'backups' => 'Backups',
     'back' => 'Voltar',
     'back_to_list' => 'Voltar para :item',
     'cancel' => 'Cancelar',
