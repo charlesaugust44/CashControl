@@ -65,7 +65,10 @@ RUN mkdir -p /var/log/supervisor \
 
 RUN chown -R 1000:1000 /var/www/html \
     && chown -R 1000:1000 /var/log/supervisor \
-    && chown -R 1000:1000 /etc/nginx/ssl
+    && chown -R 1000:1000 /etc/nginx/ssl \
+    && chown -R 1000:1000 /var/lib/nginx \
+    && chown -R 1000:1000 /var/log/nginx \
+    && chown -R 1000:1000 /run/nginx
 
 USER 1000:1000
 
