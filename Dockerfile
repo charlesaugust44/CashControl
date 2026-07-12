@@ -59,7 +59,15 @@ COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN mkdir -p /var/log/supervisor \
-    && mkdir -p /etc/nginx/ssl
+    && mkdir -p /etc/nginx/ssl \
+    && addgroup -g 1000 -S appgroup \
+    && adduser -u 1000 -S appuser -G appgroup
+
+RUN chown -R 1000:1000 /var/www/html \
+    && chown -R 1000:1000 /var/log/supervisor \
+    && chown -R 1000:1000 /etc/nginx/ssl
+
+USER 1000:1000
 
 EXPOSE 443
 
