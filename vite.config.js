@@ -15,6 +15,7 @@ export default defineConfig({
                 'resources/js/restore-confirm.js',
                 'resources/js/delete-modal.js',
                 'resources/js/register-sw.js',
+                'resources/js/push-notifications.js',
                 'resources/css/pages/assets.css',
                 'resources/css/pages/asset-detail.css',
                 'resources/css/pages/asset-form.css',

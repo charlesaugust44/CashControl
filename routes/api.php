@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\PushSubscriptionController;
 
 
 Route::middleware(['auth', 'approved', 'has.unity', \App\Http\Middleware\SetUnityContext::class])->group(function () {
@@ -27,4 +28,7 @@ Route::middleware(['auth', 'approved', 'has.unity', \App\Http\Middleware\SetUnit
                 'month' => '0?[1-9]|1[0-2]'
             ]);
     });
+
+    Route::post('/push/subscribe', [PushSubscriptionController::class, 'store']);
+    Route::delete('/push/unsubscribe', [PushSubscriptionController::class, 'destroy']);
 });

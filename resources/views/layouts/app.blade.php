@@ -7,6 +7,10 @@
     <title>{{ $pageTitle ?? config('app.name', 'Cash Control') }}</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#4361ee">
+    @if(config('webpush.vapid.public_key'))
+    <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
+    @endif
+    <meta name="api-url" content="{{ config('app.api_url', '/api') }}">
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <script>
@@ -18,7 +22,7 @@
             document.documentElement.setAttribute('data-theme', t);
         })();
     </script>
-    @vite(['resources/css/app.css', 'resources/js/theme.js', 'resources/js/toast.js', 'resources/js/money-input.js', 'resources/js/form-submit.js', 'resources/js/bootstrap-dropdown.js', 'resources/js/register-sw.js'])
+    @vite(['resources/css/app.css', 'resources/js/theme.js', 'resources/js/toast.js', 'resources/js/money-input.js', 'resources/js/form-submit.js', 'resources/js/bootstrap-dropdown.js', 'resources/js/register-sw.js', 'resources/js/push-notifications.js'])
     @stack('styles')
 </head>
 <body>
