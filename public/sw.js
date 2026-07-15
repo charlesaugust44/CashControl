@@ -30,6 +30,45 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
+self.addEventListener('push', (event) => {
+    if (!event.data) return;
+
+    try {
+        const data = event.data.json();
+        const options = {
+            body: data.body || '',
+            icon: data.icon || '/icons/icon-192.png',
+            badge: data.badge || '/icons/icon-192.png',
+            data: { url: data.url || '/' },
+            tag: data.tag || 'cashcontrol-notification',
+            vibrate: [100, 50, 100],
+        };
+
+        event.waitUntil(
+            self.registration.showNotification(data.title || 'Cash Control', options)
+        );
+    } catch (e) {
+        console.error('Push notification error:', e);
+    }
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const url = event.notification.data?.url || '/';
+
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+            for (const client of clients) {
+                if (client.url.includes(url)) {
+                    return client.focus();
+                }
+            }
+            return self.clients.openWindow(url);
+        })
+    );
+});
+
 function isStaticAsset(url) {
     return (
         url.pathname.endsWith('.css') ||
