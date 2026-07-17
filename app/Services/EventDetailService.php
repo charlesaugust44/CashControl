@@ -13,6 +13,7 @@ use App\Support\UnityContext;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class EventDetailService
@@ -57,7 +58,7 @@ class EventDetailService
         $header = $this->headerRepository->findOrFail($headerId);
         $eventDate = Carbon::create($year, $month, 1);
 
-        return DB::transaction(function () use ($header, $eventDate, $entriesData) {
+        $event = DB::transaction(function () use ($header, $eventDate, $entriesData) {
             $eventData = [
                 'header_id' => $header->id,
                 'type' => $header->type,
@@ -86,6 +87,10 @@ class EventDetailService
 
             return $event->load(['entries.asset', 'header']);
         });
+
+        $this->clearRelatedCache($year, $month);
+
+        return $event;
     }
 
     public function createStandaloneEvent(array $data): Event
@@ -100,7 +105,7 @@ class EventDetailService
             throw new Exception('Cannot create future events');
         }
 
-        return DB::transaction(function () use ($data, $eventDate) {
+        $event = DB::transaction(function () use ($data, $eventDate) {
             $eventData = [
                 'header_id' => null,
                 'type' => EventType::from($data['type']),
@@ -129,6 +134,10 @@ class EventDetailService
 
             return $event->load(['entries.asset']);
         });
+
+        $this->clearRelatedCache($eventDate->year, $eventDate->month);
+
+        return $event;
     }
 
     public function updateEvent(int $id, array $data): Event
@@ -137,7 +146,7 @@ class EventDetailService
 
         $this->validateEventEditable($event);
 
-        return DB::transaction(function () use ($event, $data) {
+        $event = DB::transaction(function () use ($event, $data) {
             $needsUnconsolidate = $event->isFullyConsolidated();
 
             if ($needsUnconsolidate) {
@@ -167,6 +176,11 @@ class EventDetailService
 
             return $event->load(['entries.asset', 'header']);
         });
+
+        $eventDate = Carbon::parse($event->date);
+        $this->clearRelatedCache($eventDate->year, $eventDate->month);
+
+        return $event;
     }
 
     private function updatePartiallyConsolidatedEntries(Event $event, array $data): void
@@ -225,12 +239,16 @@ class EventDetailService
 
         $this->validateEventEditable($event);
 
+        $eventDate = Carbon::parse($event->date);
+
         if ($event->consolidated) {
             $this->consolidationService->unconsolidateEvent($event->id);
         }
 
         $event->entries()->delete();
         $event->delete();
+
+        $this->clearRelatedCache($eventDate->year, $eventDate->month);
     }
 
     public function validateEventEditable(Event $event): void
@@ -260,5 +278,13 @@ class EventDetailService
     private function adjustAmountSign(EventType $type, float $amount, int $entryIndex): float
     {
         return $type->entrySign($entryIndex) * abs($amount);
+    }
+
+    private function clearRelatedCache(int $year, int $month): void
+    {
+        $unityId = $this->unityContext->has() ? $this->unityContext->id() : 'global';
+        Cache::tags(['events'])->forget("unity_{$unityId}:events:{$year}-{$month}");
+        Cache::tags(['forecast'])->flush();
+        BalanceService::clearCache();
     }
 }

@@ -7,6 +7,7 @@ use App\Repositories\HeaderRepository;
 use App\Support\UnityContext;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class HeaderService
 {
@@ -40,7 +41,10 @@ class HeaderService
             $data['end_date'] = null;
         }
 
-        return $this->headerRepository->create($data);
+        $header = $this->headerRepository->create($data);
+        $this->clearAllCache();
+
+        return $header;
     }
 
     public function update(int $id, array $data): Header
@@ -51,6 +55,7 @@ class HeaderService
 
         $header = $this->headerRepository->findOrFail($id);
         $header->update($data);
+        $this->clearAllCache();
 
         return $header->fresh();
     }
@@ -59,6 +64,7 @@ class HeaderService
     {
         $header = $this->headerRepository->findOrFail($id);
         $header->delete();
+        $this->clearAllCache();
     }
 
     public function futurePersistedEvents(int $headerId): Collection
@@ -75,5 +81,11 @@ class HeaderService
         }
 
         return $query->get();
+    }
+
+    private function clearAllCache(): void
+    {
+        Cache::tags(['events', 'forecast'])->flush();
+        BalanceService::clearCache();
     }
 }

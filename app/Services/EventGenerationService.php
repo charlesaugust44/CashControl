@@ -53,8 +53,19 @@ class EventGenerationService
         $activeHeaders = $this->headerRepository->active($year, $month);
         $virtualEvents = collect();
 
+        $assetIds = collect();
         foreach ($activeHeaders as $header) {
-            $event = $this->createVirtualEvent($header, $year, $month);
+            if ($header->asset_id) {
+                $assetIds->push($header->asset_id);
+            }
+            if ($header->destination_asset_id) {
+                $assetIds->push($header->destination_asset_id);
+            }
+        }
+        $assetsById = Asset::whereIn('id', $assetIds->unique())->get()->keyBy->id;
+
+        foreach ($activeHeaders as $header) {
+            $event = $this->createVirtualEvent($header, $year, $month, $assetsById);
             if ($event) {
                 $virtualEvents->push($event);
             }
@@ -63,7 +74,7 @@ class EventGenerationService
         return $virtualEvents;
     }
 
-    private function createVirtualEvent(Header $header, int $year, int $month): ?object
+    private function createVirtualEvent(Header $header, int $year, int $month, \Illuminate\Support\Collection $assetsById): ?object
     {
         $eventDate = Carbon::create($year, $month, 1);
 
@@ -92,7 +103,7 @@ class EventGenerationService
         $event->id = 0;
         $event->header = $header;
 
-        $entries = $this->createVirtualEntries($header, $amount);
+        $entries = $this->createVirtualEntries($header, $amount, $assetsById);
         $event->entries = $entries;
 
         return $event;
@@ -112,7 +123,7 @@ class EventGenerationService
         return Carbon::create($year, $month, $adjustedDay);
     }
 
-    private function createVirtualEntries(Header $header, float $amount): Collection
+    private function createVirtualEntries(Header $header, float $amount, \Illuminate\Support\Collection $assetsById): Collection
     {
         $entries = collect();
         $type = $header->type;
@@ -131,7 +142,7 @@ class EventGenerationService
                 'asset_id' => $assetId,
                 'amount' => $entryAmount,
             ]);
-            $entry->asset = Asset::find($assetId);
+            $entry->asset = $assetsById->get($assetId);
             $entries->push($entry);
         }
 
@@ -175,19 +186,37 @@ class EventGenerationService
         $amounts = collect();
         $checkDate = Carbon::create($year, $month, 1);
 
+        $monthsToCheck = [];
         for ($i = 1; $i <= 5; $i++) {
             $checkDate->subMonth();
+            $monthsToCheck[] = [
+                'year' => $checkDate->year,
+                'month' => $checkDate->month,
+                'date' => $checkDate->copy(),
+            ];
+        }
 
-            $query = Event::where('header_id', $header->id)
-                ->whereYear('date', $checkDate->year)
-                ->whereMonth('date', $checkDate->month)
-                ->with('entries');
+        $query = Event::where('header_id', $header->id)
+            ->with('entries');
 
-            if ($this->unityContext->has()) {
-                $query->where('unity_id', $this->unityContext->id());
+        if ($this->unityContext->has()) {
+            $query->where('unity_id', $this->unityContext->id());
+        }
+
+        $query->where(function ($q) use ($monthsToCheck) {
+            foreach ($monthsToCheck as $mc) {
+                $q->orWhere(function ($sub) use ($mc) {
+                    $sub->whereYear('date', $mc['year'])
+                        ->whereMonth('date', $mc['month']);
+                });
             }
+        });
 
-            $persistedEvent = $query->first();
+        $persistedEvents = $query->get()->groupBy(fn($e) => $e->date->format('Y-m'));
+
+        foreach ($monthsToCheck as $mc) {
+            $key = sprintf('%d-%02d', $mc['year'], $mc['month']);
+            $persistedEvent = $persistedEvents->get($key)?->first();
 
             if ($persistedEvent) {
                 $totalAmount = $persistedEvent->entries->sum('amount');
@@ -202,7 +231,7 @@ class EventGenerationService
                 }
                 $amounts->push($totalAmount);
             } else {
-                $forecastedAmount = $this->calculateForecastedAmount($header, $checkDate->year, $checkDate->month);
+                $forecastedAmount = $this->calculateForecastedAmount($header, $mc['year'], $mc['month']);
                 if ($forecastedAmount !== null) {
                     $amounts->push($forecastedAmount);
                 }

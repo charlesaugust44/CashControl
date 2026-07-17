@@ -16,12 +16,17 @@ RUN apk add --no-cache \
     libpng-dev \
     libxml2-dev \
     libzip-dev \
+    libmemcached-dev \
+    zlib-dev \
     nginx \
     oniguruma-dev \
     sqlite-dev \
     supervisor \
     zip \
-    unzip
+    unzip \
+    autoconf \
+    g++ \
+    make
 
 RUN docker-php-ext-install \
     pdo_sqlite \
@@ -30,6 +35,11 @@ RUN docker-php-ext-install \
     xml \
     zip \
     opcache
+
+RUN wget -O /tmp/memcached.tgz https://pecl.php.net/get/memcached-3.3.0.tgz \
+    && pecl install /tmp/memcached.tgz \
+    && docker-php-ext-enable memcached \
+    && rm -f /tmp/memcached.tgz
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -54,6 +64,7 @@ RUN mkdir -p storage/app/public \
     && chmod -R 775 storage bootstrap/cache
 
 COPY docker/nginx/nginx.conf /etc/nginx/http.d/default.conf
+COPY docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
@@ -69,8 +80,6 @@ RUN chown -R 1000:1000 /var/www/html \
     && chown -R 1000:1000 /var/lib/nginx \
     && chown -R 1000:1000 /var/log/nginx \
     && chown -R 1000:1000 /run/nginx
-
-USER 1000:1000
 
 EXPOSE 443
 

@@ -10,6 +10,7 @@ use App\Support\UnityContext;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class MonthClosureService
 {
@@ -44,6 +45,8 @@ class MonthClosureService
             $asset->closed_up_to = $closeDate;
             $asset->save();
         }
+
+        $this->clearAllCache();
     }
 
     public function reopenLastMonth(): void
@@ -75,6 +78,8 @@ class MonthClosureService
         foreach ($events as $event) {
             $this->getConsolidationService()->unconsolidateEvent($event->id);
         }
+
+        $this->clearAllCache();
     }
 
     public function isMonthClosed(?int $year, ?int $month): bool
@@ -172,5 +177,11 @@ class MonthClosureService
         }
 
         return $query->get();
+    }
+
+    private function clearAllCache(): void
+    {
+        Cache::tags(['events', 'forecast'])->flush();
+        BalanceService::clearCache();
     }
 }

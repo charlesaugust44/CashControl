@@ -8,6 +8,7 @@ use App\Repositories\EntryRepository;
 use App\Repositories\EventRepository;
 use App\Support\UnityContext;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class BalanceService
 {
@@ -15,6 +16,7 @@ class BalanceService
     private EventRepository $eventRepository;
     private EventService $eventService;
     private UnityContext $unityContext;
+    private static ?\Illuminate\Support\Collection $scopedAssetsCache = null;
 
     public function __construct(UnityContext $unityContext)
     {
@@ -30,6 +32,15 @@ class BalanceService
     }
 
     public function getForecastBalance(Asset $asset, int $year, int $month): float
+    {
+        $cacheKey = $this->buildCacheKey("forecast:{$asset->id}:{$year}-{$month}");
+        
+        return Cache::tags(['forecast'])->remember($cacheKey, now()->addHours(24), function () use ($asset, $year, $month) {
+            return $this->calculateForecastBalance($asset, $year, $month);
+        });
+    }
+
+    private function calculateForecastBalance(Asset $asset, int $year, int $month): float
     {
         $actual = $this->getActualBalance($asset);
 
@@ -217,18 +228,32 @@ class BalanceService
         $referenceDate = $referenceDate ?? now();
         $data = ['labels' => [], 'balances' => []];
 
+        $startDate = $referenceDate->copy()->subMonths($months - 1)->startOfMonth();
+        $endDate = $referenceDate->copy()->endOfMonth();
+
+        $query = \App\Models\Entry::query()
+            ->join('events', 'entries.event_id', '=', 'events.id')
+            ->where('events.consolidated', true)
+            ->where('events.date', '>=', $startDate)
+            ->where('events.date', '<=', $endDate);
+
+        if ($this->unityContext->has()) {
+            $query->where('events.unity_id', $this->unityContext->id());
+        }
+
+        $entries = $query->selectRaw('events.date, entries.amount')
+            ->get();
+
+        $monthlyTotals = $entries->groupBy(fn($entry) => \Carbon\Carbon::parse($entry->date)->format('Y-m'))
+            ->map(fn($entries) => $entries->sum('amount'));
+
         for ($i = $months - 1; $i >= 0; $i--) {
             $date = $referenceDate->copy()->subMonths($i);
             $label = $date->translatedFormat('M Y');
             $data['labels'][] = $label;
 
-            $total = 0;
-            foreach ($this->getScopedAssets() as $asset) {
-                $history = $this->getBalanceHistory($asset);
-                $key = $date->format('Y-m');
-                $total += (float) ($history[$key] ?? 0);
-            }
-            $data['balances'][] = round($total, 2);
+            $key = $date->format('Y-m');
+            $data['balances'][] = round((float) ($monthlyTotals[$key] ?? 0), 2);
         }
 
         return $data;
@@ -337,12 +362,33 @@ class BalanceService
 
     private function getScopedAssets(): \Illuminate\Support\Collection
     {
+        if (self::$scopedAssetsCache !== null) {
+            return self::$scopedAssetsCache;
+        }
+
         $query = Asset::query();
 
         if ($this->unityContext->has()) {
             $query->where('unity_id', $this->unityContext->id());
         }
 
-        return $query->get();
+        self::$scopedAssetsCache = $query->get();
+        return self::$scopedAssetsCache;
+    }
+
+    public static function clearCache(): void
+    {
+        self::$scopedAssetsCache = null;
+    }
+
+    public function clearForecastCache(): void
+    {
+        Cache::tags(['forecast'])->flush();
+    }
+
+    private function buildCacheKey(string $key): string
+    {
+        $unityId = $this->unityContext->has() ? $this->unityContext->id() : 'global';
+        return "unity_{$unityId}:{$key}";
     }
 }

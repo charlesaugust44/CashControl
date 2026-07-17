@@ -9,15 +9,18 @@ use App\Repositories\EventRepository;
 use App\Support\UnityContext;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 
 class ConsolidationService
 {
     private EventRepository $eventRepository;
     private AssetRepository $assetRepository;
     private MonthClosureService $monthClosureService;
+    private UnityContext $unityContext;
 
     public function __construct(UnityContext $unityContext)
     {
+        $this->unityContext = $unityContext;
         $this->eventRepository = new EventRepository($unityContext);
         $this->assetRepository = new AssetRepository($unityContext);
         $this->monthClosureService = new MonthClosureService($unityContext);
@@ -33,6 +36,7 @@ class ConsolidationService
         $event->save();
 
         $this->updateBalanceOnConsolidate($event);
+        $this->clearRelatedCache($event->date->year, $event->date->month);
 
         return $event->fresh(['entries.asset', 'header']);
     }
@@ -51,6 +55,7 @@ class ConsolidationService
         $event->save();
 
         $this->updateBalanceForEntries($event, $event->getIncomeExpenseEntryIndices());
+        $this->clearRelatedCache($event->date->year, $event->date->month);
 
         return $event->fresh(['entries.asset', 'header']);
     }
@@ -69,6 +74,7 @@ class ConsolidationService
         $event->save();
 
         $this->updateBalanceForEntries($event, $event->getTransferEntryIndices());
+        $this->clearRelatedCache($event->date->year, $event->date->month);
 
         return $event->fresh(['entries.asset', 'header']);
     }
@@ -93,6 +99,7 @@ class ConsolidationService
             $event->consolidated = false;
         }
         $event->save();
+        $this->clearRelatedCache($event->date->year, $event->date->month);
 
         return $event->fresh(['entries.asset', 'header']);
     }
@@ -200,5 +207,13 @@ class ConsolidationService
             $asset->balance = (float) $asset->balance - (float) $entry->amount;
             $asset->save();
         }
+    }
+
+    private function clearRelatedCache(int $year, int $month): void
+    {
+        $unityId = $this->unityContext->has() ? $this->unityContext->id() : 'global';
+        Cache::tags(['events'])->forget("unity_{$unityId}:events:{$year}-{$month}");
+        Cache::tags(['forecast'])->flush();
+        BalanceService::clearCache();
     }
 }
